@@ -1,9 +1,10 @@
 import argparse
 import os, re, subprocess as sp, math
 
-def runCombine(datacard,selection,scan):
-	#~ print datacard
+def runCombine(datacard,selection,scan,single=False):
 	combineOutput=sp.check_output(["combine","-M","Asymptotic","--rMax","3","-n",(datacard.split("/")[2])[:-4],datacard])
+	if single:
+		print combineOutput
 	directory="temp/"+selection+"/"+scan+"/"
 	if not os.path.exists(directory):
 		os.makedirs(directory)

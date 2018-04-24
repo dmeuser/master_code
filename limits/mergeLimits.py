@@ -4,6 +4,7 @@ import os, re, subprocess as sp, math
 from distutils import spawn
 import ROOT as rt
 import argparse
+import sys
 
 def getMasses(point):
 	if sScan=="T5Wg" : pattern="datacard_T5Wg_(.*)_(.*)"
@@ -11,7 +12,16 @@ def getMasses(point):
 	elif sScan=="GGM_M1_M3" : pattern="datacard_GGM_M1_M3_(.*)_(.*)"
 	elif sScan=="TChiNg_BR" : pattern="datacard_TChiNg_BR_(.*)_(.*)"
 	elif sScan=="CharginoBR" : pattern="datacard_CharginoBR_(.*)_(.*)"
+	elif sScan=="T6Wg" : pattern="datacard_T6Wg_(.*)_(.*)"
+	elif sScan=="T6gg" : pattern="datacard_T6gg_(.*)_(.*)"
+	elif sScan=="T5gg" : pattern="datacard_T5gg_(.*)_(.*)"
 	if sScan=="T5Wg" and selection=="lepton" : pattern="counting_t5Wg_(.*)_(.*)"
+	if sScan=="T5Wg" and selection=="htg" : pattern="Wg_(.*)_(.*)"
+	if sScan=="T6gg" and selection=="htg" : pattern="(.*)_(.*)"
+	if sScan=="T5gg" and selection=="htg" : pattern="(.*)_(.*)"
+	if sScan=="T6Wg" and selection=="htg" : pattern="(.*)_(.*)"
+	if sScan=="GGM_M1_M2" and selection=="htg" : pattern="(.*)_(.*)"
+	if sScan=="GGM_M1_M3" and selection=="htg" : pattern="(.*)_(.*)"
 	m=re.search(pattern,point)
 	masses=[]
 	if m and (len(m.groups())==2):
@@ -43,8 +53,13 @@ def translateCombineOutput(output):
 	return limit
 
 def readInOutput(datacard,scan,selection):
-	f=open("temp/"+selection+"/"+scan+"/"+selection+"_combineOut_"+datacard.split("/")[2],"r")
-	output=f.readlines()
+	my_file = "temp/"+selection+"/"+scan+"/"+selection+"_combineOut_"+datacard.split("/")[2]
+	output=""
+	if os.path.isfile(my_file):
+		f=open(my_file,"r")
+		output=f.readlines()
+	else:
+		missingCards.append(datacard.split("/")[-1])
 	return output
 
 
@@ -58,12 +73,15 @@ def mergeLimits():
 	elif sScan=="GGM_M1_M3": xsecFile="input/xsec_GGM_M1_M3.txt"
 	elif sScan=="TChiNg_BR": xsecFile="input/xsec_comb_wino.csv"
 	elif sScan=="CharginoBR": xsecFile="input/xsec_N2C1_wino.csv"
+	elif sScan=="T6Wg": xsecFile="input/xsec_sqsq.csv"
+	elif sScan=="T6gg": xsecFile="input/xsec_sqsq.csv"
+	elif sScan=="T5gg": xsecFile="input/xsec_gluglu.csv"
 
 	points=[]
 	i=0
 	m1_lim=0
 	m2_lim=0
-	if sScan=="T5Wg" and selection!="leptonVeto_test":
+	if (sScan=="T5Wg" or sScan=="T5gg") and selection!="leptonVeto_test":
 		m2_lim=1100
 	elif sScan=="GGM_M1_M2":
 		m1_lim=200
@@ -72,18 +90,19 @@ def mergeLimits():
 		m1_lim=150
 	for p in os.listdir("./input/"+sScan+"_"+selection+""):
 		p=p.split(".")[0]
-		if sScan=="T5Wg" or sScan=="TChiNg_BR"or sScan=="Chargino_BR":
+		if sScan=="T5Wg" or sScan=="TChiNg_BR"or sScan=="CharginoBR" or sScan=="T5gg":
 			m2,m1=getMasses(p)
 		else:
 			m1,m2=getMasses(p)
 		if m2<m2_lim or m1<m1_lim: continue
+		if sScan=="CharginoBR" and selection=="lepton" and (m1==0 or m1==100): continue
 		points.append(p)
 		i+=1
 		#~ if i==6:break
 
 	xsec={}
 	xsec_err={}
-	if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR":
+	if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR" or sScan=="T6Wg" or sScan=="T6gg" or sScan=="T5gg":
 		with open(xsecFile) as f:
 			for line in f:
 				if line.startswith("#"): continue
@@ -102,11 +121,13 @@ def mergeLimits():
 	gr={}
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs"]:
 		gr[lvl]=rt.TGraph2D()
-	if sScan=="T5Wg": h_exp =rt.TH2F("","",18,0,2500,21,0,2150)
+	if sScan=="T5Wg" or sScan=="T5gg": h_exp =rt.TH2F("","",18,0,2500,21,0,2150)
 	elif sScan=="GGM_M1_M2": h_exp =rt.TH2F("","",27,175,1525,27,175,1525)
 	elif sScan=="GGM_M1_M3": h_exp =rt.TH2F("","",30,25,1525,31,975,2525)
 	elif sScan=="TChiNg_BR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
 	elif sScan=="CharginoBR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
+	elif sScan=="T6Wg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
+	elif sScan=="T6gg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
 	
 	h_obs   =rt.TH2F(h_exp)
 	h_obs_m1   =rt.TH2F(h_exp)
@@ -280,7 +301,11 @@ def smoothContour_knut(gr, neighbors=5, sigma=.5):
     Ys = [gr.GetY()[i] for i in range(n)]
     n1 = Ys.index(max(Ys))+1
     n2 = Ys.index(min(Ys))+1
-    n=max(n1,n2)
+    nY=max(n1,n2)
+    n1 = Xs.index(max(Xs))+1
+    n2 = Xs.index(min(Xs))+1
+    nX=max(n1,n2)
+    n=max(nX,nY)
     Xs = Xs[0:n]
     Ys = Ys[0:n]
     for i, (x, y) in enumerate(zip(Xs,Ys)):
@@ -302,15 +327,11 @@ def smoothContours():
 	f=rt.TFile(outdir+"limits_%s_"%sScan+selection+".root","update")
 	gs=rt.TGraphSmooth()
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2"]:
-		if sScan.find("GGM")==-1 :
-			gr=f.Get("gr_"+lvl+"C")
-			#~ gr_sm=gs.SmoothLowess(gr)
-			#~ gr_sm=gs.Approx(gr)
-			#~ gr_sm=gs.SmoothSuper(gr)
-			gr_sm=smoothContour_knut(gr)
-		else :
-			gr=f.Get("gr_"+lvl+"C")
-			gr_sm=gr
+		gr=f.Get("gr_"+lvl+"C")
+		#~ gr_sm=gs.SmoothLowess(gr)
+		#~ gr_sm=gs.Approx(gr)
+		#~ gr_sm=gs.SmoothSuper(gr)
+		gr_sm=smoothContour_knut(gr)
 		gr_sm.Write("gr_"+lvl+"C_sm",rt.TObject.kOverwrite)
 	f.Close()
 
@@ -322,6 +343,8 @@ if __name__ == "__main__":
 	parser.add_argument('outdir', nargs='?', default="output/", help="output or test")
 	args = parser.parse_args()
 	
+	missingCards=[]
+	
 	outdir=args.outdir
 	selection=args.selection
 	sScan=args.scan
@@ -330,5 +353,8 @@ if __name__ == "__main__":
 	getContours()
 	redoHistogram()
 	smoothContours()
+	
+	for card in missingCards:
+		sys.stdout.write(card+" ")
 
 

@@ -79,6 +79,9 @@ class MyDatacard(Datacard):
 
 
     def write(self, filename=""):
+        
+        print self.bins
+        
         maxInfoLen = max( [len(line[0])+7 for line in self.systs])
         out = ""
         out += "\nimax "+str(len(self.bins))
@@ -98,7 +101,10 @@ class MyDatacard(Datacard):
         table.append(["rate", ""] + [str(round(self.exp[bN][processNames[i]],3)) for i, bN in enumerate(binNames)])
         for line in self.systs:
             relUncerts = [line[4][bN][processNames[i]] for i, bN in enumerate(binNames)]
-            table.append([line[0], line[2]] + ["-" if x==1 or x==0 else str(round(x,3)) for x in relUncerts])
+            templine = line[2]
+            if len(line[3])==1:
+                templine = line[2]+" "+str(line[3][0])
+            table.append([line[0], templine] + ["-" if x==1 or x==0 else str(round(x,3)) for x in relUncerts])
         # format lengts of strings
         columnWidths = [max([len(i) for i in line]) for line in zip(*table)]
         for irow, row in enumerate(table):
@@ -110,7 +116,7 @@ class MyDatacard(Datacard):
         if filename:
             with open(filename, "wb") as f:
                 f.write(out)
-                print "Writing to file:", filename
+                #~ print "Writing to file:", filename
         else:
             print out
 
@@ -196,4 +202,13 @@ class MyDatacard(Datacard):
             temp = systDict[uncName][4][binName][processName]
             temp = (temp-1)*self.exp[binName][processName]
         return temp
+        
+    def renameUncertainty(self,uncNameOld,uncNameNew):
+        found=False
+        for line in self.systs:
+            if line[0]==uncNameOld:
+                self.systs[self.systs.index(line)][0]=uncNameNew
+                found=True
+                break
+        return found
 

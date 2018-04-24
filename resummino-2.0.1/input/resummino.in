@@ -56,8 +56,8 @@ slha = out_M1_1000M2_550.slha
 pdf_format = lhgrid  # lhgrid or lhpdf
 pdf_lo     = MSTW2008lo90cl
 pdfset_lo  = 0
-pdf_nlo     = NNPDF30_nlo_as_0117_cms
-pdfset_nlo = 0
+pdf_nlo     = PDF4LHC15_nlo_mc
+pdfset_nlo = 100
 
 #scale factors 
 # (1.0 is central scale mu = (m1 + m2) / 2)
