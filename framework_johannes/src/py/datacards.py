@@ -505,11 +505,11 @@ def fillDatacards(scan,SignalTree):
 
 if __name__ == '__main__':
     #~ selection="exclusiv"
-    selection="inclusiv"
+    #~ selection="inclusiv"
     #~ selection="htgVeto"
     #~ selection="leptonVeto"
     #~ selection="diphotonVeto"
-    #~ selection="htgHighVeto"
+    selection="htgHighVeto"
     #~ selection="htgHighLeptonVeto"
     basedir="../"
     outdir=basedir+"output/"
@@ -523,7 +523,7 @@ if __name__ == '__main__':
     #~ fillDatacards(Scan.TChiWg,False)
     #~ fillDatacards(Scan.TChiNg,False)
     #~ fillDatacards(Scan.GGM_M1_M2,True)
-    #~ fillDatacards(Scan.GGM_M1_M3,True)
+    fillDatacards(Scan.GGM_M1_M3,True)
     #~ fillDatacards(Scan.TChiNg_gg,False)
     #~ fillDatacards(Scan.TChiNg_gz,False)
     #~ fillDatacards(Scan.TChiNg_zz,False)

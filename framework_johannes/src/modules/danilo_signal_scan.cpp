@@ -226,7 +226,7 @@ void runScan_80X(Scan_t scan,int selection)
    tree->SetBranchAddress("evtNo", &evtNo);
 
    std::string model= "";
-   std::map<std::string,int> miAcc,PVlowAll,PVhighAll,PVlowSR,PVhighSR;
+   std::map<std::string,int> miAcc,miAccBin3,miAccBin4,PVlowAll,PVhighAll,PVlowSR,PVhighSR;
    int iFastSimVeto=0;
    int iBeforeVeto=0;
    
@@ -304,6 +304,8 @@ void runScan_80X(Scan_t scan,int selection)
          
 
          miAcc[model]=0;
+         miAccBin3[model]=0;
+         miAccBin4[model]=0;
          PVlowAll[model]=0;
          PVhighAll[model]=0;
          PVlowSR[model]=0;              
@@ -658,6 +660,14 @@ void runScan_80X(Scan_t scan,int selection)
       //adjust genMET study for MET uncertainty -> selection with gen met
       if (MET->p.Pt()>300 && MT>300 && STg>600) {
          miAcc[model]++;
+         if (STg>1000) {
+            if (STg<1300) {
+               miAccBin3[model]++;
+            }
+            else {
+               miAccBin4[model]++;
+            }
+         }
          if (nGoodVertices < 17){
             PVlowSR[model]++;
          }
@@ -739,11 +749,15 @@ void runScan_80X(Scan_t scan,int selection)
    std::map<TString,TGraph2D> grScaleUnc;
    std::map<TString,TGraph2D> grCont;
    std::map<TString,TGraph2D> grNevents;
+   std::map<TString,TGraph2D> grNeventsBin3;
+   std::map<TString,TGraph2D> grNeventsBin4;
    
    std::map<TString,TGraph> grAcc1D;
    std::map<TString,TGraph> grScaleUnc1D;
    std::map<TString,TGraph> grCont1D;
    std::map<TString,TGraph> grNevents1D;
+   std::map<TString,TGraph> grNevents1DBin3;
+   std::map<TString,TGraph> grNevents1DBin4;
 
    std::string out;
    
@@ -908,11 +922,15 @@ void runScan_80X(Scan_t scan,int selection)
       if (scan == TChiNg || scan == TChiWg) {
          grAcc1D[sScan].SetPoint(grAcc1D[sScan].GetN(),x,float(miAcc[model])/Ngen);
          grNevents1D[sScan].SetPoint(grNevents1D[sScan].GetN(),x,miAcc[model]);
+         grNevents1DBin3[sScan].SetPoint(grNevents1DBin3[sScan].GetN(),x,miAccBin3[model]);
+         grNevents1DBin4[sScan].SetPoint(grNevents1DBin4[sScan].GetN(),x,miAccBin4[model]);
          grScaleUnc1D[sScan].SetPoint(grScaleUnc1D[sScan].GetN(),x,scaleUnc);
       }
       else {
          grAcc[sScan].SetPoint(grAcc[sScan].GetN(),x,y,float(miAcc[model])/Ngen);
          grNevents[sScan].SetPoint(grNevents[sScan].GetN(),x,y,miAcc[model]);
+         grNeventsBin3[sScan].SetPoint(grNeventsBin3[sScan].GetN(),x,y,miAccBin3[model]);
+         grNeventsBin4[sScan].SetPoint(grNeventsBin4[sScan].GetN(),x,y,miAccBin4[model]);
          grScaleUnc[sScan].SetPoint(grScaleUnc[sScan].GetN(),x,y,scaleUnc);
       }
       
@@ -946,11 +964,15 @@ void runScan_80X(Scan_t scan,int selection)
    if (scan == TChiNg || scan == TChiWg) {
       saver_hist.save(grAcc1D[sScan],sVar+"/"+sScan+"_acceptance");
       saver_hist.save(grNevents1D[sScan],sVar+"/"+sScan+"_nEvents");
+      saver_hist.save(grNevents1DBin3[sScan],sVar+"/"+sScan+"_nEventsBin3");
+      saver_hist.save(grNevents1DBin4[sScan],sVar+"/"+sScan+"_nEventsBin4");
       saver_hist.save(grScaleUnc1D[sScan],sVar+"/"+sScan+"_scaleUnc");
    }
    else {
       saver_hist.save(grAcc[sScan],sVar+"/"+sScan+"_acceptance");
       saver_hist.save(grNevents[sScan],sVar+"/"+sScan+"_nEvents");
+      saver_hist.save(grNeventsBin3[sScan],sVar+"/"+sScan+"_nEventsBin3");
+      saver_hist.save(grNeventsBin4[sScan],sVar+"/"+sScan+"_nEventsBin4");
       saver_hist.save(grScaleUnc[sScan],sVar+"/"+sScan+"_scaleUnc");
    }
    sVar=sScan+"/pre_ph165/c_MET100/MT100/METl300vMTl300/absphiMETnJetPh";
@@ -976,13 +998,13 @@ void run()
    //~ runScan_80X(TChiWg,4);
    //~ runScan_80X(TChiWg,5);
     //~ runScan_80X(TChiNg,5);
-    runScan_80X(T5gg,0);
+    //~ runScan_80X(T5gg,5);
     //~ runScan_80X(T5Wg,6);
-   //~ runScan_80X(T6Wg,4);
-    runScan_80X(T6gg,0);
+   //~ runScan_80X(T6Wg,5);
+    //~ runScan_80X(T6gg,5);
   //~ runScan_80X(GGM,0);
-   //~ runScan_80X(GGM_M1_M2,0);
-   //~ runScan_80X(GGM_M1_M3,0);
+   runScan_80X(GGM_M1_M2,0);
+   //~ runScan_80X(GGM_M1_M3,5);
    //~ runScan_80X(GGM_M1_M3,2);
    //~ runScan_80X(GGM_M1_M3,3);
    //~ runScan_80X(GGM_M1_M3,4);
