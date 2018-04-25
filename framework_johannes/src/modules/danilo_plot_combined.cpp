@@ -369,14 +369,16 @@ int plot_leptonVeto_FullLepton_corrCheck(){
 	TCanvas can;
 	
 	TFile file_1("../input/limits/limits_T5Wg_leptonVeto_leptonFull.root","read");
-	TFile file_2("../input/limits/limits_T5Wg_leptonVeto_leptonFull_corrVgEfake.root","read");
+	TFile file_2("../input/limits/limits_T5Wg_leptonVeto_leptonFull_corrRare.root","read");
 	TFile file_3("../input/limits/limits_T5Wg_leptonVeto_leptonFull_corrVg.root","read");
 	TFile file_4("../input/limits/limits_T5Wg_leptonVeto_leptonFull_corrEfake.root","read");
+	TFile file_5("../input/limits/limits_T5Wg_leptonVeto_leptonFull_corrJetFake.root","read");
 	
 	TGraph *initial = (TGraph*) file_1.Get("gr_expC_sm");
-	TGraph *VgEfake = (TGraph*) file_2.Get("gr_expC_sm");
+	TGraph *Rare = (TGraph*) file_2.Get("gr_expC_sm");
 	TGraph *Vg = (TGraph*) file_3.Get("gr_expC_sm");
 	TGraph *Efake = (TGraph*) file_4.Get("gr_expC_sm");
+	TGraph *JetFake = (TGraph*) file_5.Get("gr_expC_sm");
 	TGraph *diag = new TGraph();
 	
 	diag->SetPoint(1,500,500);
@@ -389,10 +391,10 @@ int plot_leptonVeto_FullLepton_corrCheck(){
 	initial->SetLineStyle(2);
 	initial->Draw();
 	
-	VgEfake->SetLineColor(kBlue);
-	VgEfake->SetLineWidth(3);
-	VgEfake->SetLineStyle(2);
-	VgEfake->Draw("same");
+	Rare->SetLineColor(kBlue);
+	Rare->SetLineWidth(3);
+	Rare->SetLineStyle(2);
+	Rare->Draw("same");
 	
 	Vg->SetLineColor(kRed);
 	Vg->SetLineWidth(3);
@@ -404,13 +406,19 @@ int plot_leptonVeto_FullLepton_corrCheck(){
 	Efake->SetLineStyle(2);
 	Efake->Draw("same");
 	
+	JetFake->SetLineColor(kOrange);
+	JetFake->SetLineWidth(3);
+	JetFake->SetLineStyle(2);
+	JetFake->Draw("same");
+	
 	diag->Draw("same");
 	
 	gfx::LegendEntries legE;
 	legE.append(*initial,"Without correlation","l");
-	legE.append(*VgEfake,"Vg and Efake correlated","l");
 	legE.append(*Vg,"Vg correlated","l");
 	legE.append(*Efake,"Efake correlated","l");
+	legE.append(*Rare,"Rare correlated","l");
+	legE.append(*JetFake,"JetFake correlated","l");
 	TLegend leg=legE.buildLegend(.2,.7,0.92,.9,1);
 	leg.SetTextSize(0.03);
 	leg.Draw();
@@ -622,6 +630,107 @@ int plot_T5gg_htgHighVeto_htgHigh(){
 	
 	return 0;
 }
+
+int plot_T5Wg_htgHighVeto_htgHigh(){
+	io::RootFileSaver saver("plots.root",TString::Format("danilo_plot_combined%.1f/%s",cfg.processFraction*100,"Limits"));
+	TCanvas can;
+	
+	TFile file_1("../input/limits/limits_T5Wg_inclusiv.root","read");
+	TFile file_2("../input/limits/limits_T5Wg_htg.root","read");
+	TFile file_4("../input/limits/limits_T5Wg_htgHighVeto_highHtg.root","read");
+	
+	TGraph *st_exp = (TGraph*) file_1.Get("gr_expC_sm");
+	TGraph *htg_exp = (TGraph*) file_2.Get("gr_expC_sm");
+	TGraph *combined_split_exp = (TGraph*) file_4.Get("gr_expC_sm");
+	TGraph *diag = new TGraph();
+	
+	diag->SetPoint(1,500,500);
+	diag->SetPoint(2,2200,2200);
+	
+	st_exp->SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	
+	st_exp->SetLineColor(kGreen);
+	st_exp->SetLineWidth(3);
+	st_exp->SetLineStyle(2);
+	st_exp->Draw();
+	
+	htg_exp->SetLineColor(kBlue);
+	htg_exp->SetLineWidth(3);
+	htg_exp->SetLineStyle(2);
+	htg_exp->Draw("same");
+	
+	combined_split_exp->SetLineColor(kRed);
+	combined_split_exp->SetLineWidth(3);
+	combined_split_exp->SetLineStyle(2);
+	combined_split_exp->Draw("same");
+	
+	diag->Draw("same");
+	
+	gfx::LegendEntries legE;
+	legE.append(*st_exp,"Photon+ST (exp)","l");
+	legE.append(*htg_exp,"Photon+HTG (exp)","l");
+	legE.append(*combined_split_exp,"Combined (exp)","l");
+	TLegend leg=legE.buildLegend(.2,.7,0.92,.9,1);
+	leg.SetTextSize(0.03);
+	leg.Draw();
+	
+	saver.save(can,"Limits_T5Wg_combine_ST_HTG_2",true,false);
+	
+	return 0;
+}
+
+int plot_GGM_htgHighVeto_htgHigh(){
+	io::RootFileSaver saver("plots.root",TString::Format("danilo_plot_combined%.1f/%s",cfg.processFraction*100,"Limits"));
+	TCanvas can;
+	
+	TFile file_1("../input/limits/limits_GGM_M1_M2_inclusiv.root","read");
+	TFile file_2("../input/limits/limits_GGM_M1_M2_htg.root","read");
+	TFile file_4("../input/limits/limits_GGM_M1_M2_htgHighVeto_htgHigh.root","read");
+	
+	
+	TGraph *st_exp = (TGraph*) file_1.Get("gr_expC");
+	TGraph *st_exp_extra = (TGraph*) file_1.Get("multicont_gr_8");
+	TGraph *htg_exp = (TGraph*) file_2.Get("gr_expC");
+	TGraph *combined_exp = (TGraph*) file_4.Get("gr_expC");
+	TGraph *combined_exp_extra = (TGraph*) file_4.Get("multicont_gr_8");
+
+	st_exp->SetTitle(";M1 (GeV);M2 (GeV)");
+	
+	st_exp->SetLineColor(kGreen);
+	st_exp->SetLineWidth(3);
+	st_exp->SetLineStyle(2);
+	st_exp->Draw();
+	st_exp_extra->SetLineColor(kGreen);
+	st_exp_extra->SetLineWidth(3);
+	st_exp_extra->SetLineStyle(2);
+	st_exp_extra->Draw("same");
+	
+	htg_exp->SetLineColor(kBlue);
+	htg_exp->SetLineWidth(3);
+	htg_exp->SetLineStyle(2);
+	htg_exp->Draw("same");
+	
+	combined_exp->SetLineColor(kRed);
+	combined_exp->SetLineWidth(3);
+	combined_exp->SetLineStyle(2);
+	combined_exp->Draw("same");
+	combined_exp_extra->SetLineColor(kRed);
+	combined_exp_extra->SetLineWidth(3);
+	combined_exp_extra->SetLineStyle(2);
+	combined_exp_extra->Draw("same");
+ 
+	gfx::LegendEntries legE;
+	legE.append(*st_exp,"Photon+ST (exp)","l");
+	legE.append(*htg_exp,"Photon+HTG (exp)","l");
+	legE.append(*combined_exp,"Combined (exp)","l");
+	TLegend leg=legE.buildLegend(.2,.7,0.92,.9,1);
+	leg.SetTextSize(0.03);
+	leg.Draw();
+	
+	saver.save(can,"Limits_GGM_combine_ST_HTG",true,false);
+	
+	return 0;
+}
 extern "C"
 
 void run(){
@@ -635,5 +744,7 @@ void run(){
 	//~ plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh();
 	//~ plot_T6gg_htgHighVeto_htgHigh();
 	//~ plot_T6Wg_htgHighVeto_htgHigh();
-	plot_T5gg_htgHighVeto_htgHigh();
+	//~ plot_T5gg_htgHighVeto_htgHigh();
+	//~ plot_T5Wg_htgHighVeto_htgHigh();
+	plot_GGM_htgHighVeto_htgHigh();
 }
