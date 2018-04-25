@@ -224,15 +224,15 @@ def getContour(gr2):
 		print "GetContourList failed"
 		return None
 		
-def getContourHS(hist):
+def getContourHS(hist,lvl=""):
 	
 	print hist
-	#~ for i in xrange(hist.GetNbinsX()+1):
-		#~ for j in xrange(hist.GetNbinsY()+1):
-			#~ if hist.GetBinContent(i,j)<1 :
-				#~ hist.SetBinContent(i,j,0)
-			#~ else :
-				#~ hist.SetBinContent(i,j,2)
+	for i in xrange(hist.GetNbinsX()+1):
+		for j in xrange(hist.GetNbinsY()+1):
+			if hist.GetBinContent(i,j)<1 :
+				hist.SetBinContent(i,j,0)
+			else :
+				hist.SetBinContent(i,j,2)
 	
 	c=rt.TCanvas()
 	c.cd()
@@ -242,6 +242,12 @@ def getContourHS(hist):
 	c.Update()
 	conts=rt.gROOT.GetListOfSpecials().FindObject("contours")
 	cont=conts.At(0)
+	
+	if sScan=="GGM_M1_M2" and lvl=="exp":
+		i=1
+		for ci in cont:
+			ci.Write("multicont_gr_"+str(i),rt.TObject.kOverwrite)
+			i+=1
 	
 	if cont and len(cont)>0:
 		N=0
@@ -267,9 +273,11 @@ def getContours(flag=""):
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2"]:
 		
 		if flag=="hist" :
+			print "hist contouring"
 			hs=f.Get("h_"+lvl)
-			grC=getContourHS(hs)
+			grC=getContourHS(hs,lvl)
 		elif flag=="inter" :
+			print "inter contouring"
 			gr=f.Get("gr_"+lvl)
 			grC,hsInter=getContourInter(gr)
 			hsInter.Write("hs_inter"+lvl,rt.TObject.kOverwrite)
@@ -341,6 +349,7 @@ if __name__ == "__main__":
 	parser.add_argument('scan', nargs='?', help="choose a signal scan")
 	parser.add_argument('selection', nargs='?', help="choose as selection like leptonVeto, htgVeto etc.")
 	parser.add_argument('outdir', nargs='?', default="output/", help="output or test")
+	parser.add_argument('--contourtype', type=str, default="", help="hist or inter (inter uses finer binning than default)")
 	args = parser.parse_args()
 	
 	missingCards=[]
@@ -348,9 +357,12 @@ if __name__ == "__main__":
 	outdir=args.outdir
 	selection=args.selection
 	sScan=args.scan
+	contourtype=args.contourtype#
+	
+	print contourtype
 
 	mergeLimits()
-	getContours()
+	getContours(contourtype)
 	redoHistogram()
 	smoothContours()
 	

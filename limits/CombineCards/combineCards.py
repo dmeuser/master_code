@@ -34,7 +34,7 @@ def combine(mass,path1,path2,output,ignore,corr):
 	
 	if path2.find("knut")!=-1 and sScan=="T5Wg":
 		n2=path2+"/Wg_"+mass+".txt"
-	elif path2.find("lepton_")!=-1:
+	elif path2.find("lepton")!=-1:
 		if sScan=="T5Wg":
 			n2=path2+"/counting_t5Wg_"+mass+".txt"
 		elif sScan=="CharginoBR":
