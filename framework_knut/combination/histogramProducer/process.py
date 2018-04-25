@@ -111,12 +111,13 @@ ds={
         #~ "SMS-T6Wg_nTuple.root",
         #~ "SMS-T6Wg_mSq1850To2150_nTuple.root",
         #~ "GGM_GravitinoLSP_M1-200to1500_M2-200to1500_nTuple.root",
-        "GGM_GravitinoLSP_M1-50to1500_M3-1000to2500_nTuple.root",
+        #~ "GGM_GravitinoLSP_M1-50to1500_M3-1000to2500_nTuple.root",
         #~ "SMS-TChiNG_BF50N50G_nTuple.root",
+        "SMS-TChiWG.root",
         ],
 }
-#~ dir = "/user/kiesel/nTuples/v22/"
-dir = "/net/data_cms1b/user/kiesel/v26/"
+#~ dir = "/net/data_cms1b/user/kiesel/v26/"
+dir = "/net/data_cms1b/user/dmeuser/master/data_knut/v26/"
 
 #############################################
 # Select datasets to process

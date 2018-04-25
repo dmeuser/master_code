@@ -551,6 +551,7 @@ void save2File(const map<string,map<string,T>>& hMaps, TFile& file)
 void CombinationHistogramProducer::Terminate()
 {
   auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
+  //~ auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
   TFile file(outputName.c_str(), "RECREATE");
 
   for (auto& spIt : nominalHists_) {
@@ -635,9 +636,12 @@ int main(int argc, char** argv) {
   for (int i=1;i<argc;i++) {
     ch.AddFile(argv[i]);
   }
+  std::cout<<argc<<std::endl;
+  std::cout<<argv[1]<<std::endl;
   chp.Init(&ch);
   chp.SlaveBegin(&ch);
   for(unsigned i=0; i<ch.GetEntries(); i++) {
+  //~ for(unsigned i=0; i<100; i++) {
     chp.Process(i);
   }
   for (int i=1;i<argc;i++) {
