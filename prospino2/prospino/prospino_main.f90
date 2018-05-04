@@ -3,10 +3,12 @@ program main
   use xx_prospino_subroutine
   implicit none
 
-  integer                              :: inlo,isq_ng_in,icoll_in,i_error_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in
+  integer                              :: inlo,isq_ng_in,icoll_in,i_error_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in,pdf_rep
   real(kind=double)                    :: energy_in
   logical                              :: lfinal
   character(len=2)                     :: final_state_in
+  character(len=4)                     :: arg
+  character(len=32)                    :: arg2,pdf
 
 !----------------------------------------------------------------------------
   inlo = 0       ! specify LO only[0] or complete NLO (slower)[1]           !
@@ -106,8 +108,24 @@ program main
 !  flavors in final state: light-flavor quarks summed over five flavors     !
 !                                                                           !
 !----------------------------------------------------------------------------
+
+!----------------------------------------------------------------------------
+  pdf = "PDF4LHC15_nlo_mc"                                                  !                                                          
+!                                                                           !
+!   pdf has to be present in main folder als LHAPDF grid directory          !
+!                                                                           !
+!----------------------------------------------------------------------------
+
+  call getarg(1,arg)
+  call getarg(2,arg2)
+  read (arg,'(I4)') pdf_rep
+  print *, "slha file = " // arg2
+  print *, "PDF = " // pdf
+  print *, "PDF replica no = " // arg
   
-  call PROSPINO_OPEN_CLOSE(0)                                                            ! open all input/output files
+  call initnnset(trim(pdf),pdf_rep)
+  
+  call PROSPINO_OPEN_CLOSE(0,arg2,arg)                                                            ! open all input/output files
   
   !~   final_state_in = 'ng'
 !~   do ipart1_in = 1,8,1
@@ -118,18 +136,15 @@ program main
 !~   do ipart1_in = 1,8,1
 !~      call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
 !~   end do
-!~   call initnnset("NNPDF30_nlo_as_0118")
-  call initnnset("cteq66")
-  call initpdf(0)
   final_state_in = 'nn'
-!~   ipart1_in = 5
-!~   ipart2_in = 7
-!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
-  do ipart1_in = 1,8,1
-     do ipart2_in = 1,ipart1_in,1
-        call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
-     end do
-  end do
+  ipart1_in = 5
+  ipart2_in = 7
+  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+!~   do ipart1_in = 1,8,1
+!~      do ipart2_in = 1,ipart1_in,1
+!~         call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
+!~      end do
+!~   end do
   
 !~   final_state_in = 'll'
 !~   do ipart1_in = 0,14,1
@@ -186,7 +201,7 @@ program main
 !               prospino.dat2  for long output including subchannels        !
 !               prospino.dat3  lo file for masses, flags, etc               !
 !----------------------------------------------------------------------------
-  call PROSPINO_OPEN_CLOSE(1)                                                            ! close all input/output files 
+  call PROSPINO_OPEN_CLOSE(1,arg2,arg)                                                            ! close all input/output files 
 
 end program main
 

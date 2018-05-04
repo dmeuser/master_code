@@ -159,15 +159,15 @@ validate:	     validate.f90  ${FILES_DIRECT} \
 #
 #
 clean:
-	rm -i ${DIRECT}*.mod ; \
-	rm -i $(DIRECT)prospino_2.run ; \
-	rm -i $(DIRECT)validate.run ; \
-	rm -i ${DIRECT}*.o ; rm -i ${DIRECT}*~ ; \
-	rm -i ${MACROS}*.o ; rm -i ${MACROS}*~ ; \
-	rm -i ${INTEGS}*.o ; rm -i ${INTEGS}*~ ; \
-	rm -i ${MATRIX}*.o ; rm -i ${MATRIX}*~ ; \
-	rm -i ${STRONG}*.o ; rm -i ${STRONG}*~ ; \
-	rm -i ${INTERF}*.o ; rm -i ${INTERF}*~   
+	rm -i -f ${DIRECT}*.mod ; \
+	rm -i -f $(DIRECT)prospino_2.run ; \
+	rm -i -f $(DIRECT)validate.run ; \
+	rm -i -f ${DIRECT}*.o ; rm -i -f ${DIRECT}*~ ; \
+	rm -i -f ${MACROS}*.o ; rm -i -f ${MACROS}*~ ; \
+	rm -i -f ${INTEGS}*.o ; rm -i -f ${INTEGS}*~ ; \
+	rm -i -f ${MATRIX}*.o ; rm -i -f ${MATRIX}*~ ; \
+	rm -i -f ${STRONG}*.o ; rm -i -f ${STRONG}*~ ; \
+	rm -i -f ${INTERF}*.o ; rm -i -f ${INTERF}*~   
 #
 # prepare all the object files from the main directory [DIRECT]
 # for DEC compiler keep them in order of dependence 

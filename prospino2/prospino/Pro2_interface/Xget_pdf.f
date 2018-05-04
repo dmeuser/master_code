@@ -58,8 +58,8 @@ ctp      end if
          
      
       do i1=-5,5,1
-         pdf(i1) = Ctq6Pdf(i1,x,mu)
-c~          pdf(i1) = NNPDF(x,mu,i1*(-1))
+c~          pdf(i1) = Ctq6Pdf(i1,x,mu)
+         pdf(i1) = NNPDF(x,mu,i1*(-1))
 ctq5         pdf(i1) = Ctq5Pdf(i1,x,mu)
          if (ldebug) print*, " GET_PDF: pdf call ",i1,pdf(i1)
       end do
