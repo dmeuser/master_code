@@ -9,7 +9,7 @@ program main
   character(len=2)                     :: final_state_in
 
 !----------------------------------------------------------------------------
-  inlo = 1       ! specify LO only[0] or complete NLO (slower)[1]           !
+  inlo = 0       ! specify LO only[0] or complete NLO (slower)[1]           !
 !                ! results: LO     - LO, degenerate squarks, decoupling on  !
 !                !          NLO    - NLO, degenerate squarks, decoupling on !
 !                !          LO_ms  - LO, free squark masses, decoupling off !
@@ -26,11 +26,11 @@ program main
 
 !----------------------------------------------------------------------------
   icoll_in = 1      ! collider : tevatron[0], lhc[1]                        !
-  energy_in = 14000 ! collider energy in GeV                                !
+  energy_in = 13000 ! collider energy in GeV                                !
 !----------------------------------------------------------------------------
 
 !----------------------------------------------------------------------------
-  i_error_in = 1    ! with central scale [0] or scale variation [1]         !
+  i_error_in = 0    ! with central scale [0] or scale variation [1]         !
 !----------------------------------------------------------------------------
 
 !----------------------------------------------------------------------------
@@ -118,8 +118,13 @@ program main
 !~   do ipart1_in = 1,8,1
 !~      call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
 !~   end do
-  
+!~   call initnnset("NNPDF30_nlo_as_0118")
+  call initnnset("cteq66")
+  call initpdf(0)
   final_state_in = 'nn'
+!~   ipart1_in = 5
+!~   ipart2_in = 7
+!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
   do ipart1_in = 1,8,1
      do ipart2_in = 1,ipart1_in,1
         call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
@@ -171,7 +176,7 @@ program main
 !     call HARD_STOP                                                                      ! finish if final state bad
 !  end if
 
-  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
+!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
         
 !----------------------------------------------------------------------------
 !  input file: prospino.in.leshouches                                       !

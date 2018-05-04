@@ -25,10 +25,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       
       integer inlo,i1
-      real*8  x,mu,pdf(-6:6),Ctq6Pdf,Ctq5Pdf
+      real*8  x,mu,pdf(-6:6),Ctq6Pdf,Ctq5Pdf,NNPDF
 
       logical ldebug
       parameter( ldebug=.false. )
+c~       parameter( ldebug=.true. )
 
       if (ldebug) print*, " GET_PDF: input parameters ",x,mu
 
@@ -58,10 +59,11 @@ ctp      end if
      
       do i1=-5,5,1
          pdf(i1) = Ctq6Pdf(i1,x,mu)
+c~          pdf(i1) = NNPDF(x,mu,i1*(-1))
 ctq5         pdf(i1) = Ctq5Pdf(i1,x,mu)
          if (ldebug) print*, " GET_PDF: pdf call ",i1,pdf(i1)
       end do
-   
+c~       call exit(1)
       return
       end
 
@@ -96,7 +98,8 @@ c   this initialization function is only needed for Cteq grids
       integer inlo
 
       if (inlo.eq.0) then 
-         call SetCtq6(4)
+c~          call SetCtq6(4)
+         call SetCtq6(400)
 ctq5         call SetCtq5(3)
       else if (inlo.eq.1) then 
          call SetCtq6(400)

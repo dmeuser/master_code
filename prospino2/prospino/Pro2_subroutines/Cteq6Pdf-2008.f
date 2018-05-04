@@ -282,6 +282,7 @@ ctp     >  ,'ctq65.', 'ctq66.' /
       save
 
 C             If data file not initialized, do so.
+      print*, Iset
       If(Iset.ne.Isetold) then
         fmtpds=.true.
 

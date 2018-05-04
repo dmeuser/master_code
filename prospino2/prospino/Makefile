@@ -43,6 +43,8 @@ FILES_MACROS = ${MACROS}Xsugra.o \
                ${MACROS}Xrunning_mass.o \
                ${MACROS}Xvegas_array.o \
 	       ${MACROS}Xread_les_houches.o \
+	       ${DIRECT}nnpdfdriver/source/testcode.o \
+	       ${DIRECT}nnpdfdriver/source/NNPDFDriver.o \
 	       ${MACROS}Cteq6Pdf-2008.o 
 #tq5	       ${MACROS}XCtq5Pdf.o 
 #tq6	       ${MACROS}XCteq61Pdf.o 
@@ -132,12 +134,12 @@ prospino:	prospino_main.f90  ${FILES_DIRECT} \
                                    ${FILES_INTEGS} \
                                    ${FILES_STRONG} \
                                    ${FILES_INTERF} 
-	${COMP} prospino_main.f90  ${FILES_DIRECT} \
+	${COMP}  prospino_main.f90 ${FILES_DIRECT} \
 	                           ${FILES_MACROS} \
                                    ${FILES_MATRIX} \
                                    ${FILES_INTEGS} \
                                    ${FILES_STRONG} \
-                                   ${FILES_INTERF} -o prospino_2.run
+                                   ${FILES_INTERF} -o prospino_2.run -lstdc++
 #
 #
 #
