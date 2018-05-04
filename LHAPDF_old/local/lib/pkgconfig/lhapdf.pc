@@ -1,0 +1,13 @@
+prefix=/home/home4/institut_1b/dmeuser/master_code/LHAPDF_old/LHAPDF-6.1.6/../local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+datarootdir=${prefix}/share
+
+Name: lhapdf
+Description: LHAPDF parton density library
+URL: https://lhapdf.hepforge.org
+Version: 6.1.6
+Libs: -L${exec_prefix}/lib -lLHAPDF
+Cflags: -I${prefix}/include
+#-I
