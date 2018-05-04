@@ -271,12 +271,14 @@ void run()
    std::ofstream lepton;
    std::ofstream diphoton;
    std::ofstream total;
+   std::ofstream CR_leptonVeto;
    
    exclusive.open(outdir + TString::Format("exclusive%.1f.txt",cfg.processFraction*100));
    htg.open(outdir + TString::Format("htg%.1f.txt",cfg.processFraction*100));
    lepton.open(outdir + TString::Format("lepton%.1f.txt",cfg.processFraction*100));
    diphoton.open(outdir + TString::Format("diphoton%.1f.txt",cfg.processFraction*100));
    total.open(outdir + TString::Format("total%.1f.txt",cfg.processFraction*100));
+   CR_leptonVeto.open(outdir + TString::Format("CR_leptonVeto%.1f.txt",cfg.processFraction*100));
 
 
  //  TH1F *trigger_photon_pt_n = new TH1F("numerator);
@@ -760,6 +762,10 @@ void run()
                      
                      if (leptoVeto == 0) {
                         hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/leptonVeto/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                        //get evtNo to check corr overlap to photon
+                        if (isData && pass==pass_normal) {
+                           CR_leptonVeto << *runNo << ":" << *lumNo << ":" << *evtNo << std::endl;
+                        }
                      }
                      
                      if (diphotonVeto == 0) {
@@ -876,6 +882,7 @@ void run()
                         if (leptoVeto == false && diphotonVeto == false && emhtVeto == false) hs.fill("pre_ph165/VR/overlap",4);
                      }
                   }
+                  
                }
                
             }
@@ -900,6 +907,7 @@ void run()
    lepton.close();
    htg.close();
    total.close();
+   CR_leptonVeto.close();
 
    // calling the "normal" histogram "hs" from here, since it's the most used
    hist::Histograms<TH1F> &hs = hs_notPix;

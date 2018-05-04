@@ -80,7 +80,6 @@ class MyDatacard(Datacard):
 
     def write(self, filename=""):
         
-        print self.bins
         
         maxInfoLen = max( [len(line[0])+7 for line in self.systs])
         out = ""

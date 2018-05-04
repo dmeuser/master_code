@@ -632,17 +632,26 @@ if __name__ == "__main__":
     #~ signalScan(t5wg, "lep_cleaned", "dataCards/final_lep_cleaned.txt", "test")
     #signalScan(t5wg, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test")
     #signalScan(t5wg, "st_cleaned", "dataCards/final_st_cleaned.txt", "test")
+    #~ signalScan(t5wg, "st_cleaned", "dataCards/final_st_cleaned.txt", "test", "gg")
     #signalScan(t5wg, "all_cleaned", "dataCards/final_all_cleaned.txt", "test")
     #~ signalScan(t5wg, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    
+    signalScan(t6wg, "st_cleaned", "dataCards/final_st_cleaned.txt", "test", "gg")
 
     # repeat with tching
-    #signalScan(tching, "original", "dataCards/final_original.txt", "test")
+    #~ signalScan(tching, "original", "dataCards/final_original.txt", "test")
     #signalScan(tching, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test")
     #signalScan(tching, "all_cleaned", "dataCards/final_all_cleaned.txt", "test")
     #signalScan(tching, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test", onlyHigh=True)
     
+    # repeat with tchiwg
+    #~ signalScan(tchiwg, "original", "dataCards/final_original.txt", "test")
+    #signalScan(tchiwg, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test")
+    #signalScan(tchiwg, "all_cleaned", "dataCards/final_all_cleaned.txt", "test")
+    #signalScan(tchiwg, "dilep_cleaned", "dataCards/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    
     # GGM scan
     #~ signalScan(ggm1, "original", "dataCards/final_original.txt", "test")
     #~ signalScan(ggm1, "original", "dataCards/final_original.txt", "test", onlyHigh=True)
-    signalScan(ggm2, "original", "dataCards/final_original.txt", "test")
-    signalScan(ggm2, "original", "dataCards/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm2, "original", "dataCards/final_original.txt", "test")
+    #~ signalScan(ggm2, "original", "dataCards/final_original.txt", "test", onlyHigh=True)

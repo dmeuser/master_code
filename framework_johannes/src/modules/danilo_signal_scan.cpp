@@ -1001,9 +1001,9 @@ void run()
     //~ runScan_80X(T5gg,5);
     //~ runScan_80X(T5Wg,6);
    //~ runScan_80X(T6Wg,5);
-    //~ runScan_80X(T6gg,5);
+    runScan_80X(T6gg,2);
   //~ runScan_80X(GGM,0);
-   runScan_80X(GGM_M1_M2,0);
+   //~ runScan_80X(GGM_M1_M2,0);
    //~ runScan_80X(GGM_M1_M3,5);
    //~ runScan_80X(GGM_M1_M3,2);
    //~ runScan_80X(GGM_M1_M3,3);

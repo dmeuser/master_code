@@ -182,6 +182,8 @@ class CombinationHistogramProducer : public TSelector {
   map<SignalPoint, int> nGens_;
 
   TTree* jCRTree_original;
+  
+  ofstream CR_leptonVeto;
 
 //  ClassDef(CombinationHistogramProducer, 1) // not for root compilation
 };

@@ -175,6 +175,7 @@ void CombinationHistogramProducer::Init(TTree *tree)
   jCRTree_original->Branch("met", &ptmiss_);
   jCRTree_original->Branch("weight", &weight_);
   jCRTree_original->Branch("lowEMHT", &isLowEmht_, "lowEMHT/O");
+  CR_leptonVeto.open("test/jCR_leptonVeto_"+getOutputFilename(inputName)+".txt");
 }
 
 void CombinationHistogramProducer::defaultSelection()
@@ -495,6 +496,12 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   weight_ = *mc_weight * *pu_weight * *hlt_ht600_pre;
   if (!selPhotons.size() && htg_ > 700 && (*hlt_ht600 || !isData)) {
     fillHistograms(Selection::original, Region::jCR, true);
+    
+    //Check overlap for jCR to study uncertainty correlations
+    bool isLepPhotonEl = isLepSel(false);
+    if (!isLepPhotonEl) {
+      CR_leptonVeto << *runNo << ":" << *lumNo << ":" << *evtNo << std::endl;
+    }
   }
   resetSelection();
   /////////////////////////////////////////////////////////////////////////////
@@ -550,8 +557,8 @@ void save2File(const map<string,map<string,T>>& hMaps, TFile& file)
 
 void CombinationHistogramProducer::Terminate()
 {
-  auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
-  //~ auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
+  //~ auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
+  auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
   TFile file(outputName.c_str(), "RECREATE");
 
   for (auto& spIt : nominalHists_) {
@@ -596,6 +603,7 @@ void CombinationHistogramProducer::Terminate()
       }
     }
   }
+  CR_leptonVeto.close();
   file.Close();
   cout << "Created " << outputName << " in " << (time(NULL) - startTime)/60 << " min" << endl;
 }
@@ -637,7 +645,6 @@ int main(int argc, char** argv) {
     ch.AddFile(argv[i]);
   }
   std::cout<<argc<<std::endl;
-  std::cout<<argv[1]<<std::endl;
   chp.Init(&ch);
   chp.SlaveBegin(&ch);
   for(unsigned i=0; i<ch.GetEntries(); i++) {

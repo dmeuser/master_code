@@ -41,8 +41,9 @@ def combine(mass,path1,path2,output,ignore,corr):
 			n2=path2+"/datacard_CharginoBR_"+mass+".txt"
 	elif path2.find("htg_leptonVeto")!=-1 and sScan=="T5Wg":
 		n2=path2+"/"+mass+".txt"
-	elif path2.find("htgHigh")!=-1:
+	elif path2.find("htgHigh")!=-1 or path2.find("stVeto")!=-1 or path2.find("htg")!=-1:
 		n2=path2+"/"+mass+".txt"
+	
 	
 	if len(corr)!=0:
 		corrpairs=[]
@@ -67,7 +68,7 @@ def combine(mass,path1,path2,output,ignore,corr):
 	for binName in ignore:
 		command=command+" --xc="+binName
 	
-	if path2.find("knut")!=-1 or path2.find("htg")!=-1:
+	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_HTG="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	elif path2.find("lepton")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_Lepton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"

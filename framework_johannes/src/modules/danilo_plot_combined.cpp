@@ -731,6 +731,71 @@ int plot_GGM_htgHighVeto_htgHigh(){
 	
 	return 0;
 }
+
+int plot_T6gg_diffCombi(){
+	io::RootFileSaver saver("plots.root",TString::Format("danilo_plot_combined%.1f/%s",cfg.processFraction*100,"Limits"));
+	TCanvas can;
+	
+	TFile file_1("../input/limits/limits_T6gg_inclusiv_stVeto.root","read");
+	TFile file_2("../input/limits/limits_T6gg_htgVeto_htgFull.root","read");
+	TFile file_3("../input/limits/limits_T6gg_htgHighVeto_htgHigh.root","read");
+	TFile file_4("../input/limits/limits_T6gg_inclusiv.root","read");
+	TFile file_5("../input/limits/limits_T6gg_htg.root","read");
+	
+	TGraph *stVeto_exp = (TGraph*) file_1.Get("gr_expC_sm");
+	TGraph *htgVeto_exp = (TGraph*) file_2.Get("gr_expC_sm");
+	TGraph *htgHigh_exp = (TGraph*) file_3.Get("gr_expC_sm");
+	TGraph *st_exp = (TGraph*) file_4.Get("gr_expC_sm");
+	TGraph *htg_exp = (TGraph*) file_5.Get("gr_expC_sm");
+	TGraph *diag = new TGraph();
+	
+	diag->SetPoint(1,500,500);
+	diag->SetPoint(2,2200,2200);
+	
+	stVeto_exp->SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{q}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	
+	stVeto_exp->SetLineColor(kMagenta);
+	stVeto_exp->SetLineWidth(3);
+	stVeto_exp->SetLineStyle(2);
+	stVeto_exp->Draw();
+	
+	htgVeto_exp->SetLineColor(kOrange);
+	htgVeto_exp->SetLineWidth(3);
+	htgVeto_exp->SetLineStyle(2);
+	htgVeto_exp->Draw("same");
+	
+	htgHigh_exp->SetLineColor(kBlack);
+	htgHigh_exp->SetLineWidth(3);
+	htgHigh_exp->SetLineStyle(2);
+	htgHigh_exp->Draw("same");
+	
+	st_exp->SetLineColor(kGreen);
+	st_exp->SetLineWidth(3);
+	st_exp->SetLineStyle(2);
+	st_exp->Draw("same");
+	
+	htg_exp->SetLineColor(kRed);
+	htg_exp->SetLineWidth(3);
+	htg_exp->SetLineStyle(2);
+	htg_exp->Draw("same");
+	
+	
+	diag->Draw("same");
+	
+	gfx::LegendEntries legE;
+	legE.append(*stVeto_exp,"ST:full HTG:ST veto (exp)","l");
+	legE.append(*htgVeto_exp,"ST:HTG veto HTG:full (exp)","l");
+	legE.append(*htgHigh_exp,"ST:highHTG veto HTG:highHTG bins (exp)","l");
+	legE.append(*st_exp,"Photon+ST (exp)","l");
+	legE.append(*htg_exp,"Photon+HTG (exp)","l");
+	TLegend leg=legE.buildLegend(.2,.7,0.92,.9,1);
+	leg.SetTextSize(0.03);
+	leg.Draw();
+	
+	saver.save(can,"Limits_T6gg_diffCombi",true,false);
+	
+	return 0;
+}
 extern "C"
 
 void run(){
@@ -746,5 +811,6 @@ void run(){
 	//~ plot_T6Wg_htgHighVeto_htgHigh();
 	//~ plot_T5gg_htgHighVeto_htgHigh();
 	//~ plot_T5Wg_htgHighVeto_htgHigh();
-	plot_GGM_htgHighVeto_htgHigh();
+	//~ plot_GGM_htgHighVeto_htgHigh();
+	plot_T6gg_diffCombi();
 }

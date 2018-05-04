@@ -15,6 +15,7 @@ class Scan:
 
 def prepareDatacard(obs,count,estat,esyst,eISR,correlated,mcUncertainties,pointName,sScan):
     directory=outdir+"datacards/"+selection+"/"+sScan
+    if rho!=-0.0: directory=directory+"-"+str(rho)
     if not os.path.exists(directory):
 		os.makedirs(directory)
     if sScan=="TChiNg_gg" or sScan=="TChiNg_gz" or sScan=="TChiNg_zz" or sScan=="TChiNg_gg_C1N2":
@@ -507,23 +508,23 @@ if __name__ == '__main__':
     #~ selection="exclusiv"
     #~ selection="inclusiv"
     #~ selection="htgVeto"
-    #~ selection="leptonVeto"
+    selection="leptonVeto"
     #~ selection="diphotonVeto"
-    selection="htgHighVeto"
+    #~ selection="htgHighVeto"
     #~ selection="htgHighLeptonVeto"
     basedir="../"
     outdir=basedir+"output/"
     signal_scan="signal_scan_"+selection+"_v03D.root"
-    rho=-0.0
+    rho=-1.0
     #~ fillDatacards(Scan.T5gg,True)
-    #~ fillDatacards(Scan.T5Wg,True)
+    fillDatacards(Scan.T5Wg,True)
     #~ fillDatacards(Scan.T6Wg,True)
     #~ fillDatacards(Scan.T6gg,True)
     #~ fillDatacards(Scan.GGM,True)
     #~ fillDatacards(Scan.TChiWg,False)
     #~ fillDatacards(Scan.TChiNg,False)
     #~ fillDatacards(Scan.GGM_M1_M2,True)
-    fillDatacards(Scan.GGM_M1_M3,True)
+    #~ fillDatacards(Scan.GGM_M1_M3,True)
     #~ fillDatacards(Scan.TChiNg_gg,False)
     #~ fillDatacards(Scan.TChiNg_gz,False)
     #~ fillDatacards(Scan.TChiNg_zz,False)

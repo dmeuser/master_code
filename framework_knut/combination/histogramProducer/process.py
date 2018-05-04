@@ -113,7 +113,7 @@ ds={
         #~ "GGM_GravitinoLSP_M1-200to1500_M2-200to1500_nTuple.root",
         #~ "GGM_GravitinoLSP_M1-50to1500_M3-1000to2500_nTuple.root",
         #~ "SMS-TChiNG_BF50N50G_nTuple.root",
-        "SMS-TChiWG.root",
+        "SMS-TChiWG_nTuple.root",
         ],
 }
 #~ dir = "/net/data_cms1b/user/kiesel/v26/"
