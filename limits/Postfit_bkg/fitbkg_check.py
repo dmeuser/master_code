@@ -59,7 +59,7 @@ f=rt.TFile("hists_prefit_bkg.root","update")
 for key in norm_ST:
 	i=0
 	for corr in norm_ST[key]:
-		hist=rt.TH1F("",";binNo;pull",4,0.5,4.5)
+		hist=rt.TH1F("",";binNo;pull",4,0,4)
 		for j in range(4):
 			hist.SetBinContent(j+1,corr[j])
 		hist.Write("ST_"+key+"_"+corrName[i],rt.TObject.kOverwrite)
@@ -68,7 +68,7 @@ for key in norm_ST:
 for key in norm_Lepton:
 	i=0
 	for corr in norm_Lepton[key]:
-		hist=rt.TH1F("",";binNo;pull",36,0.5,36.5)
+		hist=rt.TH1F("",";binNo;pull",36,0,36)
 		for j in range(36):
 			hist.SetBinContent(j+1,corr[j])
 		hist.Write("Lepton_"+key+"_"+corrName[i],rt.TObject.kOverwrite)
