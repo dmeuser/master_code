@@ -184,6 +184,7 @@ class CombinationHistogramProducer : public TSelector {
   TTree* jCRTree_original;
   
   ofstream CR_leptonVeto;
+  ofstream phoCR_leptonVeto;
 
 //  ClassDef(CombinationHistogramProducer, 1) // not for root compilation
 };

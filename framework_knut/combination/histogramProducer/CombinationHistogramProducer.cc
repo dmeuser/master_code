@@ -176,6 +176,7 @@ void CombinationHistogramProducer::Init(TTree *tree)
   jCRTree_original->Branch("weight", &weight_);
   jCRTree_original->Branch("lowEMHT", &isLowEmht_, "lowEMHT/O");
   CR_leptonVeto.open("test/jCR_leptonVeto_"+getOutputFilename(inputName)+".txt");
+  phoCR_leptonVeto.open("test/phoCR_leptonVeto_"+getOutputFilename(inputName)+".txt");
 }
 
 void CombinationHistogramProducer::defaultSelection()
@@ -534,6 +535,9 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
       if (!isStPhotonEl) fillHistograms(Selection::st_cleaned, Region::eCR, true);
       if (!isDiPhotonEl && !isLepPhotonEl) fillHistograms(Selection::dilep_cleaned, Region::eCR, true);
       if (!isDiPhotonEl && !isLepPhotonEl && !isStPhotonEl) fillHistograms(Selection::all_cleaned, Region::eCR, true);
+      
+      //Check overlap for jCR to study uncertainty correlations
+      if (!isLepPhotonEl && met->p.Pt()<100) phoCR_leptonVeto << *runNo << ":" << *lumNo << ":" << *evtNo << std::endl;
     }
   }
   resetSelection();
@@ -604,6 +608,7 @@ void CombinationHistogramProducer::Terminate()
     }
   }
   CR_leptonVeto.close();
+  phoCR_leptonVeto.close();
   file.Close();
   cout << "Created " << outputName << " in " << (time(NULL) - startTime)/60 << " min" << endl;
 }
@@ -644,11 +649,10 @@ int main(int argc, char** argv) {
   for (int i=1;i<argc;i++) {
     ch.AddFile(argv[i]);
   }
-  std::cout<<argc<<std::endl;
   chp.Init(&ch);
   chp.SlaveBegin(&ch);
   for(unsigned i=0; i<ch.GetEntries(); i++) {
-  //~ for(unsigned i=0; i<100; i++) {
+  //~ for(unsigned i=0; i<1000; i++) {
     chp.Process(i);
   }
   for (int i=1;i<argc;i++) {
