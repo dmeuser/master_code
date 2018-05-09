@@ -1,5 +1,5 @@
 #script to create 2d plots of scans given by slha files
-#run with python27 plot_scans_2d.py outside of CMSSW!!!
+#Use CMSSW810 to be able to import matplotlib
 
 import pyslha
 import numpy as np
