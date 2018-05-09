@@ -91,8 +91,8 @@ int plot(){
 		TH1F *hist_allCorr = (TH1F*) file.Get("Lepton_"+bkg+"_allCorr");
 		
 		hist_noCorr->SetTitle(bkg);
-		hist_noCorr->SetMinimum(-1.5);
-		hist_noCorr->SetMaximum(1.5);
+		hist_noCorr->SetMinimum(-1.65);
+		hist_noCorr->SetMaximum(1.65);
 		hist_noCorr->SetFillColor(4);
 		hist_noCorr->SetBarWidth(0.3);
 		hist_noCorr->SetBarOffset(0.05);

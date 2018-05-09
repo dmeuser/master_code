@@ -783,9 +783,9 @@ int plot_T6gg_diffCombi(){
 	diag->Draw("same");
 	
 	gfx::LegendEntries legE;
+	legE.append(*htgHigh_exp,"ST:highHTG veto HTG:highHTG bins (exp)","l");
 	legE.append(*stVeto_exp,"ST:full HTG:ST veto (exp)","l");
 	legE.append(*htgVeto_exp,"ST:HTG veto HTG:full (exp)","l");
-	legE.append(*htgHigh_exp,"ST:highHTG veto HTG:highHTG bins (exp)","l");
 	legE.append(*st_exp,"Photon+ST (exp)","l");
 	legE.append(*htg_exp,"Photon+HTG (exp)","l");
 	TLegend leg=legE.buildLegend(.2,.7,0.92,.9,1);
