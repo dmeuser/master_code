@@ -210,6 +210,10 @@ void NNPDFDriver::readPDFSet(string const& grid, int const& rep)
 	  getline(f, tmp);
 	  getline(f, tmp);
 	  getline(f, tmp);
+	  if (rep==101 || rep==102){
+	    getline(f, tmp);
+	    getline(f, tmp);
+	  }
 
 	  int sub = 0;
 	  for (;;)
