@@ -29,8 +29,12 @@ def combine(mass,path1,path2,output,ignore,corr):
 	if path1.find("GGM")!=-1:
 		temp=(path1.split("/")[1]).split("_")
 		sScan=temp[0]+"_"+temp[1]+"_"+temp[2]
+	
+	if path1.find("TChiNg_BR")!=-1:
+		sScan=sScan+"_BR"
 		
 	n1=path1+"/datacard_"+sScan+"_"+mass+".txt"
+	n2=path2+"/datacard_"+sScan+"_"+mass+".txt"
 	
 	if path2.find("knut")!=-1 and sScan=="T5Wg":
 		n2=path2+"/Wg_"+mass+".txt"
@@ -41,7 +45,7 @@ def combine(mass,path1,path2,output,ignore,corr):
 			n2=path2+"/datacard_CharginoBR_"+mass+".txt"
 	elif path2.find("htg_leptonVeto")!=-1 and sScan=="T5Wg":
 		n2=path2+"/"+mass+".txt"
-	elif path2.find("htgHigh")!=-1 or path2.find("stVeto")!=-1 or path2.find("htg")!=-1:
+	elif (path2.find("htgHigh")!=-1 and path2.find("BR")==-1) or path2.find("stVeto")!=-1 or (path2.find("htg")!=-1 and path2.find("BR")==-1):
 		n2=path2+"/"+mass+".txt"
 	
 	
@@ -68,7 +72,7 @@ def combine(mass,path1,path2,output,ignore,corr):
 	for binName in ignore:
 		command=command+" --xc="+binName
 	
-	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1:
+	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1 or path2.find("STLeptonVeto")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_HTG="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	elif path2.find("lepton")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_Lepton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"

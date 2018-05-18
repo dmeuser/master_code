@@ -12,9 +12,12 @@ def getMasses(point):
 	elif sScan=="GGM_M1_M3" : pattern="datacard_GGM_M1_M3_(.*)_(.*)"
 	elif sScan=="TChiNg_BR" : pattern="datacard_TChiNg_BR_(.*)_(.*)"
 	elif sScan=="CharginoBR" : pattern="datacard_CharginoBR_(.*)_(.*)"
+	elif sScan=="CharginoBRstrong" : pattern="datacard_CharginoBRstrong1950_(.*)_(.*)"
 	elif sScan=="T6Wg" : pattern="datacard_T6Wg_(.*)_(.*)"
 	elif sScan=="T6gg" : pattern="datacard_T6gg_(.*)_(.*)"
 	elif sScan=="T5gg" : pattern="datacard_T5gg_(.*)_(.*)"
+	elif sScan.find("CharginoBRstrongN")!=-1 : pattern="datacard_CharginoBRstrongN(.*)_(.*)_(.*)"
+	elif sScan.find("CharginoBRstrongG")!=-1 : pattern="datacard_CharginoBRstrongG(.*)_(.*)_(.*)"
 	if sScan=="T5Wg" and selection=="lepton" : pattern="counting_t5Wg_(.*)_(.*)"
 	if sScan=="T5Wg" and selection=="htg" : pattern="Wg_(.*)_(.*)"
 	if sScan=="T6gg" and selection=="htg" : pattern="(.*)_(.*)"
@@ -24,9 +27,13 @@ def getMasses(point):
 	if sScan=="GGM_M1_M3" and selection=="htg" : pattern="(.*)_(.*)"
 	m=re.search(pattern,point)
 	masses=[]
-	if m and (len(m.groups())==2):
+	if m and (len(m.groups())==2) and strongBR==False:
 		for s in m.groups():
 			masses.append(int(s))
+	elif m and (len(m.groups())==3) and strongBR:
+		masses.append(int(m.groups()[1]))
+		masses.append(int(m.groups()[2]))
+		masses.append(int(m.groups()[0]))
 	else:
 		print "don't know what this is:",point
 		exit(-1)
@@ -73,6 +80,7 @@ def mergeLimits():
 	elif sScan=="GGM_M1_M3": xsecFile="input/xsec_GGM_M1_M3.txt"
 	elif sScan=="TChiNg_BR": xsecFile="input/xsec_comb_wino.csv"
 	elif sScan=="CharginoBR": xsecFile="input/xsec_N2C1_wino.csv"
+	elif strongBR: xsecFile="input/xsec_gluglu.csv"
 	elif sScan=="T6Wg": xsecFile="input/xsec_sqsq.csv"
 	elif sScan=="T6gg": xsecFile="input/xsec_sqsq.csv"
 	elif sScan=="T5gg": xsecFile="input/xsec_gluglu.csv"
@@ -90,19 +98,23 @@ def mergeLimits():
 		m1_lim=150
 	for p in os.listdir("./input/"+sScan+"_"+selection+""):
 		p=p.split(".")[0]
-		if sScan=="T5Wg" or sScan=="TChiNg_BR"or sScan=="CharginoBR" or sScan=="T5gg":
+		if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR" or sScan=="T5gg" or sScan=="CharginoBRstrong":
 			m2,m1=getMasses(p)
+		elif strongBR:
+			m=getMasses(p)
+			m2=m[0]
+			m1=m[1]
+			m_set=m[2]
 		else:
 			m1,m2=getMasses(p)
 		if m2<m2_lim or m1<m1_lim: continue
 		if sScan=="CharginoBR" and selection=="lepton" and (m1==0 or m1==100): continue
 		points.append(p)
 		i+=1
-		#~ if i==6:break
 
 	xsec={}
 	xsec_err={}
-	if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR" or sScan=="T6Wg" or sScan=="T6gg" or sScan=="T5gg":
+	if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR" or sScan=="T6Wg" or sScan=="T6gg" or sScan=="T5gg" or sScan=="CharginoBRstrong" or strongBR:
 		with open(xsecFile) as f:
 			for line in f:
 				if line.startswith("#"): continue
@@ -126,6 +138,8 @@ def mergeLimits():
 	elif sScan=="GGM_M1_M3": h_exp =rt.TH2F("","",30,25,1525,31,975,2525)
 	elif sScan=="TChiNg_BR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
 	elif sScan=="CharginoBR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
+	elif sScan=="CharginoBRstrong": h_exp =rt.TH2F("","",51,-1,101,21,0,2150)
+	elif strongBR: h_exp =rt.TH2F("","",51,-1,101,21,0,2150)
 	elif sScan=="T6Wg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
 	elif sScan=="T6gg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
 	
@@ -145,6 +159,19 @@ def mergeLimits():
 		if sScan=="GGM_M1_M2" or sScan=="GGM_M1_M3":
 			m1,m2=getMasses(point)
 			key=m1*100000+m2
+		elif sScan=="CharginoBRstrong":
+			m1,m2=getMasses(point)
+			key=1950
+		elif sScan.find("CharginoBRstrongN")!=-1:
+			m=getMasses(point)
+			m1=m[0]
+			m2=m[1]
+			key=m[0]
+		elif sScan.find("CharginoBRstrongG")!=-1:
+			m=getMasses(point)
+			m1=m[0]
+			m2=m[1]
+			key=m[2]
 		else :
 			m2,m1=getMasses(point)
 			key=m2
@@ -357,7 +384,10 @@ if __name__ == "__main__":
 	outdir=args.outdir
 	selection=args.selection
 	sScan=args.scan
-	contourtype=args.contourtype#
+	contourtype=args.contourtype
+	
+	strongBR=False
+	if sScan.find("CharginoBRstrong")!=-1: strongBR=True
 	
 	print contourtype
 
