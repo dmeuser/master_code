@@ -11,7 +11,7 @@ program main
   character(len=32)                    :: arg2,pdf
 
 !----------------------------------------------------------------------------
-  inlo = 0       ! specify LO only[0] or complete NLO (slower)[1]           !
+  inlo = 1       ! specify LO only[0] or complete NLO (slower)[1]           !
 !                ! results: LO     - LO, degenerate squarks, decoupling on  !
 !                !          NLO    - NLO, degenerate squarks, decoupling on !
 !                !          LO_ms  - LO, free squark masses, decoupling off !
@@ -110,7 +110,8 @@ program main
 !----------------------------------------------------------------------------
 
 !----------------------------------------------------------------------------
-  pdf = "PDF4LHC15_nlo_mc"                                                  !                                                          
+  pdf = "PDF4LHC15_nlo_mc_pdfas"                                                  !                                                          
+!~   pdf = "cteq66"                                                  !                                                          
 !                                                                           !
 !   pdf has to be present in main folder als LHAPDF grid directory          !
 !                                                                           !
@@ -137,6 +138,12 @@ program main
 !~      call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
 !~   end do
   final_state_in = 'nn'
+  ipart1_in = 2
+  ipart2_in = 5
+  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+  ipart1_in = 2
+  ipart2_in = 7
+  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
   ipart1_in = 5
   ipart2_in = 7
   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
