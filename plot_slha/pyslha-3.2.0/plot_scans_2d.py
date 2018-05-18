@@ -14,7 +14,7 @@ import scipy.constants as const
 def plot_2d_M1M2(grid,label,title,output):
 	M2,M1 = np.mgrid[25:1525:31j,25:1525:31j]
 	plt.figure()
-	if output == "Width NLSP" or output == "Length NLSP" or output == "NLO_ms_prospino" or output=="MassDiff":
+	if output == "Width NLSP" or output == "Length NLSP" or output == "NLO_ms_prospino" or output=="MassDiff" or output == "Length Chargino1":
 		plt.pcolor(M1, M2, grid, cmap=plt.get_cmap('jet'), norm=LogNorm(vmin=grid.min(), vmax=grid.max()),linewidth=0, rasterized=True)
 	else:
 		plt.pcolor(M1, M2, grid, cmap=plt.get_cmap('jet'), vmin=grid.min(), vmax=grid.max(),linewidth=0, rasterized=True)
@@ -61,11 +61,13 @@ def run_M1M2():
 			vchmixblock = data.blocks["VMIX"]
 			neutrmixblock = data.blocks["NMIX"]
 			decays_nlsp = data.decays[1000022]
+			decays_ch1 = data.decays[1000024]
 			width = decays_nlsp.totalwidth
+			width_ch1 = decays_ch1.totalwidth
 			print f
 			#if width>1e-20: width = 1
 			if len(decays_nlsp.decays)==1:
-				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,width])
+				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,width,width_ch1])
 			else:
 				if decays_nlsp.decays[0].ids[1]==22:
 					brg = decays_nlsp.decays[0].br
@@ -73,7 +75,7 @@ def run_M1M2():
 				else :
 					brz = decays_nlsp.decays[0].br
 					brg = decays_nlsp.decays[1].br
-				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,width])
+				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,width,width_ch1])
 	def getKey(item):
 		return (item[0],item[1])
 		
@@ -89,11 +91,13 @@ def run_M1M2():
 	BR_g = np.array([item[7] for item in readout])
 	BR_Z = np.array([item[8] for item in readout])
 	width_nlsp = np.array([item[9] for item in readout])
+	width_ch1 = np.array([item[10] for item in readout])
 	diffMass = M_chi_1p-M_chi_10
 	decay_length = const.hbar/(const.e*width_nlsp)*const.c*1E-7
+	decay_length_ch1 = const.hbar/(const.e*width_ch1)*const.c*1E-7
 	
-	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,width_nlsp,decay_length,diffMass]
-	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","widthNLSP","length_nlsp","massDiff"]
+	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,width_nlsp,decay_length,diffMass,decay_length_ch1]
+	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","widthNLSP","length_nlsp","massDiff","length_ch1"]
 	j = 0
 	rfile = rt.TFile("output/M1_M2/hist2d.root","UPDATE")
 	
@@ -118,8 +122,10 @@ def run_M1M2():
 	BR_g = (BR_g.reshape((30,30))).T
 	BR_Z = (BR_Z.reshape((30,30))).T
 	width_nlsp = (width_nlsp.reshape((30,30))).T
+	width_ch1 = (width_ch1.reshape((30,30))).T
 	diffMass = (diffMass.reshape((30,30))).T
 	decay_length = (decay_length.reshape((30,30))).T
+	decay_length_ch1 = (decay_length_ch1.reshape((30,30))).T
 	
 	
 	decay_length_thresh = const.hbar/(const.e*width_nlsp)*const.c*1E-7
@@ -127,6 +133,12 @@ def run_M1M2():
 		for j in xrange(30):
 			if decay_length_thresh[i,j] > 2:
 				decay_length_thresh[i,j] = 10
+				
+	decay_length_thresh_ch1 = const.hbar/(const.e*width_ch1)*const.c*1E-7
+	for i in xrange(30):
+		for j in xrange(30):
+			if decay_length_thresh_ch1[i,j] > 2:
+				decay_length_thresh_ch1[i,j] = 10
 
 	plot_2d_M1M2(M_chi_10,"$M_{\\tilde{\\chi}^0_1}$ (GeV)","Mass $\\tilde{\\chi}^0_1$","Mass_neutralino")
 	plot_2d_M1M2(M_chi_1p,"$M_{\\tilde{\\chi}^{\\pm}_1}$ (GeV)","Mass $\\tilde{\\chi}^{\\pm}_1$","Mass_chargino")
@@ -137,7 +149,9 @@ def run_M1M2():
 	plot_2d_M1M2(BR_Z,"BR($\\tilde{\\chi}^0_1\\rightarrow Z$)","Branching Ratio $\\tilde{\\chi}^0_1\\rightarrow Z$","BR_z")
 	plot_2d_M1M2(width_nlsp,"Decay width $\\tilde{\\chi}^0_1$ (GeV)","Decay width $\\tilde{\\chi}^0_1$","Width NLSP")
 	plot_2d_M1M2(decay_length,"Decay length $\\tilde{\\chi}^0_1$ (cm)","Decay length $\\tilde{\\chi}^0_1$","Length NLSP")
+	plot_2d_M1M2(decay_length_ch1,"Decay length $\\tilde{\\chi}^\\pm_1$ (cm)","Decay length $\\tilde{\\chi}^\\pm_1$","Length Chargino1")
 	plot_2d_M1M2(decay_length_thresh,"Decay length $\\tilde{\\chi}^0_1$ (cm)","Decay length tresh $\\tilde{\\chi}^0_1$","Length tresh NLSP")
+	plot_2d_M1M2(decay_length_thresh,"Decay length $\\tilde{\\chi}^\\pm_1$ (cm)","Decay length tresh $\\tilde{\\chi}^\\pm_1$","Length tresh Chargino1")
 	plot_2d_M1M2(diffMass,"$\\Delta M(\\tilde{\\chi}^{\\pm}_1,\\tilde{\\chi}^0_1$) (GeV)","$\\Delta M(\\tilde{\\chi}^{\\pm}_1,\\tilde{\\chi}^0_1$)","MassDiff")
 	
 def run_M1M3():
