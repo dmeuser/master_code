@@ -104,6 +104,7 @@ CombinationHistogramProducer::CombinationHistogramProducer():
   muons(fReader, "muons"),
   genJets(fReader, "genJets"),
   genParticles(fReader, "genParticles"),
+  intermediateGenParticles(fReader, "intermediateGenParticles"),
   met(fReader, "met"),
   metGen(fReader, "met_gen"),
   met_JESu(fReader, "met_JESu"),
@@ -141,6 +142,7 @@ void CombinationHistogramProducer::Init(TTree *tree)
   fReader.SetTree(tree);
   tree->GetEntry(0); // to get current file
   inputName = tree->GetCurrentFile()->GetName();
+  std::cout<<inputName<<std::endl;
   isData = inputName.find("Run201") != string::npos;
   isSignal = inputName.find("SMS") != string::npos ||
              inputName.find("GMSB") != string::npos;
@@ -151,6 +153,10 @@ void CombinationHistogramProducer::Init(TTree *tree)
                     inputName.find("T5ttttZg") != string::npos ||
                     inputName.find("T5qqqqHg") != string::npos ||
                     inputName.find("GMSB") != string::npos;
+  
+  isGG = inputName.find("TChiGG") != string::npos; //to get caled BRs
+  isZG = inputName.find("TChiZG") != string::npos;
+  isZZ = inputName.find("TChiZZ") != string::npos;
 
   weighters["sf_photon_id_loose"] = Weighter("../plotter/data/dataMcScaleFactors_80X.root", "EGamma_SF2D");
   weighters["sf_photon_pixel"] = Weighter("../plotter/data/ScalingFactors_80X_Summer16.root", "Scaling_Factors_HasPix_R9 Inclusive");
@@ -419,6 +425,61 @@ bool CombinationHistogramProducer::isStSel(bool pho=true, bool eb=true) {
 Bool_t CombinationHistogramProducer::Process(Long64_t entry)
 {
   fReader.Next();
+  if (isGG) { //Split electroweak scan to get scaled BRs
+    match_1=false;
+    match_2=false;
+    for (const tree::IntermediateGenParticle& p : *intermediateGenParticles) {
+      if (p.pdgId==1000023 || p.pdgId==1000025) {
+        if (p.daughters.size()==2) {
+          if (p.daughters[0].pdgId==22 || p.daughters[1].pdgId==22) {
+            if (!match_1) match_1=true;
+            else match_2=true;
+          }
+        }
+      }
+    }
+    if (match_1 && match_2) test_Sel_GG++;
+    else return kTRUE;
+  }
+  else if (isZZ) {
+    match_1=false;
+    match_2=false;
+    for (const tree::IntermediateGenParticle& p : *intermediateGenParticles) {
+      if (p.pdgId==1000023 || p.pdgId==1000025) {
+        if (p.daughters.size()==2) {
+          if (p.daughters[0].pdgId==23 || p.daughters[1].pdgId==23) {
+            if (!match_1) match_1=true;
+            else match_2=true;
+          }
+        }
+      }
+    }
+    if (match_1 && match_2) test_Sel_GG++;
+    else return kTRUE;
+  }
+  else if (isZG) {
+    match_1=false;
+    match_2=false;
+    for (const tree::IntermediateGenParticle& p : *intermediateGenParticles) {
+      if (p.pdgId==1000023 || p.pdgId==1000025) {
+        if (p.daughters.size()==2) {
+          if (!match_1) {
+            if (p.daughters[0].pdgId<1000000) tempID=p.daughters[0].pdgId;
+            else tempID=p.daughters[1].pdgId;
+            match_1=true;
+          }
+          else {
+            if (tempID==22 && (p.daughters[0].pdgId==23 || p.daughters[1].pdgId==23)) match_2=true;
+            else if (tempID==23 && (p.daughters[0].pdgId==22 || p.daughters[1].pdgId==22)) match_2=true;
+          }
+        }
+      }
+    }
+    if (match_1 && match_2) test_Sel_GG++;
+    else return kTRUE;
+  }
+    
+  
   if (genHt600 && *genHt>600) {
     return kTRUE;
   }
@@ -464,6 +525,7 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   bool signalSelwoGen = !cutPrompt && selPhotons.size() && htg_ > 700 && (*hlt_photon90_ht600 || !isData) && orthogonal;
   bool signalSel = signalSelwoGen && isGenEclean;
   bool signalGenE = signalSelwoGen && genE;
+  evSurvive++;
   fillHistograms(Selection::original, Region::sR, signalSel);
   if (signalGenE) fillHistograms(Selection::original, Region::genE, true);
 
@@ -487,11 +549,13 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   fillHistograms(Selection::lep_cleaned, Region::sR, signalSel && !isLepPhoton);
   fillHistograms(Selection::st_cleaned, Region::sR, signalSel && !isStPhoton);
   fillHistograms(Selection::dilep_cleaned, Region::sR, signalSel && !isDiPhoton && !isLepPhoton);
+  fillHistograms(Selection::stlep_cleaned, Region::sR, signalSel && !isStPhoton && !isLepPhoton);
   fillHistograms(Selection::all_cleaned, Region::sR, signalSel && !isDiPhoton && !isLepPhoton && !isStPhoton);
   if (signalGenE && !isDiPhoton) fillHistograms(Selection::di_cleaned, Region::genE, true);
   if (signalGenE && !isLepPhoton) fillHistograms(Selection::lep_cleaned, Region::genE, true);
   if (signalGenE && !isStPhoton) fillHistograms(Selection::st_cleaned, Region::genE, true);
   if (signalGenE && !isDiPhoton && !isLepPhoton) fillHistograms(Selection::dilep_cleaned, Region::genE, true);
+  if (signalGenE && !isStPhoton && !isLepPhoton) fillHistograms(Selection::stlep_cleaned, Region::genE, true);
   if (signalGenE && !isDiPhoton && !isLepPhoton && !isStPhoton) fillHistograms(Selection::all_cleaned, Region::genE, true);
 
   weight_ = *mc_weight * *pu_weight * *hlt_ht600_pre;
@@ -534,6 +598,7 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
       if (!isLepPhotonEl) fillHistograms(Selection::lep_cleaned, Region::eCR, true);
       if (!isStPhotonEl) fillHistograms(Selection::st_cleaned, Region::eCR, true);
       if (!isDiPhotonEl && !isLepPhotonEl) fillHistograms(Selection::dilep_cleaned, Region::eCR, true);
+      if (!isStPhotonEl && !isLepPhotonEl) fillHistograms(Selection::stlep_cleaned, Region::eCR, true);
       if (!isDiPhotonEl && !isLepPhotonEl && !isStPhotonEl) fillHistograms(Selection::all_cleaned, Region::eCR, true);
       
       //Check overlap for jCR to study uncertainty correlations
@@ -561,8 +626,8 @@ void save2File(const map<string,map<string,T>>& hMaps, TFile& file)
 
 void CombinationHistogramProducer::Terminate()
 {
-  //~ auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
-  auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
+  auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
+  //~ auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
   TFile file(outputName.c_str(), "RECREATE");
 
   for (auto& spIt : nominalHists_) {

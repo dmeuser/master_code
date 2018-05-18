@@ -480,6 +480,7 @@ bool unMatchedSuspiciousJet(const vector<tree::Jet>& jets, const vector<tree::Pa
 
 int getNgenFromFile(const string& inputName, unsigned m1, unsigned m2) {
   int nGen = 0;
+  double scaleBR = 1.0;
   string cutFlowName = "TreeWriter/hCutFlow";
   if (inputName.find("SMS-T5ttttZg") != string::npos) {
     cutFlowName += "T5ttttZg";
@@ -497,6 +498,15 @@ int getNgenFromFile(const string& inputName, unsigned m1, unsigned m2) {
     cutFlowName += "TChiNG";
   } else if (inputName.find("GMSB") != string::npos) {
     cutFlowName += "GMSB";
+  } else if (inputName.find("TChiGG") != string::npos) {
+    cutFlowName += "TChiNG";
+    scaleBR = 4.0;
+  } else if (inputName.find("TChiZG") != string::npos) {
+    cutFlowName += "TChiNG";
+    scaleBR = 4.0;
+  } else if (inputName.find("TChiZZ") != string::npos) {
+    cutFlowName += "TChiNG";
+    scaleBR = 16.0;
   }
   if (m1) cutFlowName += "_"+to_string(m1);
   if (m2) cutFlowName += "_"+to_string(m2);
@@ -517,7 +527,7 @@ int getNgenFromFile(const string& inputName, unsigned m1, unsigned m2) {
   } else {
     cout << "Could not read cutFlow histogram " << cutFlowName << endl;
   }
-  return nGen;
+  return nGen/scaleBR;
 }
 
 float mt(const TVector3& p1, const TVector3& p2) {

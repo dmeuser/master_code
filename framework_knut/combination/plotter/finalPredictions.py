@@ -768,8 +768,9 @@ if __name__ == "__main__":
     gqcd_highestHT = gjets600dr+qcd2000
     gqcd_highestHT.label = "(#gamma)+jet"
 
-    selections = ["original", "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
+    #~ selections = ["original", "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned","stlep_cleaned"]
     #selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
+    selections = ["stlep_cleaned"]
 
 
     for selection in selections:

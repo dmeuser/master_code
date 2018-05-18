@@ -263,6 +263,10 @@ tching = Dataset("SMS-TChiNG_BF50N50G", "data/xSec_SMS_TChiNg_13TeV.pkl")
 tchiwg = Dataset("SMS-TChiWG", "data/xSec_SMS_N2C1_13TeV.pkl")
 ggm1 = Dataset("GGM_GravitinoLSP_M1-200to1500_M2-200to1500", "data/xsec_GGM_M1_M2.pkl")
 ggm2 = Dataset("GGM_GravitinoLSP_M1-50to1500_M3-1000to2500", "data/xsec_GGM_M1_M3.pkl")
+tchigg = Dataset("SMS-TChiGG", "data/xSec_SMS_TChiNg_13TeV.pkl")
+tchizg = Dataset("SMS-TChiZG", "data/xSec_SMS_TChiNg_13TeV.pkl")
+tchizz = Dataset("SMS-TChiZZ", "data/xSec_SMS_TChiNg_13TeV.pkl")
+tchigg_N2C1 = Dataset("SMS-TChiGG_N2C1", "data/xSec_SMS_N2C1_13TeV.pkl")
 
 tchiwg_700 = Dataset("SMS-TChiWG_700", 9.51032/1000, ROOT.kRed+4, "")
 
