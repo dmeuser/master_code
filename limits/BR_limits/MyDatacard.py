@@ -153,6 +153,14 @@ class MyDatacard(Datacard):
                 systDict[uncName][4][binName]["sig"] = u
         self.systs = sorted(systDict.values())
 
+    def newSignalHTG(self, exp, unc):
+        for bName, newRate in exp.iteritems():
+            self.exp[bName]["signal"] = newRate
+        systDict = dict([(l[0],l) for l in self.systs])
+        for uncName, uncertaintyDict in unc.iteritems():
+            for binName, u in uncertaintyDict.iteritems():
+                systDict[uncName][4][binName]["signal"] = u
+        self.systs = sorted(systDict.values())
 
     def limit(self):
         self.write("/tmp/tmpDataCard.txt")

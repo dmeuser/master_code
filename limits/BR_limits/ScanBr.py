@@ -4,15 +4,33 @@ from MyDatacard import MyDatacard
 import numpy as np
 import argparse
 import os
+import sys
 
+def getMasses(path,gluino_mass,setGluinoMass):
+	masses=[]
+	for f in os.listdir("./"+path):
+		mass=[]
+		splitted=f.split("_")
+		for part in splitted:
+			part=part.split(".")[0]
+			if part.isdigit():
+				mass.append(part)
+			
+		if setGluinoMass:	
+			if len(mass)==2 and int(mass[0])==gluino_mass:
+				masses.append(mass[1])
+		else:
+			if len(mass)==2 and int(mass[1])==gluino_mass:
+				masses.append(mass[0])
+	return masses
 
 def Scan_NeutralinoBr():
 
 	for mass in range(300,1325,25):
-		DC_gg = MyDatacard("input/"+selection+"/TChiNg_gg/datacard_TChiNg_gg_"+str(mass)+".txt")
-		DC_gz = MyDatacard("input/"+selection+"/TChiNg_gz/datacard_TChiNg_gz_"+str(mass)+".txt")
-		DC_zz = MyDatacard("input/"+selection+"/TChiNg_zz/datacard_TChiNg_zz_"+str(mass)+".txt")
-		outputDC = MyDatacard("input/"+selection+"/TChiNg_gg/datacard_TChiNg_gg_"+str(mass)+".txt")
+		DC_gg = MyDatacard("input/ST/"+selection+"/TChiNg_gg/datacard_TChiNg_gg_"+str(mass)+".txt")
+		DC_gz = MyDatacard("input/ST/"+selection+"/TChiNg_gz/datacard_TChiNg_gz_"+str(mass)+".txt")
+		DC_zz = MyDatacard("input/ST/"+selection+"/TChiNg_zz/datacard_TChiNg_zz_"+str(mass)+".txt")
+		outputDC = MyDatacard("input/ST/"+selection+"/TChiNg_gg/datacard_TChiNg_gg_"+str(mass)+".txt")
 		
 		for x_BR in range(0,102,2):
 			x_BR = x_BR/100.
@@ -62,7 +80,7 @@ def Scan_NeutralinoBr():
 				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
 				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
 			
-			directory="output/NeutralinoBR/"+selection
+			directory="output/ST/NeutralinoBR/"+selection
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 			
@@ -71,9 +89,9 @@ def Scan_NeutralinoBr():
 def Scan_CharginoBr():
 
 	for mass in range(300,1325,25):
-		DC_gg = MyDatacard("input/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
-		DC_wg = MyDatacard("input/"+selection+"/TChiWg/datacard_TChiWG_"+str(mass)+".txt")
-		outputDC = MyDatacard("input/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
+		DC_gg = MyDatacard("input/ST/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
+		DC_wg = MyDatacard("input/ST/"+selection+"/TChiWg/datacard_TChiWG_"+str(mass)+".txt")
+		outputDC = MyDatacard("input/ST/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
 		
 		for x_BR in range(0,102,2):
 			x_BR = x_BR/100.
@@ -119,26 +137,428 @@ def Scan_CharginoBr():
 				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
 				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
 			
-			directory="output/CharginoBR/"+selection
+			directory="output/ST/CharginoBR/"+selection
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 				
 			outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
 			
+def Scan_CharginoBr_strong(gluino_mass,neutralino_mass):
+	
+	setGluinomass=True
+	setmass=gluino_mass
+	if neutralino_mass!=0:
+		setGluinomass=False
+		setmass=neutralino_mass
+	
+	masses=getMasses("input/ST/"+selection+"/T5gg/",setmass,setGluinomass)
 
+	for mass in masses:
+		if setGluinomass:
+			DC_gg = MyDatacard("input/ST/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+			DC_wg = MyDatacard("input/ST/"+selection+"/T5Wg/datacard_T5Wg_"+str(setmass)+"_"+str(mass)+".txt")
+			outputDC = MyDatacard("input/ST/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+		else:
+			DC_gg = MyDatacard("input/ST/"+selection+"/T5gg/datacard_T5gg_"+str(mass)+"_"+str(setmass)+".txt")
+			DC_wg = MyDatacard("input/ST/"+selection+"/T5Wg/datacard_T5Wg_"+str(mass)+"_"+str(setmass)+".txt")
+			outputDC = MyDatacard("input/ST/"+selection+"/T5gg/datacard_T5gg_"+str(mass)+"_"+str(setmass)+".txt")
+		
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			for nBin in ["bin1","bin2","bin3","bin4"]:
+				newYield = x_BR**2*DC_gg.exp[nBin]["sig"]+2*x_BR*(1-x_BR)*DC_wg.exp[nBin]["sig"]
+				
+				#Statistic uncertainty
+				statUnc = np.sqrt((x_BR**2*DC_gg.getStatUncertainty(nBin,"sig"))**2+(2*x_BR*(1-x_BR)*DC_wg.getStatUncertainty(nBin,"sig"))**2)
+				if newYield==0:
+					statUnc = 1.0
+				else:
+					statUnc = 1+statUnc/newYield
+				
+				#Systematic uncertainty
+				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("syst_sig",nBin,"sig")
+				wgUpSyst = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("syst_sig",nBin,"sig")
+				wgDownSyst = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic ISR uncertainty	
+				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				wgUpSystISR = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
+				
+				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				wgDownSystISR = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
+				
+				if newYield==0:
+					systUncISR = 1.0
+				else:
+					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
+				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
+			
+			if setGluinomass:
+				directory="output/ST/CharginoBRstrongG"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongG"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			else:
+				directory="output/ST/CharginoBRstrongN"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongN"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+				
+			outputDC.write(filename=fname)
+			
+def Scan_NeutralinoBr_HTG():
+
+	for mass in range(300,1325,25):
+		DC_gg = MyDatacard("input/HTG/"+selection+"/TChiNg_gg/"+str(mass)+"_0.txt")
+		DC_gz = MyDatacard("input/HTG/"+selection+"/TChiNg_gz/"+str(mass)+"_0.txt")
+		DC_zz = MyDatacard("input/HTG/"+selection+"/TChiNg_zz/"+str(mass)+"_0.txt")
+		outputDC = MyDatacard("input/HTG/"+selection+"/TChiNg_gg/"+str(mass)+"_0.txt")
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			if selection=="highHTG":
+				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			
+			for nBin in bins:
+				newYield = x_BR**2*DC_gg.exp[nBin]["signal"]+2*x_BR*(1-x_BR)*DC_gz.exp[nBin]["signal"]+(1-x_BR)**2*DC_zz.exp[nBin]["signal"]
+				
+				
+				#Statistic uncertainty
+				statUnc = np.sqrt((x_BR**2*DC_gg.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2+(2*x_BR*(1-x_BR)*DC_gz.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2+((1-x_BR)**2*DC_zz.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2)
+				if newYield==0:
+					statUnc = 1.0
+				else:
+					statUnc = 1+statUnc/newYield
+				
+				#Systematic uncertainty genMet
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
+				gzUpSyst = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("genMet",nBin,"signal")
+				zzUpSyst = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("genMet",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*gzUpSyst+(1-x_BR)**2*zzUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
+				gzDownSyst = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("genMet",nBin,"signal")
+				zzDownSyst = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("genMet",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*gzDownSyst+(1-x_BR)**2*zzDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic uncertainty	jes
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
+				gzUpSystJES = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("jes",nBin,"signal")
+				zzUpSystJES = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("jes",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*gzUpSystJES+(1-x_BR)**2*zzUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
+				gzDownSystJES = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("jes",nBin,"signal")
+				zzDownSystJES = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("jes",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*gzDownSystJES+(1-x_BR)**2*zzDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	pu
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
+				gzUpSystPU = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("pu",nBin,"signal")
+				zzUpSystPU = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("pu",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*gzUpSystPU+(1-x_BR)**2*zzUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
+				gzDownSystPU = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("pu",nBin,"signal")
+				zzDownSystPU = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("pu",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*gzDownSystPU+(1-x_BR)**2*zzDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	scale
+				ggUpSystSCALE = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("scale",nBin,"signal")
+				gzUpSystSCALE = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("scale",nBin,"signal")
+				zzUpSystSCALE = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("scale",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystSCALE+2*x_BR*(1-x_BR)*gzUpSystSCALE+(1-x_BR)**2*zzUpSystSCALE
+				
+				ggDownSystSCALE = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("scale",nBin,"signal")
+				gzDownSystSCALE = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("scale",nBin,"signal")
+				zzDownSystSCALE = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("scale",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystSCALE+2*x_BR*(1-x_BR)*gzDownSystSCALE+(1-x_BR)**2*zzDownSystSCALE
+				
+				if newYield==0:
+					systUncSCALE = 1.0
+				else:
+					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+			
+			directory="output/HTG/NeutralinoBR/"+selection
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+			
+			outputDC.write(filename=directory+"/datacard_TChiNg_BR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+
+def Scan_CharginoBr_HTG():
+
+	for mass in range(300,1325,25):
+		DC_gg = MyDatacard("input/HTG/"+selection+"/TChiNg_gg_C1N2/"+str(mass)+"_0.txt")
+		DC_wg = MyDatacard("input/HTG/"+selection+"/TChiWg/"+str(mass)+"_0.txt")
+		outputDC = MyDatacard("input/HTG/"+selection+"/TChiNg_gg_C1N2/"+str(mass)+"_0.txt")
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			if selection=="highHTG":
+				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			
+			for nBin in bins:
+				newYield = x_BR**2*DC_gg.exp[nBin]["signal"]+2*x_BR*(1-x_BR)*DC_wg.exp[nBin]["signal"]
+				
+				
+				#Statistic uncertainty
+				statUnc = np.sqrt((x_BR**2*DC_gg.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2+(2*x_BR*(1-x_BR)*DC_wg.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2)
+				if newYield==0:
+					statUnc = 1.0
+				else:
+					statUnc = 1+statUnc/newYield
+				
+				#Systematic uncertainty genMet
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
+				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("genMet",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
+				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("genMet",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic uncertainty	jes
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
+				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("jes",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
+				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("jes",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	pu
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
+				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("pu",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
+				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("pu",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	scale
+				ggUpSystSCALE = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("scale",nBin,"signal")
+				wgUpSystSCALE = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("scale",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystSCALE+2*x_BR*(1-x_BR)*wgUpSystSCALE
+				
+				ggDownSystSCALE = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("scale",nBin,"signal")
+				wgDownSystSCALE = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("scale",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystSCALE+2*x_BR*(1-x_BR)*wgDownSystSCALE
+				
+				if newYield==0:
+					systUncSCALE = 1.0
+				else:
+					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+			
+			directory="output/HTG/CharginoBR/"+selection
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+			
+			outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+
+def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
+	
+	setGluinomass=True
+	setmass=gluino_mass
+	if neutralino_mass!=0:
+		setGluinomass=False
+		setmass=neutralino_mass
+	
+	masses=getMasses("input/HTG/"+selection+"/T5gg/",setmass,setGluinomass)
+	
+	for mass in masses:
+		if setGluinomass:
+			DC_gg = MyDatacard("input/HTG/"+selection+"/T5gg/"+str(setmass)+"_"+str(mass)+".txt")
+			DC_wg = MyDatacard("input/HTG/"+selection+"/T5Wg/"+str(setmass)+"_"+str(mass)+".txt")
+			outputDC = MyDatacard("input/HTG/"+selection+"/T5gg/"+str(setmass)+"_"+str(mass)+".txt")
+		else:
+			DC_gg = MyDatacard("input/HTG/"+selection+"/T5gg/"+str(mass)+"_"+str(setmass)+".txt")
+			DC_wg = MyDatacard("input/HTG/"+selection+"/T5Wg/"+str(mass)+"_"+str(setmass)+".txt")
+			outputDC = MyDatacard("input/HTG/"+selection+"/T5gg/"+str(mass)+"_"+str(setmass)+".txt")
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			if selection=="highHTG":
+				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
+			
+			for nBin in bins:
+				newYield = x_BR**2*DC_gg.exp[nBin]["signal"]+2*x_BR*(1-x_BR)*DC_wg.exp[nBin]["signal"]
+				
+				
+				#Statistic uncertainty
+				statUnc = np.sqrt((x_BR**2*DC_gg.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2+(2*x_BR*(1-x_BR)*DC_wg.getUncertainty("signalStat_"+nBin,nBin,"signal"))**2)
+				if newYield==0:
+					statUnc = 1.0
+				else:
+					statUnc = 1+statUnc/newYield
+				
+				#Systematic uncertainty genMet
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
+				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("genMet",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
+				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("genMet",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic uncertainty	jes
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
+				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("jes",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
+				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("jes",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	pu
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
+				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("pu",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
+				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("pu",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	scale
+				ggUpSystSCALE = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("scale",nBin,"signal")
+				wgUpSystSCALE = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("scale",nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystSCALE+2*x_BR*(1-x_BR)*wgUpSystSCALE
+				
+				ggDownSystSCALE = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("scale",nBin,"signal")
+				wgDownSystSCALE = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("scale",nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystSCALE+2*x_BR*(1-x_BR)*wgDownSystSCALE
+				
+				if newYield==0:
+					systUncSCALE = 1.0
+				else:
+					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+			
+			if setGluinomass:
+				directory="output/HTG/CharginoBRstrongG"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongG"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			else:
+				directory="output/HTG/CharginoBRstrongN"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongN"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+			
+			outputDC.write(filename=fname)
+			
 #Run different scanning types:
 
 parser = argparse.ArgumentParser()
+parser.add_argument('analysis', nargs='?', help="ST or HTG")
 parser.add_argument('scan', nargs='?', help="NeutralinoBR or CharginoBR")
 parser.add_argument('selection', nargs='?', help="choose as selection like leptonVeto, htgVeto etc.")
+parser.add_argument('--gluinomass', type=int, default=0, help="For CharginoBRstrong choose gluino mass or neutralino mass")
+parser.add_argument('--neutralinomass', type=int, default=0, help="For CharginoBRstrong choose gluino mass or neutralino mass")
 args = parser.parse_args()
 
 selection = args.selection
+sys.argv=[]
 
-if args.scan=="NeutralinoBR":
-	Scan_NeutralinoBr()
-elif args.scan=="CharginoBR":
-	Scan_CharginoBr()
-else:
-	print "Unknown scan"
+
+if (args.analysis=="ST"):
+	if args.scan=="NeutralinoBR":
+		Scan_NeutralinoBr()
+	elif args.scan=="CharginoBR":
+		Scan_CharginoBr()
+	elif args.scan=="CharginoBRstrong":
+		if args.neutralinomass==0 and args.gluinomass==0:
+			print "Choose neutralino or gluinomass"
+		else:
+			Scan_CharginoBr_strong(args.gluinomass,args.neutralinomass)
+	else:
+		print "Unknown scan"
+
+elif (args.analysis=="HTG"):
+	if args.scan=="NeutralinoBR":
+		Scan_NeutralinoBr_HTG()
+	elif args.scan=="CharginoBR":
+		Scan_CharginoBr_HTG()
+	elif args.scan=="CharginoBRstrong":
+		if args.neutralinomass==0 and args.gluinomass==0:
+			print "Choose neutralino or gluinomass"
+		else:
+			Scan_CharginoBr_strong_HTG(args.gluinomass,args.neutralinomass)
+	else:
+		print "Unknown scan"
+
+else: print "Unknown analysis"
 
