@@ -4,40 +4,47 @@
 import numpy as np
 import ROOT as rt
 import os,re
+import math
 
-def readOutput(M1,M2,rep,add=""):
-	fileName="input/out_M1_"+str(M1)+"M2_"+str(M2)+".slha/prospino_out_M1_"+str(M1)+"M2_"+str(M2)+".slha_"+str(rep)+add+".dat"
+def readOutput(M1,M3,rep,add=""):
+	fileName="input/M1_M3/out_M1_"+str(M1)+"_M3_"+str(M3)+".slha/prospino_out_M1_"+str(M1)+"_M3_"+str(M3)+".slha_"+str(rep)+add+".dat"
 	data=np.loadtxt(fileName,usecols=(1,2,5,15,7,6),dtype={"names":("n1","n2","mu","xsec","chMass","nMass"),"formats":("i","i","d","f","d","d")},comments="i1")
 	return data
 
-def xsecUnc_alphaS(M1,M2):
+def xsecUnc_alphaS(M1,M3):
 	xsecs=[]
 	xsec_up=0
 	xsec_down=0
 	for rep in xrange(103):
-		data=readOutput(M1,M2,rep)
+		#~ if os.path.isfile("input/M1_M3/out_M1_"+str(M1)+"_M3_"+str(M3)+".slha/prospino_out_M1_"+str(M1)+"_M3_"+str(M3)+".slha_"+str(rep)+""+".dat")==False: continue
+		data=readOutput(M1,M3,rep)
 		if len(data)==0: continue
 		tempxsec=0
 		if rep<101:
 			for process in data:
+				if math.isnan(process[3]): continue
 				if process[2]==1.0 : tempxsec+=process[3]
 			xsecs.append(tempxsec)
 		elif rep==101:
 			for process in data:
+				if math.isnan(process[3]): continue
 				if process[2]==1.0 : xsec_up+=process[3]
 		elif rep==102:
 			for process in data:
-				if process[2]==1.0 : xsec_down+=process[3]		
+				if math.isnan(process[3]): continue
+				if process[2]==1.0 : xsec_down+=process[3]	
+		
+		#~ print rep, tempxsec
 	xsecs=np.array(xsecs)
 	
-	rootfile = rt.TFile("output/xsecs_distributions_M1_M2.root","UPDATE")
-	histo = rt.TH1F(str(M1)+"_"+str(M2),";cross section (fb);nReplicas",10,xsecs.min(),xsecs.max())
+	rootfile = rt.TFile("output/xsecs_distributions_M1_M3.root","UPDATE")
+	histo = rt.TH1F(str(M1)+"_"+str(M3),";cross section (fb);nReplicas",10,xsecs.min(),xsecs.max())
 	for value in xsecs:
 		histo.Fill(value)
-	histo.Write(str(M1)+"_"+str(M2),rt.TObject.kOverwrite)
+	histo.Write(str(M1)+"_"+str(M3),rt.TObject.kOverwrite)
 	rootfile.Close()
 	
-	data=readOutput(M1,M2,0,"_scale")
+	data=readOutput(M1,M3,0,"_scale")
 	scale_up=0
 	scale_down=0
 	temp_down=0
@@ -62,7 +69,7 @@ def xsecUnc_alphaS(M1,M2):
 	return (xsecs.mean(), xsecs.std(ddof=1), np.abs(xsec_up-xsec_down)/2.0, np.median(xsecs), xsec_up, xsec_down, np.sqrt(scale_up), np.sqrt(scale_down),process[4],n1_mass,n2_mass)
 
 def getMasses(folder):
-	pattern="out_M1_(.*)M2_(.*).slha"
+	pattern="out_M1_(.*)_M3_(.*).slha"
 	m=re.search(pattern,folder)
 	masses=[]
 	if m and (len(m.groups())==2):
@@ -75,25 +82,24 @@ def getMasses(folder):
 
 if __name__ == "__main__":
 	
-	hist = rt.TH2F("xsecs",";M1 (GeV);M2 (GeV);cross section (pb)",30,25,1525,30,25,1525)
-	hist_pdf = rt.TH2F("pdf_uncertainty",";M1 (GeV);M2 (GeV);pdf uncertainty (%)",30,25,1525,30,25,1525)
-	hist_alpha = rt.TH2F("alphaS_uncertainty",";M1 (GeV);M2 (GeV);alpha_s uncertainty (%)",30,25,1525,30,25,1525)
-	hist_diffMeanMed = rt.TH2F("difference_Mean_Median",";M1 (GeV);M2 (GeV);diff Mean/Median (%)",30,25,1525,30,25,1525)
-	hist_alphaUp = rt.TH2F("alphaUp",";M1 (GeV);M2 (GeV);alphaUp (pb)",30,25,1525,30,25,1525)
-	hist_alphaDown = rt.TH2F("alphaDown",";M1 (GeV);M2 (GeV);alphaDown (pb)",30,25,1525,30,25,1525)
-	hist_alphaDiff = rt.TH2F("alphaDiff",";M1 (GeV);M2 (GeV);diff alphaUp alphaDown (pb)",30,25,1525,30,25,1525)
-	hist_scaleUp = rt.TH2F("scaleUp_uncertainty",";M1 (GeV);M2 (GeV);scaleUp uncertainty (%)",30,25,1525,30,25,1525)
-	hist_scaleDown = rt.TH2F("scaleDown_uncertainty",";M1 (GeV);M2 (GeV);scaleDown uncertainty (%)",30,25,1525,30,25,1525)
-	hist_totalUnc = rt.TH2F("total_uncertainty",";M1 (GeV);M2 (GeV);total uncertainty (%)",30,25,1525,30,25,1525)
+	hist = rt.TH2F("xsecs",";M1 (GeV);M3 (GeV);cross section (pb)",30,25,1525,31,975,2525)
+	hist_pdf = rt.TH2F("pdf_uncertainty",";M1 (GeV);M3 (GeV);pdf uncertainty (%)",30,25,1525,31,975,2525)
+	hist_alpha = rt.TH2F("alphaS_uncertainty",";M1 (GeV);M3 (GeV);alpha_s uncertainty (%)",30,25,1525,31,975,2525)
+	hist_diffMeanMed = rt.TH2F("difference_Mean_Median",";M1 (GeV);M3 (GeV);diff Mean/Median (%)",30,25,1525,31,975,2525)
+	hist_alphaUp = rt.TH2F("alphaUp",";M1 (GeV);M3 (GeV);alphaUp (pb)",30,25,1525,31,975,2525)
+	hist_alphaDown = rt.TH2F("alphaDown",";M1 (GeV);M3 (GeV);alphaDown (pb)",30,25,1525,31,975,2525)
+	hist_alphaDiff = rt.TH2F("alphaDiff",";M1 (GeV);M3 (GeV);diff alphaUp alphaDown (pb)",30,25,1525,31,975,2525)
+	hist_scaleUp = rt.TH2F("scaleUp_uncertainty",";M1 (GeV);M3 (GeV);scaleUp uncertainty (%)",30,25,1525,31,975,2525)
+	hist_scaleDown = rt.TH2F("scaleDown_uncertainty",";M1 (GeV);M3 (GeV);scaleDown uncertainty (%)",30,25,1525,31,975,2525)
+	hist_totalUnc = rt.TH2F("total_uncertainty",";M1 (GeV);M3 (GeV);total uncertainty (%)",30,25,1525,31,975,2525)
 	gr_massPlane = rt.TGraph2D()
 	gr_chMass = rt.TGraph()
 	gr_massPlane2 = rt.TGraph2D()
 	
-	for point in os.listdir("./input/"):
-		if point=="missingPoints.py": continue
+	for point in os.listdir("./input/M1_M3/"):
+		if point=="missingPoints_M1M3.py": continue
 		m=getMasses(point)
-		if m[1]==150 or m[1]==200 or m[0]<200: continue
-		#~ if m[0]!=400 or m[1]!=800: continue
+		#~ if m[0]!=200 or m[1]!=1500: continue
 		result=xsecUnc_alphaS(m[0],m[1])
 		hist.Fill(m[0],m[1],result[0])
 		hist_pdf.Fill(m[0],m[1],result[1]/result[0]*100)
@@ -111,9 +117,9 @@ if __name__ == "__main__":
 		gr_chMass.SetPoint(gr_chMass.GetN(),result[8],result[0])
 		gr_massPlane.SetPoint(gr_massPlane.GetN(),abs(result[9]),abs(result[10]),result[0])
 		gr_massPlane2.SetPoint(gr_massPlane2.GetN(),abs(result[9]),abs(result[8]),result[0])
-		print m[0],m[1],result[9],result[10]
+		print m[0],m[1],result[0],result[1]
 	
-	rfile = rt.TFile("output/xsecs_M1_M2.root","UPDATE")	
+	rfile = rt.TFile("output/xsecs_M1_M3.root","UPDATE")	
 	hist.Write("xsecs",rt.TObject.kOverwrite)
 	hist_pdf.Write("pdf_uncertainty",rt.TObject.kOverwrite)
 	hist_alpha.Write("alphaS_uncertainty",rt.TObject.kOverwrite)
