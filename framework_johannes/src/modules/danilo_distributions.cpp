@@ -25,7 +25,7 @@ void saveHistograms(std::map<TString,std::vector<TString>> const &msPresel_vVars
       for (TString sVar:sPresel_vVars.second){
          sVar=sPresel+sVar;
 //         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets","T5gg","T5Wg","GGM"}){
-         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets_DR","T5Wg","TChiWG"}){
+         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets_DR","T5Wg","TChiWG","GGM_M1_M2","GGM_M1_M2_high"}){
             saver_hist.save(*hs.getHistogram(sVar,sSample),sVar+"/"+sSample);
          }
          TH1F hEFake(*hs_pix.getHistogram(sVar,"SinglePhoton"));
@@ -46,7 +46,7 @@ void saveHistograms(std::map<TString,std::vector<TString>> const &msPresel_vVars
       for (TString sVar:sPresel_vVars.second){
          sVar=sPresel+sVar;
 //         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets","T5gg","T5Wg","GGM"}){
-         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets_DR","T5Wg","TChiWG"}){
+         for (TString sSample: {"diboson","ZNuNuJets","WLNuJets","TTJets","TTGJets","ZGTo2LG","ZNuNuGJets","WGToLNuG","QCD","GJets_DR","T5Wg","TChiWG","GGM_M1_M2","GGM_M1_M2_high"}){
             saver_hist.save(*hs.getHistogram(sVar,sSample),sVar+"/"+sSample);
          }
       }
@@ -227,6 +227,72 @@ void run()
    ADD_HIST("pre_ph165/VR_SR/noHighHTG/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,30,300,1000);
    ADD_HIST("pre_ph165/VR_SR/noHighHTG/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
    
+   //Same as above but without any overlap to analyses included in combination but hightHtgVeto instead of complete htgVeto
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/HTG"   ,";%HTG;EventsBIN" ,30,0,2500);
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/MET"   ,";%MET;EventsBIN" ,30,0,800);
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,30,0,1.7);
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,30,170,2000);
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,30,300,1000);
+   ADD_HIST("pre_ph165/VR_SR/exclusiv_highHTG/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   
+   //Same as above but without any overlap to analyses included in combination but without htgVeto
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/HTG"   ,";%HTG;EventsBIN" ,30,0,2500);
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/MET"   ,";%MET;EventsBIN" ,30,0,800);
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,30,0,1.7);
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,30,170,2000);
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,30,300,1000);
+   ADD_HIST("pre_ph165/VR_SR/leptonDiphotonVeto/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   
+   //VR for the initial selection
+   ADD_HIST("pre_ph165/VR/inclusiv/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/inclusiv/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/inclusiv/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/inclusiv/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/inclusiv/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/inclusiv/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/inclusiv/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/inclusiv/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Without lepton overlap for VR
+   ADD_HIST("pre_ph165/VR/noLepton/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/noLepton/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/noLepton/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/noLepton/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/noLepton/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/noLepton/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/noLepton/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/noLepton/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Without diphoton overlap for VR
+   ADD_HIST("pre_ph165/VR/noDiphoton/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/noDiphoton/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/noDiphoton/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/noDiphoton/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/noDiphoton/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/noDiphoton/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/noDiphoton/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/noDiphoton/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Without htg overlap for VR
+   ADD_HIST("pre_ph165/VR/noHTG/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/noHTG/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/noHTG/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/noHTG/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/noHTG/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/noHTG/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/noHTG/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/noHTG/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Without highHtg overlap for VR
+   ADD_HIST("pre_ph165/VR/noHighHTG/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/noHighHTG/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/noHighHTG/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/noHighHTG/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/noHighHTG/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/noHighHTG/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/noHighHTG/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/noHighHTG/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
    //Same as above but without any overlap to analyses included in combination only for VR
    ADD_HIST("pre_ph165/VR/exclusiv/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
    ADD_HIST("pre_ph165/VR/exclusiv/MET"   ,";%MET;EventsBIN" ,50,0,800);
@@ -236,6 +302,26 @@ void run()
    ADD_HIST("pre_ph165/VR/exclusiv/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
    ADD_HIST("pre_ph165/VR/exclusiv/STG"   ,";STg;EventsBIN" ,50,400,800);
    ADD_HIST("pre_ph165/VR/exclusiv/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Same as above but without any overlap to analyses included in combination only for VR (highHtgVeto instead of htgVeto)
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/exclusiv_highHTG/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
+   //Same as above but without any overlap to analyses included in combination only for VR (no htgVeto)
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
    
    //For Limits and syst errors
    ADD_HIST("pre_ph165/c_MET300/MT300/exclusiv/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
@@ -258,6 +344,12 @@ void run()
    
    ADD_HIST("pre_ph165/c_MET300/MT300/htgHighLeptonVeto/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
    ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);  
+   
+   ADD_HIST("pre_ph165/c_MET300/MT300/exclusiv_highHTG/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
+   ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);
+   
+   ADD_HIST("pre_ph165/c_MET300/MT300/leptonDiphotonVeto/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
+   ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);
    
    //Overlap in validation region
    ADD_HIST("pre_ph165/VR/overlap"   ,";;EventsBIN"           ,5,-0.5,4.5);
@@ -727,6 +819,10 @@ void run()
                      hs.fill("pre_ph165/c_MET300/MT300/exclusiv/STg",STg);
                   }
                   
+                  if (highEmhtVeto == 0 && leptoVeto == 0 && diphotonVeto == 0) {
+                     hs.fill("pre_ph165/c_MET300/MT300/exclusiv_highHTG/STg",STg);
+                  }
+                  
                   if (emhtVeto == 0) {
                      hs.fill("pre_ph165/c_MET300/MT300/htgVeto/STg",STg);
                   }
@@ -746,6 +842,10 @@ void run()
                   if (highEmhtVeto == 0 && leptoVeto == 0) {
                      hs.fill("pre_ph165/c_MET300/MT300/htgHighLeptonVeto/STg",STg);
                   }
+                  
+                  if (diphotonVeto == 0 && leptoVeto == 0) {
+                     hs.fill("pre_ph165/c_MET300/MT300/leptonDiphotonVeto/STg",STg);
+                  }
                }
                if (MT > 100 && met > 100){
                   if (met < 300 || MT < 300){
@@ -754,6 +854,14 @@ void run()
                      
                      if (emhtVeto == 0 && leptoVeto == 0 && diphotonVeto == 0){
                         hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     if (highEmhtVeto == 0 && leptoVeto == 0 && diphotonVeto == 0){
+                        hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     if (leptoVeto == 0 && diphotonVeto == 0){
+                        hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
                      }
                      
                      if (emhtVeto == 0) {
@@ -861,6 +969,86 @@ void run()
                         hs.fill("pre_ph165/VR_SR/exclusiv/phoEta",pho[0]->p.Eta());
                      }
                      
+                     //without overlap to any analysis included in the combination (but highHTGVeto instead of full HTGVeto)
+                     if (leptoVeto == false && diphotonVeto == false && highEmhtVeto == false) {
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/HTG",emht);
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/MET",met);
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/MT",MT);
+                        hs.fill("pre_ph165/VR_SR/exclusiv_highHTG/phoEta",pho[0]->p.Eta());
+                     }
+                     
+                     //without overlap to any analysis included in the combination (but without htgVeto)
+                     if (leptoVeto == false && diphotonVeto == false) {
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/HTG",emht);
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/MET",met);
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/MT",MT);
+                        hs.fill("pre_ph165/VR_SR/leptonDiphotonVeto/phoEta",pho[0]->p.Eta());
+                     }
+                     
+                     //VR for initial selection
+                     if (STg < 600) {
+                        hs.fill("pre_ph165/VR/inclusiv/HTG",emht);
+                        hs.fill("pre_ph165/VR/inclusiv/MET",met);
+                        hs.fill("pre_ph165/VR/inclusiv/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/inclusiv/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/inclusiv/MT",MT);
+                        hs.fill("pre_ph165/VR/inclusiv/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/inclusiv/STG",STg);
+                        hs.fill("pre_ph165/VR/inclusiv/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without lepton overlap for VR
+                     if (leptoVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/noLepton/HTG",emht);
+                        hs.fill("pre_ph165/VR/noLepton/MET",met);
+                        hs.fill("pre_ph165/VR/noLepton/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/noLepton/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/noLepton/MT",MT);
+                        hs.fill("pre_ph165/VR/noLepton/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/noLepton/STG",STg);
+                        hs.fill("pre_ph165/VR/noLepton/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without diphoton overlap for VR
+                     if (diphotonVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/noDiphoton/HTG",emht);
+                        hs.fill("pre_ph165/VR/noDiphoton/MET",met);
+                        hs.fill("pre_ph165/VR/noDiphoton/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/noDiphoton/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/noDiphoton/MT",MT);
+                        hs.fill("pre_ph165/VR/noDiphoton/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/noDiphoton/STG",STg);
+                        hs.fill("pre_ph165/VR/noDiphoton/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without htg overlap for VR
+                     if (emhtVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/noHTG/HTG",emht);
+                        hs.fill("pre_ph165/VR/noHTG/MET",met);
+                        hs.fill("pre_ph165/VR/noHTG/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/noHTG/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/noHTG/MT",MT);
+                        hs.fill("pre_ph165/VR/noHTG/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/noHTG/STG",STg);
+                        hs.fill("pre_ph165/VR/noHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without highHtg overlap for VR
+                     if (highEmhtVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/noHighHTG/HTG",emht);
+                        hs.fill("pre_ph165/VR/noHighHTG/MET",met);
+                        hs.fill("pre_ph165/VR/noHighHTG/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/noHighHTG/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/noHighHTG/MT",MT);
+                        hs.fill("pre_ph165/VR/noHighHTG/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/noHighHTG/STG",STg);
+                        hs.fill("pre_ph165/VR/noHighHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
                      //without overlap to any analysis included in the combination only VR
                      if (leptoVeto == false && diphotonVeto == false && emhtVeto == false && STg < 600) {
                         hs.fill("pre_ph165/VR/exclusiv/HTG",emht);
@@ -871,6 +1059,30 @@ void run()
                         hs.fill("pre_ph165/VR/exclusiv/phoEta",pho[0]->p.Eta());
                         hs.fill("pre_ph165/VR/exclusiv/STG",STg);
                         hs.fill("pre_ph165/VR/exclusiv/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without overlap to any analysis included in the combination only VR (but highHtgVeto instead of full HtgVeto)
+                     if (leptoVeto == false && diphotonVeto == false && highEmhtVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/HTG",emht);
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/MET",met);
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/MT",MT);
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/STG",STg);
+                        hs.fill("pre_ph165/VR/exclusiv_highHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
+                     //without overlap to any analysis included in the combination only VR (but without htgVeto)
+                     if (leptoVeto == false && diphotonVeto == false && STg < 600) {
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/HTG",emht);
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/MET",met);
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/MT",MT);
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/STG",STg);
+                        hs.fill("pre_ph165/VR/leptonDiphotonVeto/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
                      }
                      
                      //Overlap in validation region
@@ -913,7 +1125,7 @@ void run()
    hist::Histograms<TH1F> &hs = hs_notPix;
 //   std::vector<TString> samplesToCombine={"GJets","QCD","ZNuNuGJets","ZGTo2LG","WGToLNuG","ZNuNuJets","WLNuJets","diboson","T5gg","T5Wg","GGM","SinglePhoton","MET"};
    //std::vector<TString> samplesToCombine={"GJets_DR","QCD","ZNuNuGJets","ZGTo2LG","WGToLNuG","ZNuNuJets","WLNuJets","diboson","T5Wg","TChiWG","SinglePhoton","MET"};
-   std::vector<TString> samplesToCombine={"GJets_DR","QCD","ZNuNuGJets","ZGTo2LG","WGToLNuG","ZNuNuJets","WLNuJets","diboson","T5Wg","TChiWG","SinglePhoton"};
+   std::vector<TString> samplesToCombine={"GJets_DR","QCD","ZNuNuGJets","ZGTo2LG","WGToLNuG","ZNuNuJets","WLNuJets","diboson","T5Wg","TChiWG","GGM_M1_M2","GGM_M1_M2_high","SinglePhoton"};
    hs    .combineFromSubsamples(samplesToCombine);
    hs_pix.combineFromSubsamples(samplesToCombine);
    hs2d.combineFromSubsamples(samplesToCombine);
@@ -937,6 +1149,15 @@ void run()
       {"pre_ph165/VR_SR/noDiphoton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
       {"pre_ph165/VR_SR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
       {"pre_ph165/VR_SR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR_SR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR_SR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR/inclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noLepton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noDiphoton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
    //for final datacards
       {"pre_ph165/c_MET300/MT300/exclusiv/",{"STg"}},
@@ -953,6 +1174,10 @@ void run()
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighVeto/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/htgHighLeptonVeto/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/exclusiv_highHTG/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/leptonDiphotonVeto/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/",{"absphiMETnJetPh"}},
    };
    
    for (auto const &sPresel_vVars:msPresel_vVars){
@@ -972,7 +1197,7 @@ void run()
          if (!sVar.Contains(sPresel+"Ng")) le.append(hEFake,cfg.efake.label,"f");
          st.Draw();
 //         auto hists=hs.getHistograms(sVar,{"T5gg","T5Wg","GGM"});
-         auto hists=hs.getHistograms(sVar,{"T5Wg","TChiWG"});
+         auto hists=hs.getHistograms(sVar,{"T5Wg","TChiWG","GGM_M1_M2","GGM_M1_M2_high"});
          for (auto const &h: hists) h->Draw("same hist");
          le+=hs.getLegendEntries();
          TLegend leg=le.buildLegend(.4,.7,1-gPad->GetRightMargin(),-1,2);
@@ -996,6 +1221,15 @@ void run()
       {"pre_ph165/VR_SR/noDiphoton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
       {"pre_ph165/VR_SR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
       {"pre_ph165/VR_SR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR_SR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR_SR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta"}},
+      {"pre_ph165/VR/inclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noLepton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noDiphoton/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       //for final datacards
       {"pre_ph165/c_MET300/MT300/exclusiv/",{"STg"}},
@@ -1012,6 +1246,10 @@ void run()
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighVeto/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/htgHighLeptonVeto/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/exclusiv_highHTG/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/leptonDiphotonVeto/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/",{"absphiMETnJetPh"}},
    };
    saveHistograms(msPresel_vVars,saver_hist,hs,hs_pix,true);
    

@@ -231,6 +231,10 @@ void runScan_80X(Scan_t scan,int selection)
    int iBeforeVeto=0;
    
    int test_Sel_gg = 0;
+   int fake = 0;
+   int elepair = 0;
+   int mupair = 0;
+   int rest = 0;
    
    Long64_t iEvents = tree->GetEntries();
    int processEvents=cfg.processFraction*iEvents;
@@ -491,6 +495,29 @@ void runScan_80X(Scan_t scan,int selection)
          }
       }
       
+      if (leptoVeto == true) { // && ((lumNo >= 15133 && lumNo <= 15171) || (lumNo >=19423 && lumNo<=19461))) {
+         //~ if (photons->size()==2) {
+            //~ fake++;
+            //~ if (electrons->size()>=1) {
+               //~ std::cout<< runNo << ":" << lumNo << ":" << evtNo<<"   ";
+               //~ std::cout<<pho.size()<<"    "<<lPixPho.size()<<"   "<<std::endl;
+               //~ for (tree::Photon const &ph: *photons){
+                  //~ std::cout<<ph.sigmaIetaIeta<<"   "<<ph.sigmaIphiIphi<<"   "<<ph.seedCrystalE/ph.p.Pt()<<"    "<<ph.r9<<std::endl;
+               //~ }
+            //~ }
+         //~ }
+         //~ else if (photons->size()==1) {
+            //~ if (electrons->size()>0 && muons->size()!=2) {
+               //~ elepair++;
+            //~ }
+            //~ else if (muons->size()==2) {
+               //~ mupair++;
+            //~ }
+         //~ }
+         //~ else rest++;
+         fake++;
+      }
+      
       /////////////////
       //Diphoton Veto//
       /////////////////
@@ -565,6 +592,22 @@ void runScan_80X(Scan_t scan,int selection)
       
       else if(selection == 6) {
          if (highEmhtVeto == true || leptoVeto == true) {
+            hISRWeight[model+"_after"].Fill(-1,fEventWeight);
+            hISRWeight[model+"_afterErr"].Fill(-1,fEventWeightError);
+            continue;
+         }
+      }
+      
+      else if(selection == 7) {
+         if (highEmhtVeto == true || leptoVeto == true || diphotonVeto == true) {
+            hISRWeight[model+"_after"].Fill(-1,fEventWeight);
+            hISRWeight[model+"_afterErr"].Fill(-1,fEventWeightError);
+            continue;
+         }
+      }
+      
+      else if(selection == 8) {
+         if (leptoVeto == true || diphotonVeto == true) {
             hISRWeight[model+"_after"].Fill(-1,fEventWeight);
             hISRWeight[model+"_afterErr"].Fill(-1,fEventWeightError);
             continue;
@@ -740,6 +783,8 @@ void runScan_80X(Scan_t scan,int selection)
    else if (selection == 4) path="pre_ph165/c_MET100/MT100/METl300vMTl300/diphotonVeto/absphiMETnJetPh/SinglePhoton";
    else if (selection == 5) path="pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighVeto/absphiMETnJetPh/SinglePhoton";
    else if (selection == 6) path="pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/absphiMETnJetPh/SinglePhoton";
+   else if (selection == 7) path="pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/absphiMETnJetPh/SinglePhoton";
+   else if (selection == 8) path="pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/absphiMETnJetPh/SinglePhoton";
    else path="pre_ph165/c_MET100/MT100/METl300vMTl300/inclusiv/absphiMETnJetPh/SinglePhoton";
    
    TH1F hData(*dataReader.read<TH1F>(path));
@@ -767,6 +812,8 @@ void runScan_80X(Scan_t scan,int selection)
    else if (selection == 4) out=TString::Format("signal_scan_diphotonVeto_%s.root",cfg.treeVersion.Data());
    else if (selection == 5) out=TString::Format("signal_scan_htgHighVeto_%s.root",cfg.treeVersion.Data());
    else if (selection == 6) out=TString::Format("signal_scan_htgHighLeptonVeto_%s.root",cfg.treeVersion.Data());
+   else if (selection == 7) out=TString::Format("signal_scan_exclusiv_highHTG_%s.root",cfg.treeVersion.Data());
+   else if (selection == 8) out=TString::Format("signal_scan_leptonDiphotonVeto_%s.root",cfg.treeVersion.Data());
    else out=TString::Format("signal_scan_inclusiv_%s.root",cfg.treeVersion.Data());
    
    io::RootFileSaver saver_hist(out,"",false);
@@ -986,6 +1033,10 @@ void runScan_80X(Scan_t scan,int selection)
    //Print
    std::cout<<processEvents<<std::endl;
    std::cout<<test_Sel_gg<<std::endl;
+   std::cout<<fake<<std::endl;
+   std::cout<<elepair<<std::endl;
+   std::cout<<mupair<<std::endl;
+   std::cout<<rest<<std::endl;
 }
 
 extern "C"
@@ -997,24 +1048,28 @@ void run()
    //~ runScan_80X(TChiWg,3);
    //~ runScan_80X(TChiWg,4);
    //~ runScan_80X(TChiWg,5);
+   //~ runScan_80X(TChiWg,7);
     //~ runScan_80X(TChiNg,5);
     //~ runScan_80X(T5gg,5);
-    //~ runScan_80X(T5Wg,6);
+    //~ runScan_80X(T5Wg,7);
    //~ runScan_80X(T6Wg,5);
-    runScan_80X(T6gg,2);
+    //~ runScan_80X(T6gg,2);
   //~ runScan_80X(GGM,0);
-   //~ runScan_80X(GGM_M1_M2,0);
+   //~ runScan_80X(GGM_M1_M2,8);
    //~ runScan_80X(GGM_M1_M3,5);
    //~ runScan_80X(GGM_M1_M3,2);
    //~ runScan_80X(GGM_M1_M3,3);
    //~ runScan_80X(GGM_M1_M3,4);
-   //~ runScan_80X(TChiNg_gg_C1N2,2);
+   runScan_80X(GGM_M1_M3,8);
+   //~ runScan_80X(TChiNg_gg_C1N2,0);
    //~ runScan_80X(TChiNg_gg_C1N2,3);
    //~ runScan_80X(TChiNg_gg_C1N2,4);
    //~ runScan_80X(TChiNg_gg_C1N2,5);
+   //~ runScan_80X(TChiNg_gg,0);
+   //~ runScan_80X(TChiNg_gz,0);
    
    
-   //~ for (int i=3;i<=4;i++) {
+   //~ for (int i=5;i<=5;i++) {
       //~ std::cout<<"TChiNg_gg selection:"<<i<<std::endl;
       //~ runScan_80X(TChiNg_gg,i);
       //~ std::cout<<"TChiNg_zz selection:"<<i<<std::endl;
@@ -1022,9 +1077,10 @@ void run()
       //~ std::cout<<"TChiNg_gz selection:"<<i<<std::endl;
       //~ runScan_80X(TChiNg_gz,i);
    //~ }
-   //~ for (int i=1;i<=4;i++) {
-      //~ std::cout<<"T5Wg selection:"<<i<<std::endl;
-       //~ runScan_80X(T5Wg,i);
+   //~ for (int i=1;i<=7;i++) {
+      //~ std::cout<<"TChi* selection:"<<i<<std::endl;
+      //~ runScan_80X(TChiNg,i);
+      //~ runScan_80X(TChiWg,i);
     //~ }
-   //int selection: inclusiv=0, exclusiv=1, htg=2, lepton=3, diphoton=4, htgHigh=5, htgHigh+lepton=6
+   //int selection: inclusiv=0, exclusiv=1, htg=2, lepton=3, diphoton=4, htgHigh=5, htgHigh+lepton=6 , htgHigh+lepton+diphoton=7, lepton+diphoton=8
 }

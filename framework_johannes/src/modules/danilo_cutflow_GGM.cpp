@@ -21,28 +21,30 @@ io::Logger fit_result_weights(("PU_uncert.tex"));
 
 void runScan_80X()
 {
+   TString scan="CutFlow_M1_200_M3_1000";
+   TString fname=cfg.dataBasePath;
+   fname+="GGM_M1200_M31000.root";
+   
    //initialize cutflow histogram
    std::vector<std::string> vsDatasubsets(cfg.datasets.getDatasubsetNames());
    hist::Histograms<TH1F> hs(vsDatasubsets);
-   hs.addHist("CutFlow_M1_1000_M2_1000",";;Ereignisse / bin",12,0,12);
+   hs.addHist(scan,";;Ereignisse / bin",12,0,12);
    
-   hs.setCurrentSample("GGM_M11000_M21000");
+   hs.setCurrentSample(scan);
    
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","all");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","N_{#gamma}>0");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","p_{T}^{#gamma}>180");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","FastSim-Veto");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","clean-MET-veto");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","dR(Photon,Jet)");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","MET-cut");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","MT-cut");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","STg-cut");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","HTG-Veto");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","Lepton-Veto");
-   hs.fillbinFake("CutFlow_M1_1000_M2_1000","Diphoton-Veto");
+   hs.fillbinFake(scan,"all");
+   hs.fillbinFake(scan,"N_{#gamma}>0");
+   hs.fillbinFake(scan,"p_{T}^{#gamma}>180");
+   hs.fillbinFake(scan,"FastSim-Veto");
+   hs.fillbinFake(scan,"clean-MET-veto");
+   hs.fillbinFake(scan,"dR(Photon,Jet)");
+   hs.fillbinFake(scan,"MET-cut");
+   hs.fillbinFake(scan,"MT-cut");
+   hs.fillbinFake(scan,"STg-cut");
+   hs.fillbinFake(scan,"HTG-Veto");
+   hs.fillbinFake(scan,"Lepton-Veto");
+   hs.fillbinFake(scan,"Diphoton-Veto");
    
-   TString fname=cfg.dataBasePath;
-   fname+="GGM_M11000_M21000.root";
    std::map<std::string,TH1F> hSR;
    std::map<std::string,TH1F> hCR;
    std::map<std::string,TH1F> hPresel;
@@ -101,7 +103,7 @@ void runScan_80X()
       
       float fEventWeight=w_pu * w_mc;
       hs.setFillWeight(fEventWeight);
-      hs.fillbin("CutFlow_M1_1000_M2_1000","all");
+      hs.fillbin(scan,"all");
       
       std::vector<tree::Photon const *> lPho,mPho,tPho,lPixPho;
       for (tree::Photon const &ph: *photons){
@@ -120,7 +122,7 @@ void runScan_80X()
       if (lPho.empty()) {
          continue;
       }
-      hs.fillbin("CutFlow_M1_1000_M2_1000","N_{#gamma}>0");
+      hs.fillbin(scan,"N_{#gamma}>0");
       
       std::vector<tree::Photon const*> const &pho = lPho;
       float const phoPt=pho[0]->p.Pt(); // set *before* wCalc->get() !
@@ -129,7 +131,7 @@ void runScan_80X()
       if (phoPt<180) {
          continue;
       }  //photon pT cut
-      hs.fillbin("CutFlow_M1_1000_M2_1000","p_{T}^{#gamma}>180");
+      hs.fillbin(scan,"p_{T}^{#gamma}>180");
       float const MT=phys::M_T(*pho[0],*MET);
       float STg=MET->p.Pt();
       float genSTg=genMET->p.Pt();
@@ -283,7 +285,7 @@ void runScan_80X()
          iFastSimVeto++;
          continue;
       }
-      hs.fillbin("CutFlow_M1_1000_M2_1000","FastSim-Veto");
+      hs.fillbin(scan,"FastSim-Veto");
       
 
       bool clean_MET = true;
@@ -296,7 +298,7 @@ void runScan_80X()
       if (!clean_MET) {
          continue;
       }
-      hs.fillbin("CutFlow_M1_1000_M2_1000","clean-MET-veto");
+      hs.fillbin(scan,"clean-MET-veto");
 
       float minDR=std::numeric_limits<float>::max();
       for (tree::Jet const &jet: *jets){
@@ -310,7 +312,7 @@ void runScan_80X()
       if (minDR < .5){
          continue;
       }
-      hs.fillbin("CutFlow_M1_1000_M2_1000","dR(Photon,Jet)");
+      hs.fillbin(scan,"dR(Photon,Jet)");
 
       float dPhiMETnearJet=4;
       float iJet=0;
@@ -331,17 +333,17 @@ void runScan_80X()
       
       //Signal Region selection
       if (MET->p.Pt()>300) {
-         hs.fillbin("CutFlow_M1_1000_M2_1000","MET-cut");
+         hs.fillbin(scan,"MET-cut");
          if (MT>300) {
-            hs.fillbin("CutFlow_M1_1000_M2_1000","MT-cut");
+            hs.fillbin(scan,"MT-cut");
             if (STg>600) {
-               hs.fillbin("CutFlow_M1_1000_M2_1000","STg-cut");
+               hs.fillbin(scan,"STg-cut");
                if (emhtVeto == false) {
-                  hs.fillbin("CutFlow_M1_1000_M2_1000","HTG-Veto");
+                  hs.fillbin(scan,"HTG-Veto");
                   if (leptoVeto == false) {
-                     hs.fillbin("CutFlow_M1_1000_M2_1000","Lepton-Veto");
+                     hs.fillbin(scan,"Lepton-Veto");
                      if (diphotonVeto == false) {
-                        hs.fillbin("CutFlow_M1_1000_M2_1000","Diphoton-Veto");
+                        hs.fillbin(scan,"Diphoton-Veto");
                      }
                   }
                }
@@ -355,10 +357,10 @@ void runScan_80X()
    io::RootFileSaver saver("plots.root",TString::Format("danilo_cutflow_GGM%.1f",cfg.processFraction*100));
    TCanvas can;
    TH1F *cutflow;
-   cutflow = hs.getHistogram("CutFlow_M1_1000_M2_1000","GGM_M11000_M21000");
+   cutflow = hs.getHistogram(scan,scan);
    std::cout<<cutflow->GetBinContent(1)<<std::endl;
    cutflow->Draw("E1");
-   saver.save(can,"CutFlow_M1_1000_M2_1000",false);
+   saver.save(can,scan,false);
 }
 
 extern "C"

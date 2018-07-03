@@ -150,7 +150,7 @@ struct SignalBin
    TString formatBlock(bool tex=false,bool showTotal=false) {
       float nBkgTot=getTotal().count;
       TString block;
-      for (TString compName: {"Vg","GJ","TTcomb","efake","diboson","TChiWG","T5Wg"}) {
+      for (TString compName: {"Vg","GJ","TTcomb","efake","diboson","TChiWG","T5Wg","GGM_M1_M2"}) {
          TString line;
          if (component.count(compName)) {
             if (compName=="GJ") line=component[compName].formatLine(nBkgTot,tex,false,cfg.sf.uncert_gammaJ);
@@ -206,6 +206,7 @@ enum PlotMode_t
    SR_BLIND, // signal region without data
    SR_CHECK, // signal region control distributions with data
    SR, // signal region unblinded
+   SR_NOSTACK, // signal region unblinded with signal not stacked
    VR,
 };
 
@@ -233,7 +234,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
    std::vector<SignalBin> signalBins_signal;
    SignalBin bkgIntegral; // for the whole signal region
    SignalBin signalIntegral;
-   if (plotMode==SR) {
+   if (plotMode==SR || plotMode==SR_NOSTACK) {
       for (int i=0; i<rebinned.numberOfBins()+2; i++) {
          SignalBin bin;
          bin.lower=rebinned.binEdge(i);
@@ -266,7 +267,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
    gfx::LegendEntries le;
    THStack st;
    std::map<TString,TH1F> fixHists;
-   for (TString sSample:{"efake","TTJets","TTGJets","diboson","TChiWG","T5Wg"}){
+   for (TString sSample:{"efake","TTJets","TTGJets","diboson","TChiWG","T5Wg","GGM_M1_M2"}){
       fixHists[sSample]=rebinned(*(TH1F*)histReader.read<TH1F>(sSelection+sVar+"/"+sSample));
       TH1 &h=fixHists[sSample];
       h.Scale(cfg.trigger_eff_Ph);
@@ -306,7 +307,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
       le.prepend(hVg,"V(#gamma)","f");
    }
    TH1F hStackSum(*(TH1F*)st.GetStack()->Last());
-   for (TString sSample:{"TChiWG","T5Wg"}) {
+   for (TString sSample:{"TChiWG","T5Wg","GGM_M1_M2"}) {
       fixHists[sSample+"_stacked"]=fixHists[sSample];
       TH1F &h=fixHists[sSample+"_stacked"];
       h.Add(&hStackSum);
@@ -445,7 +446,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
    }
 
    // store separate background uncertainties
-   if (plotMode==SR  && sVar=="STg") {
+   if ((plotMode==SR || plotMode==SR_NOSTACK)  && sVar=="STg") {
       for (int i=0; i<=hSystErr.GetNbinsX()+1;i++){
          std::map<TString,SignalBin::Component> &bini=signalBins[i].component;
          bini["Vg"].count=hVg.GetBinContent(i);
@@ -475,7 +476,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
                }
                bini[sSample].esyst=fixHists[sSample].GetBinContent(i)*cfg.datasets.getSystUncert(sSample);
             }
-         for (TString sSample:{"TChiWG","T5Wg"}) {
+         for (TString sSample:{"TChiWG","T5Wg","GGM_M1_M2"}) {
             signalBins_signal[i].component[sSample].count=fixHists[sSample].GetBinContent(i);
             signalBins_signal[i].component[sSample].estat=fixHists[sSample].GetBinError(i);
             signalBins_signal[i].component[sSample].esyst=0;
@@ -503,7 +504,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
          bkgIntegral.component[sSample].estat=integrErr;
          bkgIntegral.component[sSample].esyst=integr*cfg.datasets.getSystUncert(sSample);
       }
-      for (TString sSample:{"TChiWG","T5Wg"}) {
+      for (TString sSample:{"TChiWG","T5Wg","GGM_M1_M2"}) {
          integr=fixHists[sSample].IntegralAndError(1,fixHists[sSample].GetNbinsX()+1,integrErr);
          signalIntegral.component[sSample].count=integr;
          signalIntegral.component[sSample].estat=integrErr;
@@ -524,8 +525,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
    hStackSum.SetStats(false);
    hStackSum.Draw("axis");
 
-   if (plotMode==SR && sVar=="METS") hStackSum.GetYaxis()->SetRangeUser(0.2,300);
-   if (plotMode==SR && sVar=="STg")  hStackSum.GetYaxis()->SetRangeUser(0.4,500);
+   if ((plotMode==SR || plotMode==SR_NOSTACK) && sVar=="METS") hStackSum.GetYaxis()->SetRangeUser(0.2,300);
+   if ((plotMode==SR || plotMode==SR_NOSTACK) && sVar=="STg")  hStackSum.GetYaxis()->SetRangeUser(0.4,500);
    if (plotMode==CR && sVar=="METS") hStackSum.GetYaxis()->SetRangeUser(2e-2,200);
    if (plotMode==PRE && sVar=="METS_logx") can.SetLogx();
    st.Draw("same");
@@ -533,21 +534,31 @@ void plot(TString sSelection,TString sVar,int iRebin,
    st.GetXaxis()->SetTitle(hStatErr.GetXaxis()->GetTitle());
    if (plotMode==CR) logFile<<"-- "+saveName;
 
-   for (TString sSample:{"TChiWG","T5Wg"}) {
+   //~ for (TString sSample:{"TChiWG","T5Wg","GGM_M1_M2"}) {
+   for (TString sSample:{"GGM_M1_M2"}) {
       TH1F &h=fixHists[sSample+"_stacked"];
       if (showSignal) {
-         if (plotMode==PRE) {
+         if (plotMode==PRE || plotMode==SR_NOSTACK) {
             TH1F &hr=fixHists[sSample];
             hr.SetLineColor(hr.GetFillColor());
             hr.SetLineWidth(3);
             hr.SetFillStyle(0);
             hr.Draw("hist same");
             hr.Draw("hist same");
+            if (sSample == "GGM_M1_M2") sSample = "GGM M1M2";
             le.append(hr,sSample,"l");
-         } else {
+         }
+         else {
             if (sSample == "T5Wg"){
                h.SetLineColor(kGreen+1);
             }
+            else if (sSample == "GGM_M1_M2"){
+               h.SetLineColor(kBlue+1);
+               sSample = "GGM M1M2";
+            }
+            //~ else if (sSample == "GGM_M1_M2_high"){
+               //~ h.SetLineColor(kCyan);
+            //~ }
             h.Draw("hist same");
             h.SetLineWidth(3);
             le.append(h,sSample,"l");
@@ -623,7 +634,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
       saver.save(spcan,saveName,!showData);
    }
 
-   if (plotMode==SR && sVar=="STg" && !sSelection.Contains("STg600")) {
+   if ((plotMode==SR || plotMode==SR_NOSTACK) && sVar=="STg" && !sSelection.Contains("STg600")) {
       bool tex=false;
       for (unsigned iBin=0; iBin<signalBins.size(); iBin++) {
          logFile*sVar/signalBins[iBin].lower>>signalBins[iBin].upper;
@@ -747,6 +758,13 @@ void run()
    plot("pre_ph165/VR_SR/noDiphoton/","MT",{300,1000},{70},VR);
    plot("pre_ph165/VR_SR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
    
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","HTG",{0,2400},{240},VR);
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","MET",{300,800},{50},VR);
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoPt",{200,1000},{80},VR);
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","MT",{300,1000},{70},VR);
+   plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   
    plot("pre_ph165/VR_SR/exclusiv/","HTG",{0,2400},{240},VR);
    plot("pre_ph165/VR_SR/exclusiv/","MET",{300,800},{50},VR);
    plot("pre_ph165/VR_SR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
@@ -761,6 +779,42 @@ void run()
    plot("pre_ph165/VR_SR/noHighHTG/","MT",{300,1000},{100},VR);
    plot("pre_ph165/VR_SR/noHighHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    
+   plot("pre_ph165/VR/noLepton/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/noLepton/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/noLepton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/noLepton/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noLepton/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/noLepton/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/noLepton/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/noLepton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
+   plot("pre_ph165/VR/noDiphoton/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/noDiphoton/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/noDiphoton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/noDiphoton/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noDiphoton/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/noDiphoton/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/noDiphoton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
+   plot("pre_ph165/VR/noHTG/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/noHTG/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/noHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/noHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noHTG/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/noHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/noHTG/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/noHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
+   plot("pre_ph165/VR/noHighHTG/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/noHighHTG/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/noHighHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/noHighHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noHighHTG/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/noHighHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/noHighHTG/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/noHighHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
    plot("pre_ph165/VR/exclusiv/","HTG",{0,1200},{120},VR);
    plot("pre_ph165/VR/exclusiv/","MET",{200,500},{50},VR);
    plot("pre_ph165/VR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
@@ -770,14 +824,34 @@ void run()
    plot("pre_ph165/VR/exclusiv/","STG",{400,620},{20},VR);
    plot("pre_ph165/VR/exclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
+   plot("pre_ph165/VR/exclusiv_highHTG/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
+   plot("pre_ph165/VR/inclusiv/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/inclusiv/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/inclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   plot("pre_ph165/VR/inclusiv/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/inclusiv/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/inclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/inclusiv/","STG",{400,620},{20},VR);
+   plot("pre_ph165/VR/inclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
    plot("pre_ph165/c_MET300/MT300/STg600/exclusive/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
    
    //needed for yields
-   plot("pre_ph165/c_MET300/MT300/exclusiv/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/inclusiv/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/htgVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/leptonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/diphotonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/htgHighVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
-   plot("pre_ph165/c_MET300/MT300/htgHighLeptonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
+   plot("pre_ph165/c_MET300/MT300/exclusiv/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/exclusiv_highHTG/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/inclusiv/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/htgVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/leptonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/diphotonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/htgHighVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/htgHighLeptonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/leptonDiphotonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
 }
