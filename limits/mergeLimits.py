@@ -6,6 +6,7 @@ import ROOT as rt
 import argparse
 import sys
 
+
 def getMasses(point):
 	if sScan=="T5Wg" : pattern="datacard_T5Wg_(.*)_(.*)"
 	elif sScan=="GGM_M1_M2" : pattern="datacard_GGM_M1_M2_(.*)_(.*)"
@@ -16,6 +17,8 @@ def getMasses(point):
 	elif sScan=="T6Wg" : pattern="datacard_T6Wg_(.*)_(.*)"
 	elif sScan=="T6gg" : pattern="datacard_T6gg_(.*)_(.*)"
 	elif sScan=="T5gg" : pattern="datacard_T5gg_(.*)_(.*)"
+	elif sScan=="TChiWg": pattern="datacard_TChiWG_(.*)"
+	elif sScan=="TChiNg": pattern="datacard_TChiNG_(.*)"
 	elif sScan.find("CharginoBRstrongN")!=-1 : pattern="datacard_CharginoBRstrongN(.*)_(.*)_(.*)"
 	elif sScan.find("CharginoBRstrongG")!=-1 : pattern="datacard_CharginoBRstrongG(.*)_(.*)_(.*)"
 	if sScan=="T5Wg" and selection=="lepton" : pattern="counting_t5Wg_(.*)_(.*)"
@@ -25,6 +28,7 @@ def getMasses(point):
 	if sScan=="T6Wg" and selection=="htg" : pattern="(.*)_(.*)"
 	if sScan=="GGM_M1_M2" and selection=="htg" : pattern="(.*)_(.*)"
 	if sScan=="GGM_M1_M3" and selection=="htg" : pattern="(.*)_(.*)"
+	if sScan=="GGM_M1_M3" and selection=="lepton" : pattern="counting_GMSB_(.*)_(.*)"
 	m=re.search(pattern,point)
 	masses=[]
 	if m and (len(m.groups())==2) and strongBR==False:
@@ -34,6 +38,8 @@ def getMasses(point):
 		masses.append(int(m.groups()[1]))
 		masses.append(int(m.groups()[2]))
 		masses.append(int(m.groups()[0]))
+	elif m and (sScan=="TChiNg" or sScan=="TChiWg") and (len(m.groups())==1):
+		masses=[int(m.groups()[0]),0]
 	else:
 		print "don't know what this is:",point
 		exit(-1)
@@ -79,7 +85,9 @@ def mergeLimits():
 	elif sScan=="GGM_M1_M2": xsecFile="input/xsec_GGM_M1_M2.txt"
 	elif sScan=="GGM_M1_M3": xsecFile="input/xsec_GGM_M1_M3.txt"
 	elif sScan=="TChiNg_BR": xsecFile="input/xsec_comb_wino.csv"
+	elif sScan=="TChiNg": xsecFile="input/xsec_comb_wino.csv"
 	elif sScan=="CharginoBR": xsecFile="input/xsec_N2C1_wino.csv"
+	elif sScan=="TChiWg": xsecFile="input/xsec_N2C1_wino.csv"
 	elif strongBR: xsecFile="input/xsec_gluglu.csv"
 	elif sScan=="T6Wg": xsecFile="input/xsec_sqsq.csv"
 	elif sScan=="T6gg": xsecFile="input/xsec_sqsq.csv"
@@ -114,13 +122,7 @@ def mergeLimits():
 
 	xsec={}
 	xsec_err={}
-	if sScan=="T5Wg" or sScan=="TChiNg_BR" or sScan=="CharginoBR" or sScan=="T6Wg" or sScan=="T6gg" or sScan=="T5gg" or sScan=="CharginoBRstrong" or strongBR:
-		with open(xsecFile) as f:
-			for line in f:
-				if line.startswith("#"): continue
-				xsec[int(line.split()[0])]=float(line.split()[1])
-				xsec_err[int(line.split()[0])]=float(line.split()[2])/100.
-	elif sScan=="GGM_M1_M2" or sScan=="GGM_M1_M3":
+	if sScan=="GGM_M1_M2" or sScan=="GGM_M1_M3":
 		with open(xsecFile) as f:
 			for line in f:
 				if line.startswith("#"): continue
@@ -129,12 +131,20 @@ def mergeLimits():
 					xsec_err[int(line.split()[0])*100000+int(line.split()[1])]=float(line.split()[3])/float(line.split()[2])
 				else:
 					xsec_err[int(line.split()[0])*100000+int(line.split()[1])]=0
+					
+	else:
+		with open(xsecFile) as f:
+			for line in f:
+				if line.startswith("#"): continue
+				xsec[int(line.split()[0])]=float(line.split()[1])
+				xsec_err[int(line.split()[0])]=float(line.split()[2])/100.
 
 	gr={}
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs"]:
 		gr[lvl]=rt.TGraph2D()
 	if sScan=="T5Wg" or sScan=="T5gg": h_exp =rt.TH2F("","",18,0,2500,21,0,2150)
 	elif sScan=="GGM_M1_M2": h_exp =rt.TH2F("","",27,175,1525,27,175,1525)
+	#~ elif sScan=="GGM_M1_M2": h_exp =rt.TH2F("","",25,275,1525,25,275,1525)
 	elif sScan=="GGM_M1_M3": h_exp =rt.TH2F("","",30,25,1525,31,975,2525)
 	elif sScan=="TChiNg_BR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
 	elif sScan=="CharginoBR": h_exp =rt.TH2F("","",51,-1,101,41,287.5,1312.5)
@@ -142,6 +152,8 @@ def mergeLimits():
 	elif strongBR: h_exp =rt.TH2F("","",51,-1,101,21,0,2150)
 	elif sScan=="T6Wg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
 	elif sScan=="T6gg": h_exp =rt.TH2F("","",23,1000-25,2100+25,41,50,2100)
+	elif sScan=="TChiWg": h_exp =rt.TH2F("","",41,300-12.5,1300+12.5,1,-1,1)
+	elif sScan=="TChiNg": h_exp =rt.TH2F("","",41,300-12.5,1300+12.5,1,-1,1)
 	
 	h_obs   =rt.TH2F(h_exp)
 	h_obs_m1   =rt.TH2F(h_exp)
@@ -177,6 +189,8 @@ def mergeLimits():
 			key=m2
 		if sScan=="CharginoBR":
 			m1=100-m1
+		if strongBR:
+			m2=100-m2
 		xs=xsec[key]
 		datacard="input/"+sScan+"_"+selection+"/"+point+".txt"
 		rLimits=translateCombineOutput(readInOutput(datacard,sScan,selection))
@@ -231,7 +245,7 @@ def mergeLimits():
 	
 	f.Close()
 
-def getContour(gr2):
+def getContour(gr2,lvl=""):
 	""" inspired by https://hypernews.cern.ch/HyperNews/CMS/get/susy/2122/2.html
 	"""
 	c=rt.TCanvas()
@@ -239,6 +253,14 @@ def getContour(gr2):
 	c.Update()
 	cont=gr2.GetContourList(1.)
 	print cont
+	if sScan=="GGM_M1_M2" and lvl=="exp":
+		i=1
+		for ci in cont:
+			ci.Write("multicont_gr_"+str(i),rt.TObject.kOverwrite)
+			i+=1
+		global numMulti
+		numMulti=i
+	
 	if cont and len(cont)>0:
 		N=0
 		c=None
@@ -275,6 +297,8 @@ def getContourHS(hist,lvl=""):
 		for ci in cont:
 			ci.Write("multicont_gr_"+str(i),rt.TObject.kOverwrite)
 			i+=1
+		global numMulti
+		numMulti=i
 	
 	if cont and len(cont)>0:
 		N=0
@@ -299,7 +323,7 @@ def getContours(flag=""):
 	f=rt.TFile(outdir+"limits_%s_"%sScan+selection+".root","update")
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2"]:
 		
-		if flag=="hist" :
+		if flag=="hist":
 			print "hist contouring"
 			hs=f.Get("h_"+lvl)
 			grC=getContourHS(hs,lvl)
@@ -310,7 +334,7 @@ def getContours(flag=""):
 			hsInter.Write("hs_inter"+lvl,rt.TObject.kOverwrite)
 		else :
 			gr=f.Get("gr_"+lvl)
-			grC=getContour(gr)
+			grC=getContour(gr,lvl)
 		if grC:
 			grC.Write("gr_"+lvl+"C",rt.TObject.kOverwrite)
 		else:
@@ -324,23 +348,24 @@ def redoHistogram():
 	h.Write("h_obs_xs_redone",rt.TObject.kOverwrite)
 	f.Close()
 
-def smoothContour_knut(gr, neighbors=5, sigma=.5):
+def smoothContour_knut(gr, neighbors=5, sigma=0.5):
     fgaus = rt.TF1("fgaus", "gaus", -10, 10)
     fgaus.SetParameters(1,0,1)
     weights = [fgaus.Eval(i*sigma) for i in range(neighbors)]
     #~ out = gr.Clone(aux.randomName())
-    out = gr.Clone()
+    if gr: out = gr.Clone()
+    else: return rt.TGraph()
     out.Set(0)
     n = gr.GetN()
     Xs = [gr.GetX()[i] for i in range(n)]
     Ys = [gr.GetY()[i] for i in range(n)]
-    n1 = Ys.index(max(Ys))+1
-    n2 = Ys.index(min(Ys))+1
-    nY=max(n1,n2)
-    n1 = Xs.index(max(Xs))+1
-    n2 = Xs.index(min(Xs))+1
-    nX=max(n1,n2)
-    n=max(nX,nY)
+    #~ n1 = Ys.index(max(Ys))+1
+    #~ n2 = Ys.index(min(Ys))+1
+    #~ nY=max(n1,n2)
+    #~ n1 = Xs.index(max(Xs))+1
+    #~ n2 = Xs.index(min(Xs))+1
+    #~ nX=max(n1,n2)
+    #~ n=max(nX,nY)
     Xs = Xs[0:n]
     Ys = Ys[0:n]
     for i, (x, y) in enumerate(zip(Xs,Ys)):
@@ -358,7 +383,7 @@ def smoothContour_knut(gr, neighbors=5, sigma=.5):
         out.SetPoint(i, newX/ws, newY/ws)
     return out
 
-def smoothContours():
+def smoothContours(flag):
 	f=rt.TFile(outdir+"limits_%s_"%sScan+selection+".root","update")
 	gs=rt.TGraphSmooth()
 	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2"]:
@@ -368,6 +393,12 @@ def smoothContours():
 		#~ gr_sm=gs.SmoothSuper(gr)
 		gr_sm=smoothContour_knut(gr)
 		gr_sm.Write("gr_"+lvl+"C_sm",rt.TObject.kOverwrite)
+	if flag=="multi":
+		for num in range(1,numMulti):
+			gr=f.Get("multicont_gr_"+str(num))
+			print "multicont_gr_"+str(num)
+			gr_sm=smoothContour_knut(gr)
+			gr_sm.Write("multicont_gr_"+str(num)+"_sm",rt.TObject.kOverwrite)
 	f.Close()
 
 
@@ -376,7 +407,7 @@ if __name__ == "__main__":
 	parser.add_argument('scan', nargs='?', help="choose a signal scan")
 	parser.add_argument('selection', nargs='?', help="choose as selection like leptonVeto, htgVeto etc.")
 	parser.add_argument('outdir', nargs='?', default="output/", help="output or test")
-	parser.add_argument('--contourtype', type=str, default="", help="hist or inter (inter uses finer binning than default)")
+	parser.add_argument('--contourtype', type=str, default="", help="hist or inter (inter uses finer binning than default) or mulit for multiple graphs")
 	args = parser.parse_args()
 	
 	missingCards=[]
@@ -392,9 +423,10 @@ if __name__ == "__main__":
 	print contourtype
 
 	mergeLimits()
-	getContours(contourtype)
-	redoHistogram()
-	smoothContours()
+	if sScan!="TChiNg":
+		getContours(contourtype)
+		redoHistogram()
+		smoothContours(contourtype)
 	
 	for card in missingCards:
 		sys.stdout.write(card+" ")

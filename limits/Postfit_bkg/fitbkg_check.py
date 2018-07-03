@@ -24,6 +24,8 @@ for bkg in ["GJ","TTcomb","Vg","diboson","efake"]:
 		pull=(temp1.getVal()-temp2.getVal())/temp2.getError()
 		norm_ST[bkg][0].append(pull)
 		
+		print temp2.getError()
+		
 		temp1=post_VgGjet.find("ch1_Photon_ST_bin"+str(i)+"/"+bkg)
 		temp2=pre_VgGjet.find("ch1_Photon_ST_bin"+str(i)+"/"+bkg)
 		pull=(temp1.getVal()-temp2.getVal())/temp2.getError()
@@ -42,6 +44,9 @@ for bkg in ["VGamma","elefakepho","jetfakepho","qcdfakelep","rare"]:
 		temp2=pre_plain.find("ch1_Photon_Lepton_bin"+str(i)+"/"+bkg)
 		pull=(temp1.getVal()-temp2.getVal())/temp2.getError()
 		norm_Lepton[bkg][0].append(pull)
+		
+		if bkg=="qcdfakelep" and i==2:
+			print temp2.getVal()
 		
 		temp1=post_VgGjet.find("ch1_Photon_Lepton_bin"+str(i)+"/"+bkg)
 		temp2=pre_VgGjet.find("ch1_Photon_Lepton_bin"+str(i)+"/"+bkg)

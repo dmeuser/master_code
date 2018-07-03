@@ -22,7 +22,8 @@ def toPhysMass(hs,cont):
 			data = pyslha.readSLHAFile("input/SLHA_M1_M2/out_M1_%iM2_%i.slha"%(m1,m2))
 			massblock = data.blocks["MASS"]
 			if hs.GetBinContent(i,j)!=0 and m1>200 and m2>200:
-				#~ print m1,m2
+				print m1,m2
+				if abs(massblock[1000024]-massblock[1000022])<20: continue
 				graph.SetPoint(k,massblock[1000022],massblock[1000024],hs.GetBinContent(i,j))
 				quant.Fill(massblock[1000022],massblock[1000024])
 				k+=1
@@ -40,11 +41,11 @@ def toPhysMass(hs,cont):
 	double.SetMarkerStyle(20)
 	double.SetMarkerSize(0.5)
 	double.Draw("AP1")
-	c.Write("massDouble",rt.TObject.kOverwrite)
+	#~ c.Write("massDouble",rt.TObject.kOverwrite)
 	c3=rt.TCanvas()
 	c3.cd()
 	quant.Draw("colz")
-	c3.Write("quant",rt.TObject.kOverwrite)
+	#~ c3.Write("quant",rt.TObject.kOverwrite)
 	f.Close()
 	return graph
 
@@ -105,22 +106,6 @@ def getContourHS(hist,flag=False):
 		return None
 		
 		
-#~ def getContours():
-	#~ f=rt.TFile(outdir+"limits_%s_"%sScan+selection+".root","update")
-	#~ for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2"]:
-		#~ 
-		#~ hs=f.Get("h_"+lvl)
-		#~ grPhys=toPhysMass(hs)
-		#~ grC=getContour(grPhys)
-		#~ 
-		#~ if grC:
-			#~ if(f.cd("physmass")!=1):
-				#~ f.mkdir("physmass")
-			#~ f.cd("physmass")
-			#~ grC.Write("gr_"+lvl+"C",rt.TObject.kOverwrite)
-		#~ else:
-			#~ print "could not get contour for",lvl
-	#~ f.Close()
 #~ 
 #~ 
 #~ def smoothContours():
@@ -139,11 +124,41 @@ def getContourHS(hist,flag=False):
 	#~ f.Close()
 #~ 
 #~ 
-#~ outdir="output/"
-#~ sScan="GGM_M1_M2"
-#~ selection="inclusiv"
-#~ getContours()
-#~ smoothContours()
+
+def smoothContour_knut(gr, neighbors=5, sigma=0.5):
+    fgaus = rt.TF1("fgaus", "gaus", -10, 10)
+    fgaus.SetParameters(1,0,1)
+    weights = [fgaus.Eval(i*sigma) for i in range(neighbors)]
+    #~ out = gr.Clone(aux.randomName())
+    if gr: out = gr.Clone()
+    else: return rt.TGraph()
+    out.Set(0)
+    n = gr.GetN()
+    Xs = [gr.GetX()[i] for i in range(n)]
+    Ys = [gr.GetY()[i] for i in range(n)]
+    #~ n1 = Ys.index(max(Ys))+1
+    #~ n2 = Ys.index(min(Ys))+1
+    #~ nY=max(n1,n2)
+    #~ n1 = Xs.index(max(Xs))+1
+    #~ n2 = Xs.index(min(Xs))+1
+    #~ nX=max(n1,n2)
+    #~ n=max(nX,nY)
+    Xs = Xs[0:n]
+    Ys = Ys[0:n]
+    for i, (x, y) in enumerate(zip(Xs,Ys)):
+        pNeigh = min(neighbors, i+1, n-i)
+        newX, ws, newY = 0, 0, 0
+        for j in range(pNeigh):
+            if j:
+                newX += (Xs[i-j]+Xs[i+j])*weights[j]
+                newY += (Ys[i-j]+Ys[i+j])*weights[j]
+                ws += 2*weights[j]
+            else:
+                newX += x*weights[0]
+                newY += y*weights[0]
+                ws += weights[0]
+        out.SetPoint(i, newX/ws, newY/ws)
+    return out
 
 
 ###########################
@@ -151,14 +166,17 @@ def getContourHS(hist,flag=False):
 ###########################
 
 #~ for cont in ["h_obs","h_exp","h_exp+1","h_exp-1","h_exp+2","h_exp-2"]:
-for cont in ["h_exp"]:
-	f=rt.TFile("output/limits_GGM_M1_M2_inclusiv.root","read")
+for analysis in ["inclusiv","htg","lepton","diphoton","allCombined_FullST"]:
+	print analysis
+	cont="h_exp"
+	f=rt.TFile("output/limits_GGM_M1_M2_"+analysis+".root","read")
 	hist=f.Get(cont)
 	gr=toPhysMass(hist,cont)
 	f.Close()
 
-	f=rt.TFile("test/physmass.root","update")
-	f.cd(cont)
+	f=rt.TFile("output/physmass_GGM_M1_M2.root","update")
+	f.mkdir(analysis)
+	f.cd(analysis)
 	
 	x="M_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
 	y="M_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
@@ -171,13 +189,9 @@ for cont in ["h_exp"]:
 				hsInter.SetBinContent(i,j,0)
 	hsInter.Write("hist_Inter",rt.TObject.kOverwrite)
 	
-	#~ if cont=="h_obs":
-		#~ for i in range(100,725):
-			#~ hsInter.SetBinContent(hsInter.GetXaxis().FindBin(i),hsInter.GetYaxis().FindBin(i),2)
-		#~ hsInter.Write("hist_Inter_SetDia",rt.TObject.kOverwrite)
-	
-	contHSinter=getContourHS(hsInter)
-	contHSinter.Write("contHSinter",rt.TObject.kOverwrite)
+	contour=getContourHS(hsInter)
+	cont_sm=smoothContour_knut(contour)
+	cont_sm.Write("cont_sm",rt.TObject.kOverwrite)
 
 	f.Close()
 

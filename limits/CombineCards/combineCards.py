@@ -17,7 +17,7 @@ def getMasses(path):
 			part=part.split(".")[0]
 			if part.isdigit():
 				mass.append(part)
-				
+	
 		if len(mass)==2:
 			masses.append(str(mass[0])+"_"+mass[1])
 		else:
@@ -45,7 +45,7 @@ def combine(mass,path1,path2,output,ignore,corr):
 			n2=path2+"/datacard_CharginoBR_"+mass+".txt"
 	elif path2.find("htg_leptonVeto")!=-1 and sScan=="T5Wg":
 		n2=path2+"/"+mass+".txt"
-	elif (path2.find("htgHigh")!=-1 and path2.find("BR")==-1) or path2.find("stVeto")!=-1 or (path2.find("htg")!=-1 and path2.find("BR")==-1):
+	elif (path2.find("htgHigh")!=-1 and path2.find("BR")==-1) or path2.find("stVeto")!=-1 or (path2.find("htg")!=-1 and path2.find("BR")==-1) or path2.find("dilep")!=-1 or path2.find("STLeptonVeto")!=-1:
 		n2=path2+"/"+mass+".txt"
 	
 	
@@ -72,10 +72,13 @@ def combine(mass,path1,path2,output,ignore,corr):
 	for binName in ignore:
 		command=command+" --xc="+binName
 	
-	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1 or path2.find("STLeptonVeto")!=-1:
+	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1 or path2.find("STLeptonVeto")!=-1 or path2.find("HTG")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_HTG="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	elif path2.find("lepton")!=-1:
 		command=command+" Photon_ST="+n1+" Photon_Lepton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
+	else:
+		command=command+" Photon_first="+n1+" Photon_second="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
+	
 	
 	if os.system(command)!=0:
 		sys.exit(sScan+"_"+mass+" not succesfull")
