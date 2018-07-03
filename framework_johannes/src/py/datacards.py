@@ -508,23 +508,25 @@ if __name__ == '__main__':
     #~ selection="exclusiv"
     #~ selection="inclusiv"
     #~ selection="htgVeto"
-    selection="leptonVeto"
+    #~ selection="leptonVeto"
     #~ selection="diphotonVeto"
     #~ selection="htgHighVeto"
     #~ selection="htgHighLeptonVeto"
+    #~ selection="exclusiv_highHTG"
+    selection="leptonDiphotonVeto"
     basedir="../"
     outdir=basedir+"output/"
     signal_scan="signal_scan_"+selection+"_v03D.root"
-    rho=-1.0
+    rho=-0.0
     #~ fillDatacards(Scan.T5gg,True)
-    fillDatacards(Scan.T5Wg,True)
+    #~ fillDatacards(Scan.T5Wg,True)
     #~ fillDatacards(Scan.T6Wg,True)
     #~ fillDatacards(Scan.T6gg,True)
     #~ fillDatacards(Scan.GGM,True)
     #~ fillDatacards(Scan.TChiWg,False)
     #~ fillDatacards(Scan.TChiNg,False)
     #~ fillDatacards(Scan.GGM_M1_M2,True)
-    #~ fillDatacards(Scan.GGM_M1_M3,True)
+    fillDatacards(Scan.GGM_M1_M3,True)
     #~ fillDatacards(Scan.TChiNg_gg,False)
     #~ fillDatacards(Scan.TChiNg_gz,False)
     #~ fillDatacards(Scan.TChiNg_zz,False)

@@ -62,7 +62,7 @@ io::RootFileSaver::~RootFileSaver()
 }
 
 void io::RootFileSaver::save(TObject const &obj, TString name,bool decorate,bool simulation) const
-{
+{  
    if (intPath_!="") name=intPath_+"/"+name;
    if (obj.InheritsFrom(TCanvas::Class())){
       TCanvas &can=*(TCanvas*)&obj;
@@ -73,6 +73,8 @@ void io::RootFileSaver::save(TObject const &obj, TString name,bool decorate,bool
       title.ReplaceAll(".","_");
       can.SetName(title);
       if (decorate) gfx::decorate(can,simulation,bLumiText_);
+      can.SaveAs("test.pdf");
+      //~ can.SaveAs("test.png");
    }
    file_->cd();
 
