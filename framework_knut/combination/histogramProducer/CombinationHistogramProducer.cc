@@ -166,8 +166,8 @@ void CombinationHistogramProducer::Init(TTree *tree)
     puUp = "pileupWeightUp_mix_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU";
     puDn = "pileupWeightDown_mix_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU";
   }
-  weighters["puWeightUp"] = Weighter("~/CMSSW_TreeWriter/CMSSW_8_0_26_patch1/src/TreeWriter/PUreweighting/data/puWeights.root", puUp);
-  weighters["puWeightDn"] = Weighter("~/CMSSW_TreeWriter/CMSSW_8_0_26_patch1/src/TreeWriter/PUreweighting/data/puWeights.root", puDn);
+  weighters["puWeightUp"] = Weighter("~/CMSSW_TreeWriter_old/CMSSW_8_0_26_patch1/src/TreeWriter/PUreweighting/data/puWeights.root", puUp);
+  weighters["puWeightDn"] = Weighter("~/CMSSW_TreeWriter_old/CMSSW_8_0_26_patch1/src/TreeWriter/PUreweighting/data/puWeights.root", puDn);
   weighters.at("sf_photon_id_loose").fillOverflow2d();
   weighters.at("sf_photon_pixel").fillOverflow2d();
 
@@ -529,18 +529,16 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   fillHistograms(Selection::original, Region::sR, signalSel);
   if (signalGenE) fillHistograms(Selection::original, Region::genE, true);
 
-  /* overlap check
   // combination stuff
-  if (signalSel && met->p.Pt()>350) {
-    printEventId();
-    auto pt = selPhotons.size() ? selPhotons.at(0)->p.Pt() : 0;
-    cout << "ptmiss = " << met->p.Pt() << "\thtg = " << htg_ << "\tphoton pt = " << pt << endl;
-    cout << "selected by gam+gam: " << eventIdsGamGam.check(*runNo, *lumNo, *evtNo) << " " << isDiPhotonSel() << endl;
-    cout << "selected by gam+lep: " << eventIdsGamLep.check(*runNo, *lumNo, *evtNo) << " " << isLepSel() << endl;
-    cout << "selected by gam+stg: " << eventIdsGamStg.check(*runNo, *lumNo, *evtNo) << " " << isStSel() << endl;
-    cout << "selected by gam+htg: " << eventIdsGamHtg.check(*runNo, *lumNo, *evtNo) << " " << "1" << endl;
-  }
-  */
+  //~ if (signalSel && met->p.Pt()>350) {
+    //~ printEventId();
+    //~ auto pt = selPhotons.size() ? selPhotons.at(0)->p.Pt() : 0;
+    //~ cout << "ptmiss = " << met->p.Pt() << "\thtg = " << htg_ << "\tphoton pt = " << pt << endl;
+    //~ cout << "selected by gam+gam: " << eventIdsGamGam.check(*runNo, *lumNo, *evtNo) << " " << isDiPhotonSel() << endl;
+    //~ cout << "selected by gam+lep: " << eventIdsGamLep.check(*runNo, *lumNo, *evtNo) << " " << isLepSel() << endl;
+    //~ cout << "selected by gam+stg: " << eventIdsGamStg.check(*runNo, *lumNo, *evtNo) << " " << isStSel() << endl;
+    //~ cout << "selected by gam+htg: " << eventIdsGamHtg.check(*runNo, *lumNo, *evtNo) << " " << "1" << endl;
+  //~ }
   bool isDiPhoton = isDiPhotonSel();
   bool isLepPhoton = isLepSel();
   bool isStPhoton = isStSel();
@@ -626,8 +624,8 @@ void save2File(const map<string,map<string,T>>& hMaps, TFile& file)
 
 void CombinationHistogramProducer::Terminate()
 {
-  auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
-  //~ auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
+  //~ auto outputName = "output/"+getOutputFilename(inputName, "combiHists");
+  auto outputName = "test/"+getOutputFilename(inputName, "combiHists");
   TFile file(outputName.c_str(), "RECREATE");
 
   for (auto& spIt : nominalHists_) {

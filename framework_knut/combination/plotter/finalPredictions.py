@@ -594,10 +594,12 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         totStat = aux.addHists(gjetHist, eHist, zgHist, wgHist, tgHist)
         totSyst = aux.addHists(gjetSyst, eSyst, zgSyst, wgSyst, tgSyst)
 
-        signal1 = metHist(t5wg, "1600_100/{}/nominal".format(dirDir), nBins, lowEmht)
-        signal1.Scale(0.5)
-        signal2 = metHist(t6wg, "1750_1650/{}/nominalGG".format(dirDir), nBins, lowEmht)
-        signal2.Scale(4.) # only gg scan
+        #~ signal1 = metHist(t5wg, "1600_100/{}/nominal".format(dirDir), nBins, lowEmht)
+        signal1 = metHist(ggm1, "1000_700/{}/nominal".format(dirDir), nBins, lowEmht)
+        #~ signal1.Scale(0.5)
+        #~ signal2 = metHist(t6wg, "1750_1650/{}/nominalGG".format(dirDir), nBins, lowEmht)
+        signal2 = metHist(ggm1, "400_250/{}/nominal".format(dirDir), nBins, lowEmht)
+        #~ signal2.Scale(4.) # only gg scan
         for h in signal1, signal2:
             aux.drawOpt(h, "signal")
         #    h.Add(totStat)
@@ -625,8 +627,10 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
     else:
         m.add(dirHist, "Direct simulation")
     if "Closure" not in name:
-        m.add(signal1, "T5Wg 1600 100")
-        m.add(signal2, "T6gg 1750 1650")
+        #~ m.add(signal1, "T5Wg 1600 100")
+        #~ m.add(signal2, "T6gg 1750 1650")
+        m.add(signal1, "GGM M1M2")
+        #~ m.add(signal2, "GGM M1M2 low")
         m.addStack(eHist, "e#rightarrow#gamma")
         m.addStack(zgHist, "#gammaZ")
         m.addStack(tgHist, "#gammat#bar{t}")
@@ -697,7 +701,8 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         if name == "final_highEMHT": rMax = 3.6
         r.draw(0., rMax, m.getStack(), True)
 
-    aux.Label(sim= not dirSet==data, status="" if "allMC" not in name else "Private Work")
+    #~ aux.Label(sim= not dirSet==data, status="Private Work" if "allMC" not in name else "Private Work")
+    aux.Label(sim= not dirSet==data, status="Preliminary" if "allMC" not in name else "Private Work")
     aux.save(name+"_"+dirDir, normal=False, changeMinMax=False)
 
     if "Closure" in name: return
@@ -770,16 +775,16 @@ if __name__ == "__main__":
 
     #~ selections = ["original", "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned","stlep_cleaned"]
     #selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
-    selections = ["stlep_cleaned"]
+    selections = ["all_cleaned"]
 
 
     for selection in selections:
-        #finalDistributionSignalHist("qcdClosure", True, gqcd, selection, gqcd)
-        #finalDistributionSignalHist("qcdClosure", False, gqcd_highestHT, selection, gqcd_highestHT)
-        #finalDistributionSignalHist("electronClosure", True, ttjets_ht+wjets, selection)
-        #finalDistributionSignalHist("electronClosure", False, ewk_highestHT, selection)
-        #finalDistributionSignalHist("ee", True, data, "original_ee", dataHt)
-        #finalDistributionSignalHist("ee", False, data, "original_ee", dataHt)
+        #~ finalDistributionSignalHist("qcdClosure", True, gqcd, selection, gqcd)
+        #~ finalDistributionSignalHist("qcdClosure", False, gqcd_highestHT, selection, gqcd_highestHT)
+        #~ finalDistributionSignalHist("electronClosure", True, ttjets_ht+wjets, selection)
+        #~ finalDistributionSignalHist("electronClosure", False, ewk_highestHT, selection)
+        #~ finalDistributionSignalHist("ee", True, data, "original_ee", dataHt)
+        #~ finalDistributionSignalHist("ee", False, data, "original_ee", dataHt)
         finalDistributionSignalHist("final", True, data, selection, dataHt)
         finalDistributionSignalHist("final", False, data, selection, dataHt)
 

@@ -4,7 +4,7 @@ OWNLIBS = $(shell echo $CMSSW_BASE/lib/$SCRAM_ARCH)
 
 WARN = -Wall -Wshadow
 
-PARTICLELIB = /home/home4/institut_1b/dmeuser/CMSSW_TreeWriter/CMSSW_8_0_26_patch1/lib/slc6_amd64_gcc530/pluginTreeWriterTreeWriterAuto.so
+PARTICLELIB = /home/home4/institut_1b/dmeuser/CMSSW_TreeWriter/CMSSW_8_0_26_patch1/lib/slc7_amd64_gcc530/pluginTreeWriterTreeWriterAuto.so
 EXE = CombinationHistogramProducer
 OBJ = CombinationHistogramProducer.o
 

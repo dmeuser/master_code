@@ -252,6 +252,7 @@ class MyDatacard(Datacard):
         for bName, newRate in exp.iteritems():
             self.exp[bName]["signal"] = newRate
         systDict = dict([(l[0],l) for l in self.systs])
+        systDict["signalStat_binhighEMHT_25"][4]["binhighEMHT_24"]["signal"]=0.0 #Fixing bug in datacard parser
         for uncName, uncertaintyDict in unc.iteritems():
             for binName, u in uncertaintyDict.iteritems():
                 systDict[uncName][4][binName]["signal"] = u
