@@ -11,15 +11,20 @@ from array import array
 backgrounds=["GJ","TTcomb","Vg","diboson","efake"]
 
 class Scan:
-    T5gg,T5Wg,T6Wg,T6gg,GGM,TChiWg,TChiNg,GGM_M1_M2,GGM_M1_M3,TChiNg_gg,TChiNg_gz,TChiNg_zz,TChiNg_gg_C1N2=range(13)
+    T5gg,T5Wg,T6Wg,T6gg,GGM,TChiWg,TChiNg,GGM_M1_M2,GGM_M1_M3,TChiNg_gg,TChiNg_gz,TChiNg_zz,TChiNg_gg_C1N2,T5Wg_Wg,T5Wg_thirds=range(15)
 
-def prepareDatacard(obs,count,estat,esyst,eISR,correlated,mcUncertainties,pointName,sScan):
-    directory=outdir+"datacards/"+selection+"/"+sScan
+#~ def prepareDatacard(obs,count,estat,esyst,eISR,correlated,mcUncertainties,pointName,sScan):
+def prepareDatacard(obs,count,estat,esyst,eISR,ePileUp,eJES,correlated,mcUncertainties,pointName,sScan):
+    #~ directory=outdir+"datacards/"+selection+"/"+sScan
+    #~ directory=outdir+"datacards_newNui/"+selection+"/"+sScan
+    directory=outdir+"datacards_final/"+selection+"/"+sScan
     if rho!=-0.0: directory=directory+"-"+str(rho)
     if not os.path.exists(directory):
 		os.makedirs(directory)
     if sScan=="TChiNg_gg" or sScan=="TChiNg_gz" or sScan=="TChiNg_zz" or sScan=="TChiNg_gg_C1N2":
         dataCardPath=directory+"/datacard_%s.txt"%(sScan+"_"+(pointName.split("_"))[1])
+    elif sScan=="TChiNg" or sScan=="TChiWg" :
+        dataCardPath=directory+"/datacard_%s.txt"%pointName
     else :
         dataCardPath=directory+"/datacard_%s.txt"%pointName
     nBins=len(obs)
@@ -34,6 +39,7 @@ observation          """%nBins
     for o in obs:
         card+="%10d "%o
 
+    backgrounds=["GJ","rare","Vg","efake"]
     card+="\n------------\n"
     allProc=["sig"]+backgrounds
     card+="bin                  "
@@ -70,7 +76,13 @@ observation          """%nBins
     for b,errors in esyst.iteritems():
         index=allProc.index(b)
         name="syst_%s"%b
-        card+="%-16s lnN "%name
+        if b=="rare": name="xs"
+        elif b=="efake": name="e_to_pho_syst"
+        if b=="sig":
+            name="GenMet"
+            card+="%-16s lnN "%name
+        else :
+            card+="%-16s lnN "%name
         # looping bins (all the same anyway...)
         for e in errors:
             card+=fill*index
@@ -79,7 +91,27 @@ observation          """%nBins
         card+="\n"
     for b,errors in eISR.iteritems():
         index=allProc.index(b)
-        name="ISRsyst_%s"%b
+        name="ISR"
+        card+="%-16s lnN "%name
+        # looping bins
+        for e in errors:
+            card+=fill*index
+            card+="%10.2f "%e
+            card+=fill*(len(allProc)-index-1)
+        card+="\n"
+    for b,errors in ePileUp.iteritems():
+        index=allProc.index(b)
+        name="PU"
+        card+="%-16s lnN "%name
+        # looping bins
+        for e in errors:
+            card+=fill*index
+            card+="%10.2f "%e
+            card+=fill*(len(allProc)-index-1)
+        card+="\n"
+    for b,errors in eJES.iteritems():
+        index=allProc.index(b)
+        name="JES"
         card+="%-16s lnN "%name
         # looping bins
         for e in errors:
@@ -104,10 +136,12 @@ observation          """%nBins
     card+="\n"
     # fully correlated uncertainties for all MC samples
     indices=[]
-    for s in ["TTcomb","diboson","sig"]:
+    mc_bkg=["rare","sig"]
+    for s in mc_bkg:
         indices.append(allProc.index(s))
     indices=sorted(indices)
     for name,val in mcUncertainties.iteritems():
+        if name=="phSF": name="PhotonSF"
         card+="%-16s lnN "%name
         for i in range(nBins):
             lastIndex=-1
@@ -164,6 +198,46 @@ observation          """%nBins
         f.write(card)
     return dataCardPath
 
+def getSignalYield_Unc(point,sScan):
+    f=rt.TFile(outdir+signal_scan,"read")
+    hist=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point)
+    hist_gen=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point+"_gen")
+    hist_JESu=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point+"_JESu")
+    hist_JESd=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point+"_JESd")
+    hist_ISR=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point+"SRErrISR")
+    hist_PU=f.Get(sScan+"/PuUnc/"+point)
+    if math.isnan(hist.Integral()):
+        # input tree for model was bad->Ngen=0->weight=inf
+        f.Close()
+        return None
+    sigYield=[]
+    statErr=[]
+    metErr=[]
+    jseErr=[]
+    ISRErr=[]
+    puErr=[]
+    for i in range(1,5):
+        y=hist.GetBinContent(i)
+        yg=hist_gen.GetBinContent(i)
+        yJESu=hist_JESu.GetBinContent(i)
+        yJESd=hist_JESd.GetBinContent(i)
+        yISR=hist_ISR.GetBinContent(i)        
+        sigYield.append(.5*(y+yg)) # use mean of reco and gen met yields
+        if (y > 0):
+           statErr.append(1+hist.GetBinError(i)/y)
+           metErr.append(1+abs(y-yg)/(y+yg)) # uncertainty: half of the difference
+           jseErr.append(1+abs(yJESu-yJESd)/(yJESu+yJESd)) # uncertainty: half of the difference
+           ISRErr.append(1+(abs(y-yISR)/y)) # uncertainty: full difference
+           puErr.append(1+hist_PU.GetBinContent(1))
+        else:
+           statErr.append(1+0.1)
+           metErr.append(1+0.1) # uncertainty: half of the difference
+           jseErr.append(1+0.1) # uncertainty: half of the difference
+           ISRErr.append(1+0.1) # uncertainty: full difference
+           puErr.append(1+0.1)
+    f.Close()
+    return sigYield,statErr,metErr,ISRErr,puErr,jseErr
+    
 def getSignalYield(point,sScan):
     f=rt.TFile(outdir+signal_scan,"read")
     hist=f.Get(sScan+"/pre_ph165/c_MET300/MT300/STg/"+point)
@@ -189,7 +263,7 @@ def getSignalYield(point,sScan):
         else:
            statErr.append(1+0.1)
            metErr.append(1+0.1) # uncertainty: half of the difference
-           ISRErr.append(1+0.1) # uncertainty: full difference
+           ISRErr.append(1+0.1) # uncertainty: half of the difference
     f.Close()
     return sigYield,statErr,metErr,ISRErr
 
@@ -221,6 +295,8 @@ def decomposeCorrelations(esyst,count):
 def getMasses(point,scan):
     if scan==Scan.T5gg:   pattern="T5gg_(.*)_(.*)"
     elif scan==Scan.T5Wg:   pattern="T5Wg_(.*)_(.*)"
+    elif scan==Scan.T5Wg_Wg:   pattern="T5Wg_(.*)_(.*)"
+    elif scan==Scan.T5Wg_thirds:   pattern="T5Wg_(.*)_(.*)"
     elif scan==Scan.T6gg:   pattern="T6gg_(.*)_(.*)"   
     elif scan==Scan.T6Wg:   pattern="T6Wg_(.*)_(.*)"
     elif scan==Scan.GGM:    pattern=".*_M2_(.*)_M1_(.*)"
@@ -255,6 +331,8 @@ def fillDatacards(scan,SignalTree):
     scanFile=basedir
     if scan==Scan.T5gg:   scanFile+="T5gg_scan.txt"
     elif scan==Scan.T5Wg:   scanFile+="T5Wg_scan.txt"
+    elif scan==Scan.T5Wg_Wg:   scanFile+="T5Wg_scan.txt"
+    elif scan==Scan.T5Wg_thirds:   scanFile+="T5Wg_scan.txt"
     elif scan==Scan.T6gg:   scanFile+="T6gg_scan.txt"
     elif scan==Scan.T6Wg:   scanFile+="T6Wg_scan.txt"
     elif scan==Scan.GGM:    scanFile+="GGM_WinoBino_scan.txt"
@@ -270,6 +348,8 @@ def fillDatacards(scan,SignalTree):
     sScan="unkown_scan"
     if scan==Scan.T5gg:   sScan="T5gg"
     elif scan==Scan.T5Wg:   sScan="T5Wg"
+    elif scan==Scan.T5Wg_Wg:   sScan="T5Wg_Wg"
+    elif scan==Scan.T5Wg_thirds:   sScan="T5Wg_thirds"
     elif scan==Scan.T6gg:   sScan="T6gg"
     elif scan==Scan.T6Wg:   sScan="T6Wg"
     elif scan==Scan.GGM:    sScan="GGM"
@@ -286,6 +366,8 @@ def fillDatacards(scan,SignalTree):
     estat={}
     esyst={}
     eISR={}
+    ePileUp={}
+    eJES={}
     f=rt.TFile(outdir+"yields.root","read")
     for bkg in backgrounds:
         #~ hist=f.Get("pre_ph165/c_MET300/MT300/STg/"+bkg)
@@ -315,6 +397,19 @@ def fillDatacards(scan,SignalTree):
         "phSF"   : 1+ 2. /100,
         "trigger": 1+ 0.43 /100,
     }
+    
+    #Merge diboson and ttgamma to rare background
+    for i in range(0,4):
+        count["TTcomb"][i]=count["diboson"][i]+count["TTcomb"][i]
+        estat["TTcomb"][i]=np.sqrt((estat["TTcomb"][i]-1)**2+(estat["diboson"][i]-1)**2)+1
+        esyst["TTcomb"][i]=1.50     #Change from 30% to 50%
+    
+    count["rare"] = count.pop("TTcomb")    
+    estat["rare"] = estat.pop("TTcomb")    
+    esyst["rare"] = esyst.pop("TTcomb")    
+    del count["diboson"]
+    del estat["diboson"]
+    del esyst["diboson"]
 
     points=[]
     list_m1=[]
@@ -322,7 +417,7 @@ def fillDatacards(scan,SignalTree):
     with open(scanFile) as f:
         for p in f.read().split():
             p=p.split(".")[0]
-            if scan==Scan.T5gg or scan==Scan.T5Wg or scan==Scan.T6Wg or scan==Scan.T6gg:
+            if scan==Scan.T5gg or scan==Scan.T5Wg or scan==Scan.T5Wg_Wg or scan==Scan.T5Wg_thirds or scan==Scan.T6Wg or scan==Scan.T6gg:
                 m2,m1=getMasses(p,scan)
                 list_m1.append(m1)
                 list_m2.append(m2)
@@ -334,7 +429,7 @@ def fillDatacards(scan,SignalTree):
             points.append(p)
     
     if SignalTree:
-        if scan==Scan.T5gg or scan==Scan.T5Wg or scan==Scan.T6Wg or scan==Scan.T6gg:
+        if scan==Scan.T5gg or scan==Scan.T5Wg or scan==Scan.T5Wg_Wg or scan==Scan.T5Wg_thirds or scan==Scan.T6Wg or scan==Scan.T6gg:
             y=sorted(list(set(list_m1)))
             x=sorted(list(set(list_m2)))
         elif scan==Scan.GGM_M1_M2 or scan==Scan.GGM_M1_M3:
@@ -380,6 +475,9 @@ def fillDatacards(scan,SignalTree):
         hist_lumi=rt.TH1F("","",4,-0.5,3.5)
         hist_GJFit=rt.TH1F("","",4,-0.5,3.5)
         hist_VgFit=rt.TH1F("","",4,-0.5,3.5)
+        
+    graph_puUnc=rt.TGraph2D()
+    graph_jesUnc=rt.TGraph2D()
 
     for i,point in enumerate(points):
         print point
@@ -391,12 +489,15 @@ def fillDatacards(scan,SignalTree):
             x_val,y_val=m2,m1
         key=m2
         if scan==Scan.GGM: key=m2*100000+m1
-        sigYield=getSignalYield(point,sScan)
+        
+        #~ sigYield=getSignalYield(point,sScan)
+        sigYield=getSignalYield_Unc(point,sScan)
+        
         contamin=getSignalContamination(point,sScan)
         if not sigYield:
             print " broken!"
             continue # broken point
-        c,st,sy,sISR=dict(count),dict(estat),dict(esyst),dict(eISR)
+        c,st,sy,sISR,sPileUp,sJES=dict(count),dict(estat),dict(esyst),dict(eISR),dict(ePileUp),dict(eJES)
         # decompose partially correlated parts:
         cor,unc=decomposeCorrelations(esyst,count)
         del sy["GJ"]
@@ -407,6 +508,8 @@ def fillDatacards(scan,SignalTree):
         st['sig']=sigYield[1]
         sy['sig']=sigYield[2]
         sISR['sig']=sigYield[3]
+        sPileUp['sig']=sigYield[4]
+        sJES['sig']=sigYield[5]
         # subtract bkg overestimation from signal contamination
         subtractGJ=[x*contamin for x in c["GJ"]]
         subtractVG=[x*contamin for x in c["Vg"]]
@@ -415,8 +518,13 @@ def fillDatacards(scan,SignalTree):
         c["sig"]=map(sub,c["sig"],subtract)
         # avoid negative counts
         c["sig"]=[max(0,x) for x in c["sig"]]
-        datacard=prepareDatacard(obs,c,st,sy,sISR,cor,mcUncertainties,point,sScan)
+        datacard=prepareDatacard(obs,c,st,sy,sISR,sPileUp,sJES,cor,mcUncertainties,point,sScan)
         
+        #~ graph_puUnc.SetPoint(graph_puUnc.GetN()+1,x_val,y_val,np.mean(sigYield[4])-1)
+        #~ graph_jesUnc.SetPoint(graph_puUnc.GetN()+1,x_val,y_val,np.mean(sigYield[5])-1)
+        
+        
+        """
         if SignalTree:
             i=0
             for hist in [hist_SigRate_0,hist_SigRate_1,hist_SigRate_2,hist_SigRate_3]:
@@ -502,6 +610,11 @@ def fillDatacards(scan,SignalTree):
         hist_GJFit.Write("Fit_GJ",rt.TObject.kOverwrite)
         hist_VgFit.Write("Fit_Vg",rt.TObject.kOverwrite)
         RootOut.Close()
+        """
+        
+    #~ RootOut=rt.TFile(outdir+"SignalUnc.root","update")
+    #~ graph_puUnc.GetHistogram().Write(sScan+"_PuUnc",rt.TObject.kOverwrite)
+    #~ graph_jesUnc.GetHistogram().Write(sScan+"_meanJesUnc",rt.TObject.kOverwrite)
 
 
 if __name__ == '__main__':
@@ -512,21 +625,24 @@ if __name__ == '__main__':
     #~ selection="diphotonVeto"
     #~ selection="htgHighVeto"
     #~ selection="htgHighLeptonVeto"
-    #~ selection="exclusiv_highHTG"
-    selection="leptonDiphotonVeto"
+    selection="exclusiv_highHTG"
+    #~ selection="leptonDiphotonVeto"
     basedir="../"
     outdir=basedir+"output/"
     signal_scan="signal_scan_"+selection+"_v03D.root"
-    rho=-0.0
+    #~ rho=-0.0
+    rho=-1.0
     #~ fillDatacards(Scan.T5gg,True)
-    #~ fillDatacards(Scan.T5Wg,True)
+    fillDatacards(Scan.T5Wg,True)
+    #~ fillDatacards(Scan.T5Wg_Wg,True)
+    #~ fillDatacards(Scan.T5Wg_thirds,True)
     #~ fillDatacards(Scan.T6Wg,True)
     #~ fillDatacards(Scan.T6gg,True)
     #~ fillDatacards(Scan.GGM,True)
     #~ fillDatacards(Scan.TChiWg,False)
     #~ fillDatacards(Scan.TChiNg,False)
     #~ fillDatacards(Scan.GGM_M1_M2,True)
-    fillDatacards(Scan.GGM_M1_M3,True)
+    #~ fillDatacards(Scan.GGM_M1_M3,True)
     #~ fillDatacards(Scan.TChiNg_gg,False)
     #~ fillDatacards(Scan.TChiNg_gz,False)
     #~ fillDatacards(Scan.TChiNg_zz,False)

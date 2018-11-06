@@ -32,28 +32,58 @@ class inputFile():
             return {'histogram': x}
             
     def findEXPECTED(self, fileName):
-        fileIN = open(fileName)        
-        for line in fileIN:
-            tmpLINE =  line[:-1].split(" ")
-            if tmpLINE[0] != "EXPECTED": continue
-            fileIN.close()
-            rootFileIn = rt.TFile.Open(tmpLINE[1])
-            return {'nominal': rootFileIn.Get(tmpLINE[2]),
-                    'plus': rootFileIn.Get(tmpLINE[3]),
-                    'minus': rootFileIn.Get(tmpLINE[4]),
-                    'colorLine': tmpLINE[5],
-                    'colorArea': tmpLINE[6]}
+        fileIN = open(fileName)
+        if fileName.find("GGM1")==-1:     
+            for line in fileIN:
+                tmpLINE =  line[:-1].split(" ")
+                if tmpLINE[0] != "EXPECTED": continue
+                fileIN.close()
+                rootFileIn = rt.TFile.Open(tmpLINE[1])
+                return {'nominal': rootFileIn.Get(tmpLINE[2]),
+                        'plus': rootFileIn.Get(tmpLINE[3]),
+                        'minus': rootFileIn.Get(tmpLINE[4]),
+                        'colorLine': tmpLINE[5],
+                        'colorArea': tmpLINE[6]}
+        else:
+            for line in fileIN:
+                tmpLINE =  line[:-1].split(" ")
+                if tmpLINE[0] != "EXPECTED": continue
+                fileIN.close()
+                rootFileIn = rt.TFile.Open(tmpLINE[1])
+                return {'nominal': rootFileIn.Get(tmpLINE[2]),
+                        'plus': rootFileIn.Get(tmpLINE[3]),
+                        'minus': rootFileIn.Get(tmpLINE[4]),
+                        'colorLine': tmpLINE[5],
+                        'colorArea': tmpLINE[6],
+                        'nominal_2': rootFileIn.Get(tmpLINE[7]),
+                        'plus_2': rootFileIn.Get(tmpLINE[8]),
+                        'minus_2': rootFileIn.Get(tmpLINE[9]),}
 
     def findOBSERVED(self, fileName):
-        fileIN = open(fileName)        
-        for line in fileIN:
-            tmpLINE =  line[:-1].split(" ")
-            if tmpLINE[0] != "OBSERVED": continue
-            fileIN.close()
-            rootFileIn = rt.TFile.Open(tmpLINE[1])
-            return {'nominal': rootFileIn.Get(tmpLINE[2]),
-                    'plus': rootFileIn.Get(tmpLINE[3]),
-                    'minus': rootFileIn.Get(tmpLINE[4]),
-                    'colorLine': tmpLINE[5],
-                    'colorArea': tmpLINE[6]}
+        fileIN = open(fileName)
+        if fileName.find("GGM1")==-1:     
+            for line in fileIN:
+                tmpLINE =  line[:-1].split(" ")
+                if tmpLINE[0] != "OBSERVED": continue
+                fileIN.close()
+                rootFileIn = rt.TFile.Open(tmpLINE[1])
+                return {'nominal': rootFileIn.Get(tmpLINE[2]),
+                        'plus': rootFileIn.Get(tmpLINE[3]),
+                        'minus': rootFileIn.Get(tmpLINE[4]),
+                        'colorLine': tmpLINE[5],
+                        'colorArea': tmpLINE[6]}
+        else:
+            for line in fileIN:
+                tmpLINE =  line[:-1].split(" ")
+                if tmpLINE[0] != "OBSERVED": continue
+                fileIN.close()
+                rootFileIn = rt.TFile.Open(tmpLINE[1])
+                return {'nominal': rootFileIn.Get(tmpLINE[2]),
+                        'plus': rootFileIn.Get(tmpLINE[3]),
+                        'minus': rootFileIn.Get(tmpLINE[4]),
+                        'colorLine': tmpLINE[5],
+                        'colorArea': tmpLINE[6],
+                        'nominal_2': rootFileIn.Get(tmpLINE[7]),
+                        'plus_2': rootFileIn.Get(tmpLINE[8]),
+                        'minus_2': rootFileIn.Get(tmpLINE[9]),}
 

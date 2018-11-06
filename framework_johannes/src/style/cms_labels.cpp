@@ -16,7 +16,8 @@ void style::draw_lumi(TPad &pad, bool simulation, bool drawLumiText)
    TString sqrtsText=Config::get().sqrtsText;
 
    if (simulation){
-      if (extraText!="" && !Config::get().releaseMode){
+      //~ if (extraText!="" && !Config::get().releaseMode){
+      if (extraText!="" && Config::get().releaseMode){
          extraText="Simulation #bullet "+extraText;
       }else{
          extraText="Simulation";

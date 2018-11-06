@@ -594,11 +594,11 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         totStat = aux.addHists(gjetHist, eHist, zgHist, wgHist, tgHist)
         totSyst = aux.addHists(gjetSyst, eSyst, zgSyst, wgSyst, tgSyst)
 
-        #~ signal1 = metHist(t5wg, "1600_100/{}/nominal".format(dirDir), nBins, lowEmht)
+        signal2 = metHist(t5wg, "1600_100/{}/nominal".format(dirDir), nBins, lowEmht)
         signal1 = metHist(ggm1, "1000_700/{}/nominal".format(dirDir), nBins, lowEmht)
         #~ signal1.Scale(0.5)
         #~ signal2 = metHist(t6wg, "1750_1650/{}/nominalGG".format(dirDir), nBins, lowEmht)
-        signal2 = metHist(ggm1, "400_250/{}/nominal".format(dirDir), nBins, lowEmht)
+        #~ signal2 = metHist(ggm1, "400_250/{}/nominal".format(dirDir), nBins, lowEmht)
         #~ signal2.Scale(4.) # only gg scan
         for h in signal1, signal2:
             aux.drawOpt(h, "signal")
@@ -623,13 +623,16 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         if "dPhiJet_lowEMHT" in name or "dPhiJet_highEMHT" in name:
             for b in range(dirHist.GetNbinsX()-3, dirHist.GetNbinsX()+2):
                 dirHist.SetBinContent(b,0)
+        if "validation" in name:
+            for b in range(dirHist.GetNbinsX()-2, dirHist.GetNbinsX()+1):
+                dirHist.SetBinContent(b,0)
         m.add(dirHist, "Data")
     else:
         m.add(dirHist, "Direct simulation")
     if "Closure" not in name:
         #~ m.add(signal1, "T5Wg 1600 100")
         #~ m.add(signal2, "T6gg 1750 1650")
-        m.add(signal1, "GGM M1M2")
+        #~ if "validation" not in name: m.add(signal1, "GGM 1000 700")
         #~ m.add(signal2, "GGM M1M2 low")
         m.addStack(eHist, "e#rightarrow#gamma")
         m.addStack(zgHist, "#gammaZ")
@@ -698,15 +701,18 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         rMax = 1.5
         if name == "ee_highEMHT": rMax = 1.8
         if name == "final_lowEMHT": rMax = 1.6
-        if name == "final_highEMHT": rMax = 3.6
+        if "final_highEMHT" in name: rMax = 3.6
         r.draw(0., rMax, m.getStack(), True)
 
     #~ aux.Label(sim= not dirSet==data, status="Private Work" if "allMC" not in name else "Private Work")
-    aux.Label(sim= not dirSet==data, status="Preliminary" if "allMC" not in name else "Private Work")
+    aux.Label(sim= not dirSet==data, status="Private work" if "allMC" not in name else "Private Work")
     aux.save(name+"_"+dirDir, normal=False, changeMinMax=False)
 
     if "Closure" in name: return
-    dataCardName = "dataCards/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
+    if "validation" in name: return
+    #~ dataCardName = "dataCards/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
+    #~ dataCardName = "dataCards_newNui/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
+    dataCardName = "dataCards_final/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
     if lowEmht: dc = limitTools.MyDatacard()
     else: dc = limitTools.MyDatacard(dataCardName)
     for bin in range(dirHist.GetNbinsX()-2, dirHist.GetNbinsX()+1):
@@ -714,7 +720,7 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         bw = dirHist.GetBinWidth(bin) if style.divideByBinWidth else 1
         dc.addBin(binName, int(round(dirHist.GetBinContent(bin)*bw)),
             {
-                "signal": (signal1.GetBinContent(bin))*bw,
+                "signal": (signal2.GetBinContent(bin))*bw,
                 #"signal": (signal1.GetBinContent(bin)-totStat.GetBinContent(bin)-signal1_pre.GetBinContent(bin))*bw,
                 "gqcd": gjetHist.GetBinContent(bin)*bw,
                 "ele": eHist.GetBinContent(bin)*bw,
@@ -728,31 +734,32 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
                 "wgStat_"+binName: {"wg": getDatacardUncertFromHist(wgHist,bin)},
                 "zgStat_"+binName: {"zg": getDatacardUncertFromHist(zgHist,bin)},
                 "tgStat_"+binName: {"tg": getDatacardUncertFromHist(tgHist,bin)},
-                "signalStat_"+binName: {"signal": getDatacardUncertFromHist(signal1,bin)},
+                "signalStat_"+binName: {"signal": getDatacardUncertFromHist(signal2,bin)},
                 "gqcdSyst": {"gqcd": getDatacardUncertFromHist(gjetSyst,bin)},
-                "eleSyst": {"ele": getDatacardUncertFromHist(eSyst,bin)},
+                "e_to_pho_syst": {"ele": getDatacardUncertFromHist(eSyst,bin)},
+                "xs": {"tg": 1.5},
                 "pdf": {
                     "wg": getDatacardUncertFromHist(wgPdfUnc,bin),
-                    "zg": getDatacardUncertFromHist(zgPdfUnc,bin),
-                    "tg": getDatacardUncertFromHist(tgPdfUnc,bin)},
+                    "zg": getDatacardUncertFromHist(zgPdfUnc,bin)},
+                    #"tg": getDatacardUncertFromHist(tgPdfUnc,bin)},
                 "scale": {
                     "wg": getDatacardUncertFromHist(wgScaleUnc,bin),
-                    "zg": getDatacardUncertFromHist(zgScaleUnc,bin),
-                    "tg": getDatacardUncertFromHist(tgScaleUnc,bin)},
+                    "zg": getDatacardUncertFromHist(zgScaleUnc,bin)},
+                    #"tg": getDatacardUncertFromHist(tgScaleUnc,bin)},
                 "lumi": {
                     "signal": 1.026,
                     "wg": 1.026,
                     "zg": 1.026,
                     "tg": 1.026},
-                "pu": {
+                "PU": {
                     "wg": getDatacardUncertFromHist(wgPuUnc,bin),
-                    "zg": getDatacardUncertFromHist(zgPuUnc,bin),
-                    "tg": getDatacardUncertFromHist(tgPuUnc,bin)},
-                "jes": {
+                    "zg": getDatacardUncertFromHist(zgPuUnc,bin)},
+                    #"tg": getDatacardUncertFromHist(tgPuUnc,bin)},
+                "JES": {
                     "wg": getDatacardUncertFromHist(wgJesUnc,bin),
-                    "zg": getDatacardUncertFromHist(zgJesUnc,bin),
-                    "tg": getDatacardUncertFromHist(tgJesUnc,bin)},
-                "dataMC": {
+                    "zg": getDatacardUncertFromHist(zgJesUnc,bin)},
+                    #"tg": getDatacardUncertFromHist(tgJesUnc,bin)},
+                "PhotonSF": {
                     "signal": 1.05,
                     "wg": 1.025,
                     "zg": 1.025,
@@ -762,10 +769,9 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
                     "wg": 1.004,
                     "zg": 1.004,
                     "tg": 1.004},
-                "isr": {"signal": 1.001},
-                "genMet": {"signal": 1.001},
-            }
-        )
+                "ISR": {"signal": 1.001},
+                "GenMet": {"signal": 1.001},
+            })
     dc.write(dataCardName, True)
 
 if __name__ == "__main__":
@@ -775,7 +781,9 @@ if __name__ == "__main__":
 
     #~ selections = ["original", "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned","stlep_cleaned"]
     #selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
-    selections = ["all_cleaned"]
+    #~ selections = ["all_cleaned", "dilep_cleaned"]
+    #~ selections = ["original","st_cleaned"]
+    selections = ["st_cleaned"]
 
 
     for selection in selections:
@@ -786,6 +794,8 @@ if __name__ == "__main__":
         #~ finalDistributionSignalHist("ee", True, data, "original_ee", dataHt)
         #~ finalDistributionSignalHist("ee", False, data, "original_ee", dataHt)
         finalDistributionSignalHist("final", True, data, selection, dataHt)
-        finalDistributionSignalHist("final", False, data, selection, dataHt)
+        #~ finalDistributionSignalHist("final", False, data, selection, dataHt)
+        
+        #~ finalDistributionSignalHist("validation_final", False, data, selection, dataHt)
 
 

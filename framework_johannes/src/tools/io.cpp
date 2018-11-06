@@ -74,6 +74,7 @@ void io::RootFileSaver::save(TObject const &obj, TString name,bool decorate,bool
       can.SetName(title);
       if (decorate) gfx::decorate(can,simulation,bLumiText_);
       can.SaveAs("test.pdf");
+      can.SaveAs("test.root");
       //~ can.SaveAs("test.png");
    }
    file_->cd();

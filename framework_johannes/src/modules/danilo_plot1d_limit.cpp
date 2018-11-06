@@ -152,8 +152,8 @@ void plot_1d(Scan_t scan, TString selection)
    gr["exp"].Draw("l");
    gr["exp"].SetLineStyle(2);
    gr["exp"].SetLineColor(kRed);
-   gr["obs"].Draw("l");
-   gr["obs"].SetLineColor(kBlack);
+   //~ gr["obs"].Draw("l");
+   //~ gr["obs"].SetLineColor(kBlack);
    gr["xs"].Draw("l");
    gr["xs"].SetLineColor(kBlue);
    gr["xs"].SetLineStyle(2);
@@ -177,7 +177,7 @@ void plot_1d(Scan_t scan, TString selection)
    l1.SetColumnSeparation(-0.2);
    l1.DrawClone();
    le.clear();
-   le.append(gr["obs"],"Observed limit","l");
+   //~ le.append(gr["obs"],"Observed limit","l");
    le.append(gr["exp"],"Expected limit","l");
    le.buildLegend(.55,.72,.97,.82,1).DrawClone();
    le.clear();
@@ -222,7 +222,11 @@ extern "C"
 void run()
 {  
    //~ TString selection="inclusiv";
-   TString selection="exclusiv";
+   //~ TString selection="exclusiv";
+   //~ TString selection="htgHighVeto_htgHigh";
+   //~ TString selection="htgVeto_fullHtg";
+   TString selection="inclusiv_stVeto";
+   
    //~ plot_1d(TChiWg);
    plot_1d(TChiNg,selection);
 }

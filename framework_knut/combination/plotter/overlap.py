@@ -72,15 +72,19 @@ def createPlots(infos):
     searchRegionLabels = "350-450", "450-600", "600-#infty  "
     for b in range(6):
         hDefault.GetXaxis().SetBinLabel(b+1, searchRegionLabels[b%3])
-    hDefault.SetXTitle("#it{p}_{T}^{miss} in #it{H}_{T}^{#gamma}>2TeV     #it{p}_{T}^{miss} in #it{H}_{T}^{#gamma}<2TeV")
+    hDefault.SetXTitle("#it{p}_{T}^{miss} in #it{H}_{T}^{#gamma}<2TeV     #it{p}_{T}^{miss} in #it{H}_{T}^{#gamma}>2TeV")
 
     hs = dict((x,hDefault.Clone(x)) for x in ["ht", "st", "lg", "gg"])
     for info in infos:
         sr = getSr(float(info["ptmiss"]), float(info["htg"]))
+        #~ if info["gg_1"] == "1": hs["gg"].AddBinContent(sr)
+        #~ elif info["lg_1"] == "1": hs["lg"].AddBinContent(sr)
+        #~ elif info["st_1"] == "1": hs["st"].AddBinContent(sr)
+        #~ else: hs["ht"].AddBinContent(sr)
         if info["gg_1"] == "1": hs["gg"].AddBinContent(sr)
-        elif info["lg_1"] == "1": hs["lg"].AddBinContent(sr)
-        elif info["st_1"] == "1": hs["st"].AddBinContent(sr)
-        else: hs["ht"].AddBinContent(sr)
+        if info["lg_1"] == "1": hs["lg"].AddBinContent(sr)
+        if info["st_1"] == "1": hs["st"].AddBinContent(sr)
+        if info["gg_1"] == "0" and info["lg_1"] == "0" and info["st_1"] == "0": hs["ht"].AddBinContent(sr)
     hs["ht"].SetLineColor(ROOT.kCyan)
     hs["st"].SetLineColor(ROOT.kBlue)
     hs["lg"].SetLineColor(ROOT.kOrange)
@@ -92,12 +96,19 @@ def createPlots(infos):
     m.addStack(hs["lg"], "#gammal")
     m.addStack(hs["st"], "#gammaS_{T}^{#gamma}")
     m.addStack(hs["ht"], "#gammaH_{T}^{#gamma}")
+    
+    out=ROOT.TFile("overlap.root","update")
+    hs["ht"].Write("HTG",ROOT.TObject.kOverwrite)
+    hs["st"].Write("ST",ROOT.TObject.kOverwrite)
+    hs["lg"].Write("Lepton",ROOT.TObject.kOverwrite)
+    hs["gg"].Write("Diphoton",ROOT.TObject.kOverwrite)
+    out.Close()
 
     m.Draw()
     ratio.clearXaxisCurrentPad()
     ratio.createBottomPad()
     aux.drawContributions(m.getStack())
-    aux.Label(sim=False)
+    aux.Label(sim=False, status="Preliminary")
     aux.save("overlapInSignalRegions")
 
 

@@ -86,8 +86,8 @@ class MyDatacard(Datacard):
         out += "\nimax "+str(len(self.bins))
         out += "\njmax *"
         out += "\nkmax *"
-        out += "\n\nbin         " + ("{:>15}"*len(self.bins)).format(*self.bins)
-        out += "\nobservation " + ("{:>15}"*len(self.bins)).format(*[str(int(self.obs[x])) for x in self.bins])
+        out += "\n\nbin         " + ("{:>40}"*len(self.bins)).format(*self.bins)
+        out += "\nobservation " + ("{:>40}"*len(self.bins)).format(*[str(int(self.obs[x])) for x in self.bins])
         out += "\n\n"
 
         # create table for syst uncerts
@@ -103,9 +103,9 @@ class MyDatacard(Datacard):
             templine = line[2]
             if len(line[3])==1:
                 templine = line[2]+" "+str(line[3][0])
-            table.append([line[0], templine] + ["-" if x==1 or x==0 else str(round(x,3)) for x in relUncerts])
+            table.append([line[0], templine] + ["-" if x==1 or x==0 else str(round(x,4)) for x in relUncerts])
         # format lengts of strings
-        columnWidths = [max([len(i) for i in line]) for line in zip(*table)]
+        columnWidths = [max([len(i) for i in line])+1 for line in zip(*table)]
         for irow, row in enumerate(table):
             for icol, col in enumerate(row):
                 table[irow][icol] = "{{:>{}}}".format(columnWidths[icol]+1).format(col)
@@ -161,6 +161,26 @@ class MyDatacard(Datacard):
             for binName, u in uncertaintyDict.iteritems():
                 systDict[uncName][4][binName]["signal"] = u
         self.systs = sorted(systDict.values())
+    
+    def newSignalDiphoton(self, exp, unc):
+        for bName, newRate in exp.iteritems():
+            self.exp[bName]["t5gg"] = newRate
+        systDict = dict([(l[0],l) for l in self.systs])
+        #~ print systDict
+        for uncName, uncertaintyDict in unc.iteritems():
+            for binName, u in uncertaintyDict.iteritems():
+                systDict[uncName][4][binName]["t5gg"] = u
+        self.systs = sorted(systDict.values())
+    
+    def newSignalLepton(self, exp, unc):
+        for bName, newRate in exp.iteritems():
+            self.exp[bName]["SUSY"] = newRate
+        systDict = dict([(l[0],l) for l in self.systs])
+        #~ print systDict
+        for uncName, uncertaintyDict in unc.iteritems():
+            for binName, u in uncertaintyDict.iteritems():
+                systDict[uncName][4][binName]["SUSY"] = u
+        self.systs = sorted(systDict.values())
 
     def limit(self):
         self.write("/tmp/tmpDataCard.txt")
@@ -208,6 +228,13 @@ class MyDatacard(Datacard):
         if uncName in systDict.keys():
             temp = systDict[uncName][4][binName][processName]
             temp = (temp-1)*self.exp[binName][processName]
+        
+        return temp
+    def getUncertaintyGamma(self,uncName,binName,processName):
+        systDict = dict([(l[0],l) for l in self.systs])
+        temp = 0
+        if uncName in systDict.keys():
+            temp = systDict[uncName][4][binName][processName]
         return temp
         
     def renameUncertainty(self,uncNameOld,uncNameNew):

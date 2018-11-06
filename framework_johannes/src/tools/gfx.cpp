@@ -52,13 +52,13 @@ void gfx::setupAxes(TAxis &x,TAxis &y)
    TString yt(y.GetTitle());
    if (yt.Contains("BINW")){
       if (unit.Length()==0) unit="unit";
-      yt.ReplaceAll("BINW"," / "+unit);
+      yt.ReplaceAll("BINW","/"+unit);
       yt="#LT"+yt+"#GT";
       y.SetTitle(yt);
    }
    if (yt.Contains("BIN")){
       if (unit.Length()==0) unit="units";
-      unit=TString::Format(" / %g ",x.GetBinWidth(1))+unit;
+      unit=TString::Format("/%g ",x.GetBinWidth(1))+unit;
       yt.ReplaceAll("BIN",unit);
       y.SetTitle(yt);
    }

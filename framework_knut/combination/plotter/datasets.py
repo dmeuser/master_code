@@ -267,6 +267,8 @@ tchigg = Dataset("SMS-TChiGG", "data/xSec_SMS_TChiNg_13TeV.pkl")
 tchizg = Dataset("SMS-TChiZG", "data/xSec_SMS_TChiNg_13TeV.pkl")
 tchizz = Dataset("SMS-TChiZZ", "data/xSec_SMS_TChiNg_13TeV.pkl")
 tchigg_N2C1 = Dataset("SMS-TChiGG_N2C1", "data/xSec_SMS_N2C1_13TeV.pkl")
+t5wg_thirds = Dataset("SMS-T5Wg_thirds", "data/xSec_SMS_Gluino_13TeV.pkl")
+t5wg_thirds_ext = Dataset("SMS-T5Wg_thirds_mGo2150To2500", "data/xSec_SMS_Gluino_13TeV.pkl")
 
 tchiwg_700 = Dataset("SMS-TChiWG_700", 9.51032/1000, ROOT.kRed+4, "")
 

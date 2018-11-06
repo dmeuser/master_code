@@ -353,7 +353,8 @@ void gfx::SplitCan::draw_lumi(bool simulation, bool drawLumiText)
 {
    TString cmsText     = "CMS";
    //~ TString extraText="Supplementary";  //Config::get().extraText;
-   TString extraText="Preliminary";  //Config::get().extraText;
+   //~ TString extraText="Preliminary";  //Config::get().extraText;
+   TString extraText="Private work";  //Config::get().extraText;
    TString lumiText ="35.9 fb^{-1}"; //Config::get().lumiText;
    TString sqrtsText="(13 TeV)"; //Config::get().sqrtsText;
 

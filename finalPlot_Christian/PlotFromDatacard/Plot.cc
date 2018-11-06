@@ -59,7 +59,8 @@ void SetColorMap(std::map<std::string,int>& c)
    c["qcdfakelep"] = Color::next();
    c["Vg"] = Color::next();
    c["gqcd"] =  Color::next();
-   c["GJ"] = Color::next();
+   
+   c["GJ"] = c["gqcd"];
  
    c["wg"] =  c["Vg"];
    c["zg"] =  c["Vg"];
@@ -68,7 +69,7 @@ void SetColorMap(std::map<std::string,int>& c)
    c["jetfakepho"] = c["GJ"];
    c["elefakepho"] = c["efake"];
    c["VGamma"] = c["Vg"];
-   c["ewk"] = c["Vg"];
+   c["ewk"] = c["efake"];
    c["qcd"] = c["GJ"];
    c["zgg"] =c["rare"];
 }
@@ -83,7 +84,7 @@ void GetSampleNames(std::map<int,std::string>& c)
    c[r["efake"]] = "e #rightarrow #gamma mis-ID";
    c[r["qcdfakelep"]] = "jet#rightarrow lepton mis-ID";
    c[r["GJ"]] = "#gamma + jet";
-   c[r["gqcd"]] = "QCD multi-jet";
+   c[r["gqcd"]] = "QCD multi-jet / #gamma + jet";
    c[r["Vg"]] = "Vector-boson + #gamma";
 }
 
@@ -375,7 +376,7 @@ int main(int argc, char* argv[])
             break;
          }
    }      
-   leg->append(*s,"GGM M_{1} = 1000 GeV M_{2} = 750 GeV","l");
+   leg->append(*s,"GGM #it{M}_{1} = 1000 GeV #it{M}_{2} = 750 GeV","l");
    leg->prepend(h_syst,"Total bkg. unc.","fe");
    leg->prepend(*d,"Data","pe");
 
@@ -392,8 +393,8 @@ int main(int argc, char* argv[])
    h_syst.Draw("2");
    s->Draw("h,same");
    d->Draw("pe0,same");
-   tot->Draw("h,same");
-   TLegend * dleg = new TLegend(leg->buildLegend(0.4,0.7,0.9,0.9));
+   tot->Draw("hist,same");
+   TLegend * dleg = new TLegend(leg->buildLegend(0.4,0.7,0.95,0.9));
    dleg->SetNColumns(3);
    dleg->Draw("same");
 
@@ -405,16 +406,20 @@ int main(int argc, char* argv[])
    aline->DrawLine(4.5,a->GetMinimum(),4.5,1.5*syst->GetMaximum());
    aline->DrawLine(7.5,a->GetMinimum(),7.5,1.5*syst->GetMaximum());
    aline->DrawLine(43.5,a->GetMinimum(),43.5,1.5*syst->GetMaximum());
-   atext->DrawLatex(2.0,1.1*syst->GetMaximum(),"S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
-   atext->DrawLatex(5.5,1.1*syst->GetMaximum(),"H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
-   atext->DrawLatex(13.5,1.1*syst->GetMaximum(),"Lepton");
-   atext->DrawLatex(44.5,1.1*syst->GetMaximum(),"Diphoton");
+   aline->SetLineStyle(2);
+   aline->DrawLine(25.5,a->GetMinimum(),25.5,1.5*syst->GetMaximum());
+   atext->DrawLatex(2.0,0.7*syst->GetMaximum(),"S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
+   atext->DrawLatex(5.5,0.7*syst->GetMaximum(),"H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
+   atext->DrawLatex(15.5,0.7*syst->GetMaximum(),"Lepton (#mu#gamma)");
+   atext->DrawLatex(33.5,0.7*syst->GetMaximum(),"Lepton (e#gamma)");
+   atext->DrawLatex(44.5,0.7*syst->GetMaximum(),"Diphoton");
 
    gPad->RedrawAxis();
 
    can.cdLow();
 
-   TLegend * sleg = new TLegend(0.65,0.89,0.85,0.99);
+   TLegend * sleg = new TLegend(0.65,0.85,0.85,0.95);
+
 
 
    TH1F hRatio=hist::getRatio(*d,*tot,"Data/Pred.",hist::ONLY1);

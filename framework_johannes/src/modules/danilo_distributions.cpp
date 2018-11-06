@@ -1280,6 +1280,9 @@ void run()
    overlap.SetStats(false);
    overlap.Draw("col TEXT");
    saver.save(can_2d,"Overlap_2d",true,false);
+   TFile out("../output/overlap.root","update");
+   overlap.Write(TString::Format("Overlap_ST%.1f",cfg.processFraction*100),TObject::kOverwrite);
+   out.Close();
    
    can_2d.cd();
    overlap_ratio.SetMarkerColor(kRed);

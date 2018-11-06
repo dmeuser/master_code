@@ -17,13 +17,14 @@ def toPhysMass(hs,cont):
 		for j in range(1,hs.GetNbinsY()+1):
 			
 			m1=hs.GetXaxis().GetBinCenter(i)
-			m2=hs.GetXaxis().GetBinCenter(j)
+			m2=hs.GetYaxis().GetBinCenter(j)
 			
 			data = pyslha.readSLHAFile("input/SLHA_M1_M2/out_M1_%iM2_%i.slha"%(m1,m2))
 			massblock = data.blocks["MASS"]
 			if hs.GetBinContent(i,j)!=0 and m1>200 and m2>200:
 				print m1,m2
-				if abs(massblock[1000024]-massblock[1000022])<20: continue
+				#~ if abs(massblock[1000024]-massblock[1000022])<20: continue
+				if abs(massblock[1000024]-massblock[1000022])<85: continue
 				graph.SetPoint(k,massblock[1000022],massblock[1000024],hs.GetBinContent(i,j))
 				quant.Fill(massblock[1000022],massblock[1000024])
 				k+=1
@@ -166,32 +167,46 @@ def smoothContour_knut(gr, neighbors=5, sigma=0.5):
 ###########################
 
 #~ for cont in ["h_obs","h_exp","h_exp+1","h_exp-1","h_exp+2","h_exp-2"]:
-for analysis in ["inclusiv","htg","lepton","diphoton","allCombined_FullST"]:
+#~ for analysis in ["inclusiv","htg","lepton","diphoton","allCombined_FullST"]:
+#~ for analysis in ["inclusivNN","htgNN","lepton","diphoton","allCombined_highHtgNN"]:
+for analysis in ["inclusivFinal","htgFinal","lepton_final","diphoton_final","allCombined_final"]:
 	print analysis
-	cont="h_exp"
+	#~ cont="h_exp"
+	cont="h_obs"
 	f=rt.TFile("output/limits_GGM_M1_M2_"+analysis+".root","read")
 	hist=f.Get(cont)
 	gr=toPhysMass(hist,cont)
 	f.Close()
 
-	f=rt.TFile("output/physmass_GGM_M1_M2.root","update")
+	#~ f=rt.TFile("output/physmass_GGM_M1_M2.root","update")
+	#~ f=rt.TFile("output/physmass_GGM_M1_M2_NN.root","update")
+	f=rt.TFile("output/physmass_GGM_M1_M2_final.root","update")
 	f.mkdir(analysis)
 	f.cd(analysis)
 	
-	x="M_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
-	y="M_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
-	hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",100,100,725,100,135,1240)
+	x="m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
+	y="m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
+	#~ hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",100,100,725,100,135,1240)
+	hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",50,50,725,100,135,1240)
 	hsInter.GetYaxis().SetTitleOffset(1.3)
 	for i in range(1,hsInter.GetXaxis().GetNbins()+1):
 		for j in range(1,hsInter.GetYaxis().GetNbins()+1):
 			hsInter.SetBinContent(i,j,gr.Interpolate(hsInter.GetXaxis().GetBinCenter(i),hsInter.GetYaxis().GetBinCenter(j)))
 			if (hsInter.GetXaxis().GetBinCenter(i)>hsInter.GetYaxis().GetBinCenter(j)):
 				hsInter.SetBinContent(i,j,0)
-	hsInter.Write("hist_Inter",rt.TObject.kOverwrite)
-	
+
+	if cont=="h_obs":
+		hsInter.Write("hist_Inter_obs",rt.TObject.kOverwrite)
+	else:
+		hsInter.Write("hist_Inter",rt.TObject.kOverwrite)
+    
 	contour=getContourHS(hsInter)
 	cont_sm=smoothContour_knut(contour)
-	cont_sm.Write("cont_sm",rt.TObject.kOverwrite)
-
+	
+	if cont=="h_obs":
+		cont_sm.Write("cont_obs_sm",rt.TObject.kOverwrite)
+	else:
+		cont_sm.Write("cont_sm",rt.TObject.kOverwrite)
+    
 	f.Close()
 

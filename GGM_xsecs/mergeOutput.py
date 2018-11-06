@@ -4,16 +4,18 @@
 import numpy as np
 import ROOT as rt
 import os,re
+import sys
 
 def readOutput(M1,M2,rep,add=""):
 	fileName="input/out_M1_"+str(M1)+"M2_"+str(M2)+".slha/prospino_out_M1_"+str(M1)+"M2_"+str(M2)+".slha_"+str(rep)+add+".dat"
-	data=np.loadtxt(fileName,usecols=(1,2,5,15,7,6),dtype={"names":("n1","n2","mu","xsec","chMass","nMass"),"formats":("i","i","d","f","d","d")},comments="i1")
+	data=np.loadtxt(fileName,usecols=(1,2,5,pos,7,6,13),dtype={"names":("n1","n2","mu","xsec","chMass","nMass","k"),"formats":("i","i","d","f","d","d","S6")},comments="i1")
 	return data
 
 def xsecUnc_alphaS(M1,M2):
 	xsecs=[]
 	xsec_up=0
 	xsec_down=0
+	k = [[0. for i in range(101)] for j in range(13)]
 	for rep in xrange(103):
 		data=readOutput(M1,M2,rep)
 		if len(data)==0: continue
@@ -22,6 +24,18 @@ def xsecUnc_alphaS(M1,M2):
 			for process in data:
 				if process[2]==1.0 : tempxsec+=process[3]
 			xsecs.append(tempxsec)
+			
+			for n1 in [1,2,5]:
+				for n2 in [5,7]:
+					if n1==n2: continue
+					for process in data:
+						if process[0]==n1 and process[1]==n2:
+							if process[2]==1.0 : 
+								try:
+									k[n1+n2][rep]=float(process[6])
+								except ValueError:
+									print "Not a float"
+		
 		elif rep==101:
 			for process in data:
 				if process[2]==1.0 : xsec_up+=process[3]
@@ -29,6 +43,15 @@ def xsecUnc_alphaS(M1,M2):
 			for process in data:
 				if process[2]==1.0 : xsec_down+=process[3]		
 	xsecs=np.array(xsecs)
+	
+	#~ print k
+	#~ sys.exit()
+	k_mean=np.zeros(13)
+	i=0
+	for process in k:
+		process=np.array(process)
+		k_mean[i]=process.mean()
+		i+=1
 	
 	rootfile = rt.TFile("output/xsecs_distributions_M1_M2.root","UPDATE")
 	histo = rt.TH1F(str(M1)+"_"+str(M2),";cross section (fb);nReplicas",10,xsecs.min(),xsecs.max())
@@ -45,6 +68,7 @@ def xsecUnc_alphaS(M1,M2):
 	temp_mean=0
 	n1_mass=0
 	n2_mass=0
+	#~ k=np.zeros(13)
 	for n1 in [1,2,5]:
 		for n2 in [5,7]:
 			if n1==n2: continue
@@ -52,14 +76,18 @@ def xsecUnc_alphaS(M1,M2):
 				if process[0]==n1 and process[1]==n2:
 					if process[2]==0.5 : temp_down=process[3]
 					if process[2]==2.0 : temp_up=process[3]
-					if process[2]==1.0 : temp_mean=process[3]
-					
+					if process[2]==1.0 : 
+						temp_mean=process[3]
+						#~ try:
+							#~ k[n1+n2]=float(process[6])
+						#~ except ValueError:
+							#~ print "Not a float"
 					if n1==1 and n1_mass==0: n1_mass=process[5]
 					elif n1==2 and n2_mass==0: n2_mass=process[5]
 			scale_up=scale_up+(temp_up-temp_mean)**2
 			scale_down=scale_down+(temp_down-temp_mean)**2
 	
-	return (xsecs.mean(), xsecs.std(ddof=1), np.abs(xsec_up-xsec_down)/2.0, np.median(xsecs), xsec_up, xsec_down, np.sqrt(scale_up), np.sqrt(scale_down),process[4],n1_mass,n2_mass)
+	return (xsecs.mean(), xsecs.std(ddof=1), np.abs(xsec_up-xsec_down)/2.0, np.median(xsecs), xsec_up, xsec_down, np.sqrt(scale_up), np.sqrt(scale_down),process[4],n1_mass,n2_mass,k_mean)
 
 def getMasses(folder):
 	pattern="out_M1_(.*)M2_(.*).slha"
@@ -75,6 +103,9 @@ def getMasses(folder):
 
 if __name__ == "__main__":
 	
+	order="nlo"
+	#~ order="lo"
+	
 	hist = rt.TH2F("xsecs",";M1 (GeV);M2 (GeV);cross section (pb)",30,25,1525,30,25,1525)
 	hist_pdf = rt.TH2F("pdf_uncertainty",";M1 (GeV);M2 (GeV);pdf uncertainty (%)",30,25,1525,30,25,1525)
 	hist_alpha = rt.TH2F("alphaS_uncertainty",";M1 (GeV);M2 (GeV);alpha_s uncertainty (%)",30,25,1525,30,25,1525)
@@ -85,15 +116,37 @@ if __name__ == "__main__":
 	hist_scaleUp = rt.TH2F("scaleUp_uncertainty",";M1 (GeV);M2 (GeV);scaleUp uncertainty (%)",30,25,1525,30,25,1525)
 	hist_scaleDown = rt.TH2F("scaleDown_uncertainty",";M1 (GeV);M2 (GeV);scaleDown uncertainty (%)",30,25,1525,30,25,1525)
 	hist_totalUnc = rt.TH2F("total_uncertainty",";M1 (GeV);M2 (GeV);total uncertainty (%)",30,25,1525,30,25,1525)
+	hist_diffKN1p = rt.TH2F("diffKN1p",";M1 (GeV);M2 (GeV);diff k (%)",30,25,1525,30,25,1525)
+	hist_diffKN1m = rt.TH2F("diffKN1m",";M1 (GeV);M2 (GeV);diff k (%)",30,25,1525,30,25,1525)
+	hist_diffKN2p = rt.TH2F("diffKN2p",";M1 (GeV);M2 (GeV);diff k (%)",30,25,1525,30,25,1525)
+	hist_diffKN2m = rt.TH2F("diffKN2m",";M1 (GeV);M2 (GeV);diff k (%)",30,25,1525,30,25,1525)
+	hist_KN2C1 = rt.TH2F("KN2C1",";M1 (GeV);M2 (GeV);k",27,175,1525,26,225,1525)
+	hist_KN1C1 = rt.TH2F("KN1C1",";M1 (GeV);M2 (GeV);k",27,175,1525,26,225,1525)
+	hist_KC1C1 = rt.TH2F("KC1C1",";M1 (GeV);M2 (GeV);k",27,175,1525,26,225,1525)
 	gr_massPlane = rt.TGraph2D()
 	gr_chMass = rt.TGraph()
 	gr_massPlane2 = rt.TGraph2D()
 	
+	if order=="nlo": 
+		out="output/xsec_GGM_M1_M2_PDF4LHC.txt"
+		pos=15
+	else:
+		out="output/xsec_GGM_M1_M2_PDF4LHC_LO.txt"
+		pos=14
+	
+	f=open(out,"w")
+	f.write("#M1 M2 xsec[pb] uncertainty[pb]\n")
+	
 	for point in os.listdir("./input/"):
-		if point=="missingPoints.py": continue
+		if point=="missingPoints.py" or point=="M1_M3" or point=="missingPoints_M1M3.py": continue
 		m=getMasses(point)
-		if m[1]==150 or m[1]==200 or m[0]<200: continue
-		#~ if m[0]!=400 or m[1]!=800: continue
+		if m[0]<200 or m[1]<200: continue
+		if m[1]==150 or m[1]==200 or m[0]<200:
+			f.write(str(m[0])+" "+str(m[1])+" 0 0\n")
+			continue
+		
+		#~ if m[0]!=1050 or m[1]!=1100: continue
+		
 		result=xsecUnc_alphaS(m[0],m[1])
 		hist.Fill(m[0],m[1],result[0])
 		hist_pdf.Fill(m[0],m[1],result[1]/result[0]*100)
@@ -104,6 +157,13 @@ if __name__ == "__main__":
 		hist_alphaUp.Fill(m[0],m[1],result[4]-result[0])
 		hist_alphaDown.Fill(m[0],m[1],result[5]-result[0])
 		hist_alphaDiff.Fill(m[0],m[1],(result[4]-result[5])/result[0]*100)
+		hist_diffKN1p.Fill(m[0],m[1],(result[11][12]-result[11][6])/((result[11][12]+result[11][6])/2.)*100)
+		hist_diffKN1m.Fill(m[0],m[1],(result[11][12]-result[11][8])/((result[11][12]+result[11][8])/2.)*100)
+		hist_diffKN2p.Fill(m[0],m[1],(result[11][12]-result[11][7])/((result[11][12]+result[11][7])/2.)*100)
+		hist_diffKN2m.Fill(m[0],m[1],(result[11][12]-result[11][9])/((result[11][12]+result[11][9])/2.)*100)
+		hist_KN2C1.Fill(m[0],m[1],result[11][9])
+		hist_KN1C1.Fill(m[0],m[1],result[11][8])
+		hist_KC1C1.Fill(m[0],m[1],result[11][12])
 		
 		scale_temp=max(result[6],result[7])
 		tot_unc=np.sqrt(result[1]**2+result[2]**2+scale_temp**2)
@@ -111,9 +171,15 @@ if __name__ == "__main__":
 		gr_chMass.SetPoint(gr_chMass.GetN(),result[8],result[0])
 		gr_massPlane.SetPoint(gr_massPlane.GetN(),abs(result[9]),abs(result[10]),result[0])
 		gr_massPlane2.SetPoint(gr_massPlane2.GetN(),abs(result[9]),abs(result[8]),result[0])
-		print m[0],m[1],result[9],result[10]
+		
+		f.write(str(m[0])+" "+str(m[1])+" "+str(result[0])+" "+str(tot_unc)+"\n")
+		
+		print m[0],m[1],result[11][12],result[11][6],result[11][7]
 	
-	rfile = rt.TFile("output/xsecs_M1_M2.root","UPDATE")	
+	if order=="nlo": outRoot="output/xsecs_M1_M2.root"
+	else: outRoot="output/xsecs_M1_M2_LO.root"
+	
+	rfile = rt.TFile(outRoot,"UPDATE")	
 	hist.Write("xsecs",rt.TObject.kOverwrite)
 	hist_pdf.Write("pdf_uncertainty",rt.TObject.kOverwrite)
 	hist_alpha.Write("alphaS_uncertainty",rt.TObject.kOverwrite)
@@ -124,10 +190,19 @@ if __name__ == "__main__":
 	hist_scaleUp.Write("scaleUp_uncertainty",rt.TObject.kOverwrite)
 	hist_scaleDown.Write("scaleDown_uncertainty",rt.TObject.kOverwrite)
 	hist_totalUnc.Write("total_uncertainty",rt.TObject.kOverwrite)
+	hist_diffKN1p.Write("hist_diffKN1p",rt.TObject.kOverwrite)
+	hist_diffKN1m.Write("hist_diffKN1m",rt.TObject.kOverwrite)
+	hist_diffKN2p.Write("hist_diffKN2p",rt.TObject.kOverwrite)
+	hist_diffKN2m.Write("hist_diffKN2m",rt.TObject.kOverwrite)
+	hist_KN2C1.Write("hist_KN2C1",rt.TObject.kOverwrite)
+	hist_KC1C1.Write("hist_KC1C1",rt.TObject.kOverwrite)
+	hist_KN1C1.Write("hist_KN1C1",rt.TObject.kOverwrite)
 	gr_chMass.Write("chMassVSxsec",rt.TObject.kOverwrite)
 	gr_massPlane.Write("N1N2_MassPlane",rt.TObject.kOverwrite)
 	gr_massPlane2.Write("N1C1_MassPlane",rt.TObject.kOverwrite)
 	gr_massPlane2.GetHistogram().Write("N1C1_MassPlane_hist",rt.TObject.kOverwrite)
+	
+	f.close
 	#~ rfile.Close()
 
 	#~ print xsecUnc_alphaS(400,500)

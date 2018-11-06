@@ -62,12 +62,22 @@ def run_M1M2():
 			neutrmixblock = data.blocks["NMIX"]
 			decays_nlsp = data.decays[1000022]
 			decays_ch1 = data.decays[1000024]
+			decays_neu2 = data.decays[1000023]
 			width = decays_nlsp.totalwidth
 			width_ch1 = decays_ch1.totalwidth
+			
+			neu2ToZ=0
+			neu2ToH=0
+			neu2ToW=0
+			
 			print f
+			for decay in decays_neu2.decays:
+				if decay.ids[0]==1000022 and decay.ids[1]==23: neu2ToZ=decay.br
+				elif decay.ids[0]==1000022 and decay.ids[1]==25: neu2ToH=decay.br
+				elif abs(decay.ids[1])==24: neu2ToW=neu2ToW+decay.br
 			#if width>1e-20: width = 1
 			if len(decays_nlsp.decays)==1:
-				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,width,width_ch1,massblock[1000023]])
+				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,width,width_ch1,massblock[1000023],massblock[25],neu2ToZ,neu2ToH,neu2ToW])
 			else:
 				if decays_nlsp.decays[0].ids[1]==22:
 					brg = decays_nlsp.decays[0].br
@@ -75,7 +85,7 @@ def run_M1M2():
 				else :
 					brz = decays_nlsp.decays[0].br
 					brg = decays_nlsp.decays[1].br
-				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,width,width_ch1,massblock[1000023]])
+				readout.append([extparblock[1],extparblock[2],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,width,width_ch1,massblock[1000023],massblock[25],neu2ToZ,neu2ToH,neu2ToW])
 	def getKey(item):
 		return (item[0],item[1])
 		
@@ -93,12 +103,17 @@ def run_M1M2():
 	width_nlsp = np.array([item[9] for item in readout])
 	width_ch1 = np.array([item[10] for item in readout])
 	M_chi_20 = np.array([item[11] for item in readout])
-	diffMass = M_chi_1p-M_chi_10
+	M_h = np.array([item[12] for item in readout])
+	BR_neu2Z = np.array([item[13] for item in readout])
+	BR_neu2H = np.array([item[14] for item in readout])
+	BR_neu2W = np.array([item[15] for item in readout])
+	#~ diffMass = M_chi_1p-M_chi_10
+	diffMass = abs(M_chi_10-M_chi_1p)
 	decay_length = const.hbar/(const.e*width_nlsp)*const.c*1E-7
 	decay_length_ch1 = const.hbar/(const.e*width_ch1)*const.c*1E-7
 	
-	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,width_nlsp,decay_length,diffMass,decay_length_ch1,M_chi_20]
-	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","widthNLSP","length_nlsp","massDiff","length_ch1","massNeutralino2","MassDiff"]
+	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,width_nlsp,decay_length,diffMass,decay_length_ch1,M_chi_20,M_h,BR_neu2Z,BR_neu2H,BR_neu2W]
+	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","widthNLSP","length_nlsp","massDiff","length_ch1","massNeutralino2","MassDiff","MassHiggsh","BRneu2toZ","BRneu2toH","BRneu2toW"]
 	j = 0
 	rfile = rt.TFile("output/M1_M2/hist2d.root","UPDATE")
 	
@@ -128,6 +143,10 @@ def run_M1M2():
 	decay_length = (decay_length.reshape((30,30))).T
 	decay_length_ch1 = (decay_length_ch1.reshape((30,30))).T
 	M_chi_20 = (M_chi_20.reshape((30,30))).T
+	M_h = (M_h.reshape((30,30))).T
+	BR_neu2Z = (BR_neu2Z.reshape((30,30))).T
+	BR_neu2H = (BR_neu2H.reshape((30,30))).T
+	BR_neu2W = (BR_neu2W.reshape((30,30))).T
 	
 	decay_length_thresh = const.hbar/(const.e*width_nlsp)*const.c*1E-7
 	for i in xrange(30):
@@ -155,6 +174,10 @@ def run_M1M2():
 	plot_2d_M1M2(decay_length_thresh,"Decay length $\\tilde{\\chi}^\\pm_1$ (cm)","Decay length tresh $\\tilde{\\chi}^\\pm_1$","Length tresh Chargino1")
 	plot_2d_M1M2(diffMass,"$\\Delta M(\\tilde{\\chi}^{\\pm}_1,\\tilde{\\chi}^0_1$) (GeV)","$\\Delta M(\\tilde{\\chi}^{\\pm}_1,\\tilde{\\chi}^0_1$)","MassDiff")
 	plot_2d_M1M2(M_chi_20,"$M_{\\tilde{\\chi}^0_2}$ (GeV)","Mass $\\tilde{\\chi}^0_2$","Mass_neutralino2")	
+	plot_2d_M1M2(M_h,"$M_{h}$ (GeV)","$M_{h}$","Mass_SMhiggs")
+	plot_2d_M1M2(BR_neu2Z,"BR($\\tilde{\\chi}^0_2\\rightarrow Z$)","Branching Ratio $\\tilde{\\chi}^0_2\\rightarrow Z$","BRneu2toZ")
+	plot_2d_M1M2(BR_neu2H,"BR($\\tilde{\\chi}^0_2\\rightarrow H$)","Branching Ratio $\\tilde{\\chi}^0_2\\rightarrow H$","BRneu2toH")	
+	plot_2d_M1M2(BR_neu2W,"BR($\\tilde{\\chi}^0_2\\rightarrow W^{\\pm}$)","Branching Ratio $\\tilde{\\chi}^0_2\\rightarrow W^{\\pm}$","BRneu2toW")	
 
 def run_M1M3():
 	readout = []
@@ -168,9 +191,10 @@ def run_M1M3():
 			vchmixblock = data.blocks["VMIX"]
 			neutrmixblock = data.blocks["NMIX"]
 			decays_nlsp = data.decays[1000022]
+			decays_neu2 = data.decays[1000023]
 			print f
 			if len(decays_nlsp.decays)==1:
-				readout.append([extparblock[1],extparblock[3],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,massblock[1000023]])
+				readout.append([extparblock[1],extparblock[3],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],decays_nlsp.decays[0].br,0.,massblock[1000023],decays_neu2.decays[0].br,decays_neu2.decays[1].br])
 			else:
 				if decays_nlsp.decays[0].ids[1]==22:
 					brg = decays_nlsp.decays[0].br
@@ -178,7 +202,7 @@ def run_M1M3():
 				elif decays_nlsp.decays[0].ids[1]==23:
 					brz = decays_nlsp.decays[0].br
 					brg = decays_nlsp.decays[1].br
-				readout.append([extparblock[1],extparblock[3],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,massblock[1000023]])
+				readout.append([extparblock[1],extparblock[3],massblock[1000022],massblock[1000024],massblock[1000021],massblock[1000006],massblock[35],brg,brz,massblock[1000023],decays_neu2.decays[0].br,decays_neu2.decays[1].br])
 	def getKey(item):
 		return (item[0],item[1])
 		
@@ -194,9 +218,11 @@ def run_M1M3():
 	BR_g = np.array([item[7] for item in readout])
 	BR_Z = np.array([item[8] for item in readout])
 	M_chi_20 = np.array([item[9] for item in readout])
+	BR_neu2Z = np.array([item[10] for item in readout])
+	BR_neu2H = np.array([item[11] for item in readout])
 	
-	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,M_chi_20]
-	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","massNeutralino2"]
+	values = [M_chi_10,M_chi_1p,M_gl,M_st,M_H,BR_g,BR_Z,M_chi_20,BR_neu2Z,BR_neu2H]
+	names = ["massNLSP","massChargino","massGluino","massStop","massHiggsH","BRtoPhoton","BRtoZ","massNeutralino2","BRneu2toZ","BRneu2toH"]
 	j = 0
 	rfile = rt.TFile("output/M1_M3/hist2d_scan2.root","UPDATE")
 	
@@ -221,6 +247,8 @@ def run_M1M3():
 	BR_g = (BR_g.reshape((30,31))).T
 	BR_Z = (BR_Z.reshape((30,31))).T
 	M_chi_20 = (M_chi_20.reshape((30,31))).T
+	BR_neu2Z = (BR_neu2Z.reshape((30,31))).T
+	BR_neu2H = (BR_neu2H.reshape((30,31))).T
 	
 	plot_2d_M1M3(M_chi_10,"$M_{\\tilde{\\chi}^0_1}$ (GeV)","Mass $\\tilde{\\chi}^0_1$","Mass_neutralino",False)
 	plot_2d_M1M3(M_chi_1p,"$M_{\\tilde{\\chi}^{\\pm}_1}$ (GeV)","Mass $\\tilde{\\chi}^{\\pm}_1$","Mass_chargino",False)
@@ -229,7 +257,9 @@ def run_M1M3():
 	plot_2d_M1M3(M_H,"$M_{H}$ (GeV)","Mass $H$","Mass_Higgs",False)
 	plot_2d_M1M3(BR_g,"BR($\\tilde{\\chi}^0_1\\rightarrow\\gamma$)","Branching Ratio $\\tilde{\\chi}^0_1\\rightarrow\\gamma$","BR_gamma",False)
 	plot_2d_M1M3(BR_Z,"BR($\\tilde{\\chi}^0_1\\rightarrow Z$)","Branching Ratio $\\tilde{\\chi}^0_1\\rightarrow Z$","BR_z",False)
-	plot_2d_M1M3(M_chi_20,"$M_{\\tilde{\\chi}^0_2}$ (GeV)","Mass $\\tilde{\\chi}^0_2$","Mass_neutralino2",False)	
+	plot_2d_M1M3(M_chi_20,"$M_{\\tilde{\\chi}^0_2}$ (GeV)","Mass $\\tilde{\\chi}^0_2$","Mass_neutralino2",False)
+	plot_2d_M1M3(BR_neu2Z,"BR($\\tilde{\\chi}^0_2\\rightarrow Z$)","Branching Ratio $\\tilde{\\chi}^0_2\\rightarrow Z$","BRneu2toZ",False)
+	plot_2d_M1M3(BR_neu2H,"BR($\\tilde{\\chi}^0_2\\rightarrow H$)","Branching Ratio $\\tilde{\\chi}^0_2\\rightarrow H$","BRneu2toH",False)	
 
 def M1M2_BRphys():
 	readout = []

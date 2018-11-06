@@ -128,10 +128,10 @@ CombinationHistogramProducer::CombinationHistogramProducer():
   signal_nBinos(fReader, "signal_nBinos"),
   signal_m1(fReader, "signal_m1"),
   signal_m2(fReader, "signal_m2"),
-  //~ eventIdsGamGam("diPhoton.txt"),
-  //~ eventIdsGamLep("lepPhoton.txt"),
-  //~ eventIdsGamStg("../../other_photon_limits/SUS-16-046/signalRegion_st.txt"),
-  //~ eventIdsGamHtg("../SUS-16-047_ids.txt"),
+  eventIdsGamGam("signalRegion_diphoton.txt"),
+  eventIdsGamLep("signalRegion_lepton.txt"),
+  eventIdsGamStg("signalRegion_johannes.txt"),
+  eventIdsGamHtg("signalRegion_knut.txt"),
   startTime(time(NULL)),
   rand()
 {
@@ -157,6 +157,8 @@ void CombinationHistogramProducer::Init(TTree *tree)
   isGG = inputName.find("TChiGG") != string::npos; //to get caled BRs
   isZG = inputName.find("TChiZG") != string::npos;
   isZZ = inputName.find("TChiZZ") != string::npos;
+  
+  isT5Wg_thirds = inputName.find("thirds") != string::npos; //to rescale T5Wg with 2/3 charged and 1/3 uncharged gluino decays
 
   weighters["sf_photon_id_loose"] = Weighter("../plotter/data/dataMcScaleFactors_80X.root", "EGamma_SF2D");
   weighters["sf_photon_pixel"] = Weighter("../plotter/data/ScalingFactors_80X_Summer16.root", "Scaling_Factors_HasPix_R9 Inclusive");
@@ -478,6 +480,12 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
     if (match_1 && match_2) test_Sel_GG++;
     else return kTRUE;
   }
+  
+  float gen_weight = 1.;
+  if (isT5Wg_thirds) { //rescale T5Wg
+    if (*signal_nBinos==1) gen_weight = 8./9;
+    else if (*signal_nBinos==2) gen_weight = 4./9;
+  }
     
   
   if (genHt600 && *genHt>600) {
@@ -505,7 +513,7 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   }
   defaultSelection();
 
-  weight_ = *mc_weight * *pu_weight;
+  weight_ = *mc_weight * *pu_weight * gen_weight;
   if (selPhotons.size()) weight_ *= getPhotonWeight(*selPhotons.at(0));
 
   htg_ = 0;

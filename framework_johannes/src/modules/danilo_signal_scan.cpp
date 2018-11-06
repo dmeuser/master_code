@@ -33,6 +33,8 @@ enum Scan_t
    TChiNg_gz,
    TChiNg_zz,
    TChiNg_gg_C1N2,
+   T5Wg_Wg,
+   T5Wg_thirds,
 };
 
 
@@ -46,12 +48,14 @@ std::map<int,float> getXsecs(Scan_t scan)
    else if (scan==T5gg) path += "/xsec_gluglu.csv";
    else if (scan==T6Wg) path += "/xsec_sqsq.csv";   //squarks! update
    else if (scan==T6gg) path += "/xsec_sqsq.csv";   //squarks! update
-   else if (scan==GGM_M1_M2) path += "/xsec_GGM_M1_M2.txt";
-   else if (scan==GGM_M1_M3) path += "/xsec_GGM_M1_M3.txt";
+   else if (scan==GGM_M1_M2) path += "/xsec_GGM_M1_M2.txt";    //changed to new xsecs on 28.8.2018
+   else if (scan==GGM_M1_M3) path += "/xsec_GGM_M1_M3.txt";    //changed to new xsecs on 28.8.2018
    else if (scan==TChiNg_gg) path += "/xsec_comb_wino.csv"; 
    else if (scan==TChiNg_gz) path += "/xsec_comb_wino.csv"; 
    else if (scan==TChiNg_zz) path += "/xsec_comb_wino.csv"; 
    else if (scan==TChiNg_gg_C1N2) path += "/xsec_N2C1_wino.csv";
+   else if (scan==T5Wg_Wg) path += "/xsec_gluglu.csv";
+   else if (scan==T5Wg_thirds) path += "/xsec_gluglu.csv";
    std::cout<<path<<std::endl;
    unsigned const nCol=scan==GGM||scan==GGM_M1_M2||scan==GGM_M1_M3 ? 4 : 3;
    // T5Wg also contains gg, WW -> actually only 1/2 of generated events
@@ -88,6 +92,8 @@ std::string getModelName(Scan_t scan, UShort_t signal_m1, UShort_t signal_m2 = 0
    if (scan==TChiWg)  modelName = "TChiWG_";
    else if (scan==TChiNg)  modelName = "TChiNG_";
    else if (scan==T5Wg)  modelName = "T5Wg_";
+   else if (scan==T5Wg_Wg)  modelName = "T5Wg_";
+   else if (scan==T5Wg_thirds)  modelName = "T5Wg_";
    else if (scan==T5gg)  modelName = "T5gg_";
    else if (scan==T6Wg)  modelName = "T6Wg_";
    else if (scan==T6gg)  modelName = "T6gg_";
@@ -115,6 +121,8 @@ std::pair<int,int> getMasses(std::string fileName,Scan_t scan)
    else if (scan==TChiWg)  e="TChiWG_(.*)";
    else if (scan==TChiNg)  e="TChiNG_(.*)";
    else if (scan==T5Wg) e="T5.*_(.*)_(.*)";
+   else if (scan==T5Wg_Wg) e="T5.*_(.*)_(.*)";
+   else if (scan==T5Wg_thirds) e="T5.*_(.*)_(.*)";
    else if (scan==T5gg) e="T5.*_(.*)_(.*)";
    else if (scan==T6Wg) e="T6.*_(.*)_(.*)";
    else if (scan==T6gg) e="T6.*_(.*)_(.*)";
@@ -162,6 +170,8 @@ void runScan_80X(Scan_t scan,int selection)
    if (scan==TChiWg) fname+="SMS-TChiWG.root";
    else if (scan==TChiNg) fname+="SMS-TChiNG_BF50N50G.root";  
    else if (scan==T5Wg) fname+="SMS-T5Wg.root";
+   else if (scan==T5Wg_Wg) fname+="SMS-T5Wg_Wg.root";
+   else if (scan==T5Wg_thirds) fname+="SMS-T5Wg.root";
    else if (scan==T5gg) fname+="SMS-T5gg.root";
    else if (scan==T6Wg) fname+="SMS-T6Wg.root";
    else if (scan==T6gg) fname+="SMS-T6gg.root";
@@ -177,6 +187,7 @@ void runScan_80X(Scan_t scan,int selection)
    std::map<std::string,TH1F> hCR;
    std::map<std::string,TH1F> hPresel;
    std::map<std::string,TH1F> hISRWeight;
+   std::map<std::string,TH1F> hPuUnc;
 
    TFile file(fname,"read");
    if (file.IsZombie()) {
@@ -196,13 +207,15 @@ void runScan_80X(Scan_t scan,int selection)
    std::vector<tree::IntermediateGenParticle> *intermediateGenParticles=0;
    UShort_t signal_m1 = 0;
    UShort_t signal_m2 = 0;
-   //~ UShort_t signal_nBinos = 0;
+   UShort_t signal_nBinos = 0;
    Int_t nGoodVertices = 0;
    ULong64_t evtNo = 0;
    UInt_t runNo = 0;
    UInt_t lumNo = 0;
    tree::MET *MET=0;
    tree::MET *genMET=0;
+   tree::MET *jseUpMET=0;
+   tree::MET *jseDownMET=0;
    TTree *tree=(TTree*)file.Get(cfg.treeName);
    tree->SetBranchAddress("pu_weight", &w_pu);
    tree->SetBranchAddress("mc_weight", &w_mc);
@@ -217,9 +230,11 @@ void runScan_80X(Scan_t scan,int selection)
  //  tree->SetBranchAddress("modelName", &modelName);
    tree->SetBranchAddress("signal_m1", &signal_m1);
    tree->SetBranchAddress("signal_m2", &signal_m2);
- //  tree->SetBranchAddress("signal_nBinos", &signal_nBinos);  
+   tree->SetBranchAddress("signal_nBinos", &signal_nBinos);  
    tree->SetBranchAddress("met", &MET);
    tree->SetBranchAddress("met_gen", &genMET);
+   tree->SetBranchAddress("met_JESu", &jseUpMET);
+   tree->SetBranchAddress("met_JESd", &jseDownMET);
    tree->SetBranchAddress("nGoodVertices", &nGoodVertices);
    tree->SetBranchAddress("runNo", &runNo);
    tree->SetBranchAddress("lumNo", &lumNo);
@@ -258,6 +273,7 @@ void runScan_80X(Scan_t scan,int selection)
          }
          if (!match_1 or !match_2) continue;
          test_Sel_gg++;
+         //std::cout<<(*intermediateGenParticles)[0].pdgId<<"   "<<(*intermediateGenParticles)[0].pdgId<<std::endl;
       }
       
       if (scan == TChiNg_zz) {
@@ -288,13 +304,21 @@ void runScan_80X(Scan_t scan,int selection)
          if (!match_1 or !match_2) continue;
          test_Sel_gg++;
       }
-                  
+      
+      //Rescale T5Wg events to math 2/3 charged gluino and 1/3 uncharged gluino decays
+      float gen_weight = 1.;
+      if (scan == T5Wg_thirds) {
+         if (signal_nBinos==1) gen_weight = 8./9;
+         else if (signal_nBinos==2) gen_weight = 4./9;
+      }
             
       if (hSR.count(model)<1) {
          
          hSR[model]=hist::fromWidths((model+"SR").c_str(),";STg;EventsBIN",{600,800,1000,1300,1600},{200,200,300,300});
          hSR[model+"SRErrISR"]=hist::fromWidths((model+"SRErrISR").c_str(),";STg;EventsBIN",{600,800,1000,1300,1600},{200,200,300,300});         
          hSR[model+"_gen"]=hist::fromWidths((model+"genSR").c_str(),";gen STg;EventsBIN",{600,800,1000,1300,1600},{200,200,300,300});
+         hSR[model+"_JESu"]=hist::fromWidths((model+"JESuSR").c_str(),";JESu STg;EventsBIN",{600,800,1000,1300,1600},{200,200,300,300});
+         hSR[model+"_JESd"]=hist::fromWidths((model+"JESdSR").c_str(),";JESd STg;EventsBIN",{600,800,1000,1300,1600},{200,200,300,300});
          hCR[model]=hist::fromWidths((model+"CR").c_str(),";absphiMETnJetPh;EventsBIN",{0,.8,3.2},{.2,.4});
 
          hPresel[model]=hist::fromWidths((model).c_str(),";absphiMETnJetPh;EventsBIN",{0,.8,3.2},{.2,.4});
@@ -306,6 +330,8 @@ void runScan_80X(Scan_t scan,int selection)
          hISRWeight[model+"_after"]=hist::fromWidths((model+"_after").c_str(),";phoPt;EventsBIN",{0.,700.},{50.});
          hISRWeight[model+"_afterErr"]=hist::fromWidths((model+"_afterErr").c_str(),";phoPt;EventsBIN",{0.,700.},{50.});
          
+         hPuUnc[model]=TH1F("","",1,0,2);
+         
 
          miAcc[model]=0;
          miAccBin3[model]=0;
@@ -315,7 +341,7 @@ void runScan_80X(Scan_t scan,int selection)
          PVlowSR[model]=0;              
          PVhighSR[model]=0;
       }
-      float fEventWeight=w_pu * w_mc;
+      float fEventWeight=w_pu * w_mc * gen_weight;
       float fEventWeightError = fEventWeight;
 
       //ISR weighting
@@ -397,9 +423,13 @@ void runScan_80X(Scan_t scan,int selection)
       float const MT=phys::M_T(*pho[0],*MET);
       float STg=MET->p.Pt();
       float genSTg=genMET->p.Pt();
+      float jseUpSTg=jseUpMET->p.Pt();
+      float jseDownSTg=jseDownMET->p.Pt();
       for (auto const &ph: pho){
          STg+=ph->p.Pt();
          genSTg+=ph->p.Pt();
+         jseUpSTg+=ph->p.Pt();
+         jseDownSTg+=ph->p.Pt();
       }
       
       //Vetos for GGM combination
@@ -723,6 +753,8 @@ void runScan_80X(Scan_t scan,int selection)
          hSR[model].Fill(STg,fEventWeight);
          hSR[model+"SRErrISR"].Fill(STg,fEventWeightError);
          hSR[model+"_gen"].Fill(genSTg,fEventWeight);
+         hSR[model+"_JESu"].Fill(jseUpSTg,fEventWeight);
+         hSR[model+"_JESd"].Fill(jseDownSTg,fEventWeight);
          if (scan == GGM || scan == GGM_M1_M2 || scan == GGM_M1_M3){
             hSR[model+"_mu2"].Fill(STg,fEventWeight);
             hSR[model+"_mu05"].Fill(STg,fEventWeight);            
@@ -753,6 +785,8 @@ void runScan_80X(Scan_t scan,int selection)
    else if (scan==TChiWg) sScan="TChiWg";
    else if (scan==TChiNg) sScan="TChiNg";
    else if (scan==T5Wg) sScan="T5Wg";
+   else if (scan==T5Wg_Wg) sScan="T5Wg_Wg";
+   else if (scan==T5Wg_thirds) sScan="T5Wg_thirds";
    else if (scan==T5gg) sScan="T5gg";
    else if (scan==T6Wg) sScan="T6Wg";
    else if (scan==T6gg) sScan="T6gg";
@@ -764,14 +798,19 @@ void runScan_80X(Scan_t scan,int selection)
    else if (scan==TChiNg_gg_C1N2) sScan="TChiNg_gg_C1N2";
 
  //  for (auto &it: PVlowSR) std::cout << it.first << " : " << ((1.*it.second/PVlowAll[it.first]) - (1.*PVhighSR[it.first]/PVhighAll[it.first]))*100/2. << std::endl; //balanced deviation because of PU in percent
-
+   
    TString fill_line;
    
    double uncert_PU = 0.;
+   double uncert_PU_rel = 0.;
    for (auto &it: PVlowSR) {
       uncert_PU = fabs(((1.*it.second/PVlowAll[it.first]) - (1.*PVhighSR[it.first]/PVhighAll[it.first]))*100/2.);
-      fill_line = it.first +" : " + std::to_string(uncert_PU);
+      if (uncert_PU!=0) {
+         uncert_PU_rel = fabs(((1.*it.second/PVlowAll[it.first]) - (1.*PVhighSR[it.first]/PVhighAll[it.first]))/(2.*(1.*it.second+PVhighSR[it.first])/(1.*PVlowAll[it.first]+PVhighAll[it.first])));
+      }
+      fill_line = it.first +" : " + std::to_string(uncert_PU)+"    "+std::to_string(uncert_PU_rel);
       fit_result_weights<< fill_line;
+      hPuUnc[it.first].Fill(1,uncert_PU_rel);
    }
     
    io::RootFileReader dataReader(TString::Format("histograms_%s.root",cfg.treeVersion.Data()),TString::Format("danilo_distributions%.1f",cfg.processFraction*100));
@@ -829,6 +868,8 @@ void runScan_80X(Scan_t scan,int selection)
       std::string const model=map.first;
       if (model.find("_mu")!=std::string::npos) continue; // variations are handeled in nominal iteration
       if (model.find("_gen")!=std::string::npos) continue; // gen case handeled in nominal iteration
+      if (model.find("_JESu")!=std::string::npos) continue; // JES case handeled in nominal iteration
+      if (model.find("_JESd")!=std::string::npos) continue; // JES case handeled in nominal iteration
       if (model.find("SRErrISR")!=std::string::npos) continue; // gen case handeled in nominal iteration     
       // scale lumi
       TH1F* hcf;
@@ -855,14 +896,21 @@ void runScan_80X(Scan_t scan,int selection)
       } else if (model.find("GGM")!=std::string::npos) {
          hcf=(TH1F*)file.Get(("TreeWriter/hCutFlowGMSB"+model.substr(model.find('_'))).c_str());
          sScan="GGM";         
-      } else {
+      } else if (model.find("T5Wg_Wg")!=std::string::npos) {
+         hcf=(TH1F*)file.Get(("TreeWriter/hCutFlowT5Wg"+model.substr(model.find('_'))).c_str());
+         sScan="T5Wg_Wg";
+      } else if (model.find("T5Wg_thirds")!=std::string::npos) {
+         hcf=(TH1F*)file.Get(("TreeWriter/hCutFlowT5Wg"+model.substr(model.find('_'))).c_str());
+         sScan="T5Wg_thirds";
+      }
+       else {
          hcf=(TH1F*)file.Get(("TreeWriter/hCutFlow"+model).c_str());
          if (scan==T5Wg) sScan="T5Wg";
      //    std::cout << model << ".root" << std::endl;
       }
       
       //save different process fractions
-      if (cfg.processFraction!=1) {
+      if (cfg.processFraction!=1 && !(sScan.Contains("0."))) {
          std::ostringstream out;
          out<<std::setprecision(2)<<cfg.processFraction;
          sScan=sScan+"_"+out.str();
@@ -894,6 +942,9 @@ void runScan_80X(Scan_t scan,int selection)
       else if (scan==TChiNg_zz) {
          Ngen/=16.0;
       }
+      else if (scan==T5Wg_Wg) {
+         Ngen/=2.0;
+      }
 
       double scaleUnc,normalization, ISR_norm;
 
@@ -910,6 +961,8 @@ void runScan_80X(Scan_t scan,int selection)
       hSR[model].Scale(ISR_norm); //scale after scaleUnc determination because otherwise Eventweights don't cancel
       hSR[model+"SRErrISR"].Scale(ISR_norm);   
       hSR[model+"_gen"].Scale(ISR_norm);
+      hSR[model+"_JESu"].Scale(ISR_norm);
+      hSR[model+"_JESd"].Scale(ISR_norm);
       hCR[model].Scale(ISR_norm);
 
       std::pair<int,int> const masses=getMasses(model,scan);
@@ -925,15 +978,21 @@ void runScan_80X(Scan_t scan,int selection)
          xs=mXsecs[m];
       }
       float const w=xs/Ngen*cfg.lumi;
+      
+      std::cout<<Ngen<<std::endl;
 
       hSR[model].Scale(w);
       hSR[model+"SRErrISR"].Scale(w);      
       hSR[model+"_gen"].Scale(w);
+      hSR[model+"_JESu"].Scale(w);
+      hSR[model+"_JESd"].Scale(w);
       hCR[model].Scale(w);
 
       hist::mergeOverflow(hSR[model]);
       hist::mergeOverflow(hSR[model+"SRErrISR"]);  
       hist::mergeOverflow(hSR[model+"_gen"]);
+      hist::mergeOverflow(hSR[model+"_JESu"]);
+      hist::mergeOverflow(hSR[model+"_JESd"]);
       hist::mergeOverflow(hCR[model]);
       hist::mergeOverflow(hISRWeight[model+"_before"]);
       hist::mergeOverflow(hISRWeight[model+"_after"]);
@@ -942,12 +1001,16 @@ void runScan_80X(Scan_t scan,int selection)
       hSR[model].Scale(cfg.trigger_eff_Ph);
       hSR[model+"SRErrISR"].Scale(cfg.trigger_eff_Ph);   
       hSR[model+"_gen"].Scale(cfg.trigger_eff_Ph);
+      hSR[model+"_JESu"].Scale(cfg.trigger_eff_Ph);
+      hSR[model+"_JESd"].Scale(cfg.trigger_eff_Ph);
       hCR[model].Scale(cfg.trigger_eff_Ph);
       
       sVar = sScan+"/pre_ph165/c_MET300/MT300/STg";
       saver_hist.save(hSR[model],sVar+"/"+model);
       saver_hist.save(hSR[model+"SRErrISR"],sVar+"/"+model+"SRErrISR");  
       saver_hist.save(hSR[model+"_gen"],sVar+"/"+model+"_gen");
+      saver_hist.save(hSR[model+"_JESu"],sVar+"/"+model+"_JESu");
+      saver_hist.save(hSR[model+"_JESd"],sVar+"/"+model+"_JESd");
       
       sVar = sScan+"/EWKinoPairPt";      
       saver_hist.save(hISRWeight[model+"_before"],sVar+"/"+model+"_before");
@@ -986,6 +1049,9 @@ void runScan_80X(Scan_t scan,int selection)
       genEvents[model]=Ngen;
       selEvents[model]=miAcc[model];
       weight[model]=w;
+      
+      //PU uncertainty
+      saver_hist.save(hPuUnc[model],sScan+"/PuUnc/"+model);
       
 
       // contamination
@@ -1031,12 +1097,12 @@ void runScan_80X(Scan_t scan,int selection)
    }
    
    //Print
-   std::cout<<processEvents<<std::endl;
-   std::cout<<test_Sel_gg<<std::endl;
-   std::cout<<fake<<std::endl;
-   std::cout<<elepair<<std::endl;
-   std::cout<<mupair<<std::endl;
-   std::cout<<rest<<std::endl;
+   //~ std::cout<<processEvents<<std::endl;
+   //~ std::cout<<test_Sel_gg<<std::endl;
+   //~ std::cout<<fake<<std::endl;
+   //~ std::cout<<elepair<<std::endl;
+   //~ std::cout<<mupair<<std::endl;
+   //~ std::cout<<rest<<std::endl;
 }
 
 extern "C"
@@ -1049,27 +1115,39 @@ void run()
    //~ runScan_80X(TChiWg,4);
    //~ runScan_80X(TChiWg,5);
    //~ runScan_80X(TChiWg,7);
-    //~ runScan_80X(TChiNg,5);
-    //~ runScan_80X(T5gg,5);
-    //~ runScan_80X(T5Wg,7);
+    //~ runScan_80X(TChiNg,2);
+    //~ runScan_80X(T5gg,0);
    //~ runScan_80X(T6Wg,5);
     //~ runScan_80X(T6gg,2);
   //~ runScan_80X(GGM,0);
-   //~ runScan_80X(GGM_M1_M2,8);
-   //~ runScan_80X(GGM_M1_M3,5);
+   //~ runScan_80X(GGM_M1_M2,0);
+   //~ runScan_80X(GGM_M1_M3,0);
+   //~ runScan_80X(GGM_M1_M2,7);
+   //~ runScan_80X(GGM_M1_M3,7);
+   runScan_80X(T5Wg,7);
    //~ runScan_80X(GGM_M1_M3,2);
    //~ runScan_80X(GGM_M1_M3,3);
    //~ runScan_80X(GGM_M1_M3,4);
-   runScan_80X(GGM_M1_M3,8);
+   //~ runScan_80X(GGM_M1_M3,7);
    //~ runScan_80X(TChiNg_gg_C1N2,0);
    //~ runScan_80X(TChiNg_gg_C1N2,3);
    //~ runScan_80X(TChiNg_gg_C1N2,4);
    //~ runScan_80X(TChiNg_gg_C1N2,5);
    //~ runScan_80X(TChiNg_gg,0);
    //~ runScan_80X(TChiNg_gz,0);
+   //~ runScan_80X(T5Wg_Wg,0);
+   //~ runScan_80X(T5Wg,0);
+   //~ runScan_80X(T5Wg_thirds,0);
+   //~ runScan_80X(T5Wg_thirds,6);
+   //~ runScan_80X(T5Wg_Wg,0);
+   //~ runScan_80X(T5Wg_Wg,6);
+   
+   //~ runScan_80X(TChiNg_gg,0);
+   //~ runScan_80X(TChiNg_gz,0);
+   //~ runScan_80X(TChiNg_zz,0);
    
    
-   //~ for (int i=5;i<=5;i++) {
+   //~ for (int i=7;i<=7;i++) {
       //~ std::cout<<"TChiNg_gg selection:"<<i<<std::endl;
       //~ runScan_80X(TChiNg_gg,i);
       //~ std::cout<<"TChiNg_zz selection:"<<i<<std::endl;

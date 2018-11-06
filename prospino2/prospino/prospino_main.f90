@@ -126,7 +126,7 @@ program main
   
   call initnnset(trim(pdf),pdf_rep)
   
-  call PROSPINO_OPEN_CLOSE(0,arg2,arg)                                                            ! open all input/output files
+  call PROSPINO_OPEN_CLOSE(0,arg2,arg,i_error_in)                                                            ! open all input/output files
   
   !~   final_state_in = 'ng'
 !~   do ipart1_in = 1,8,1
@@ -141,12 +141,24 @@ program main
   ipart1_in = 2
   ipart2_in = 5
   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
-  ipart1_in = 2
+  final_state_in = 'nn'
+  ipart1_in = 1
+  ipart2_in = 5
+  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+  final_state_in = 'nn'
+  ipart1_in = 1
   ipart2_in = 7
   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
-  ipart1_in = 5
-  ipart2_in = 7
-  call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+!~   ipart1_in = 2
+!~   ipart2_in = 7
+!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+!~   ipart1_in = 5
+!~   ipart2_in = 7
+!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
+!~   final_state_in = 'gg'
+!~   ipart1_in = 1
+!~   ipart2_in = 1
+!~   call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in)
 !~   do ipart1_in = 1,8,1
 !~      do ipart2_in = 1,ipart1_in,1
 !~         call PROSPINO(inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in) ! actual prospino call
@@ -208,7 +220,7 @@ program main
 !               prospino.dat2  for long output including subchannels        !
 !               prospino.dat3  lo file for masses, flags, etc               !
 !----------------------------------------------------------------------------
-  call PROSPINO_OPEN_CLOSE(1,arg2,arg)                                                            ! close all input/output files 
+  call PROSPINO_OPEN_CLOSE(1,arg2,arg,i_error_in)                                                            ! close all input/output files 
 
 end program main
 

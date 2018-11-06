@@ -289,7 +289,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
    st.Add(&fixHists["diboson"],"hist");
    st.Add(&fixHists["efake"],"hist");
    st.Add(&fixHists["TTcomb"],"hist");
-   le.prepend(fixHists["diboson"],cfg.datasets.getLabel("diboson"),"f");
+   //~ le.prepend(fixHists["diboson"],cfg.datasets.getLabel("diboson"),"f");
+   le.prepend(fixHists["diboson"],"Diboson","f");
    le.prepend(fixHists["efake"],cfg.datasets.getLabel("efake"),"f");
    le.prepend(fixHists["TTcomb"],"t#bar{t}(#gamma)","f");
 
@@ -529,6 +530,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
    if ((plotMode==SR || plotMode==SR_NOSTACK) && sVar=="STg")  hStackSum.GetYaxis()->SetRangeUser(0.4,500);
    if (plotMode==CR && sVar=="METS") hStackSum.GetYaxis()->SetRangeUser(2e-2,200);
    if (plotMode==PRE && sVar=="METS_logx") can.SetLogx();
+   if (sVar=="STG" or sVar=="phoPt") hStackSum.GetYaxis()->SetRangeUser(2,300);
+   if (sVar=="STG" or sVar=="phoPt") hStackSum.GetYaxis()->SetTitle("Events/bin");
    st.Draw("same");
    st.GetYaxis()->SetTitle(hStatErr.GetYaxis()->GetTitle());
    st.GetXaxis()->SetTitle(hStatErr.GetXaxis()->GetTitle());
@@ -545,7 +548,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
             hr.SetFillStyle(0);
             hr.Draw("hist same");
             hr.Draw("hist same");
-            if (sSample == "GGM_M1_M2") sSample = "GGM M1M2";
+            if (sSample == "GGM_M1_M2") sSample = "GGM 1000 700";
             le.append(hr,sSample,"l");
          }
          else {
@@ -554,7 +557,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
             }
             else if (sSample == "GGM_M1_M2"){
                h.SetLineColor(kBlue+1);
-               sSample = "GGM M1M2";
+               sSample = "GGM 1000 700";
             }
             //~ else if (sSample == "GGM_M1_M2_high"){
                //~ h.SetLineColor(kCyan);
@@ -584,8 +587,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
    if (showData) hData.Draw("same pe1");
    spcan.pU_.RedrawAxis();
    can.RedrawAxis();
-   //le.buildLegend(.55,.71,-1,-1,2).DrawClone();
-   le.buildLegend(.7,.75,-1,-1,2).DrawClone();
+   le.buildLegend(.55,.71,-1,-1,2).DrawClone();
+   //~ le.buildLegend(.7,.75,-1,-1,2).DrawClone();
    if (plotMode==CR) {
       TString txt=""; //add "CR" in plot if wished
       if (sSelection.Contains("/0l")) txt+=", 0 leptons";
@@ -630,7 +633,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
       le.clear();
       le.append(grRatioStat,"#sigma_{tot}","f");
       le.append(hRatioSyst,"#sigma_{syst}","f");
-      le.buildLegend(.4,.43,-1,.6,2).DrawClone();
+      if(sVar=="phoPt") le.buildLegend(.4,.78,-1,.95,2).DrawClone();
+      else le.buildLegend(.4,.43,-1,.6,2).DrawClone();
       saver.save(spcan,saveName,!showData);
    }
 
@@ -722,85 +726,86 @@ void plot(TString sSelection,TString sVar,
 extern "C"
 void run()
 {
-   plot("pre_ph165/combined/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/combined/","MET",{300,800},{50},VR);
-   plot("pre_ph165/combined/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/combined/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/combined/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/combined/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
    
-   plot("pre_ph165/VR_SR/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/","phoPt",{200,1000},{80},VR);
-   plot("pre_ph165/VR_SR/","MT",{300,1000},{70},VR);
-   plot("pre_ph165/VR_SR/","phoEta",{-2.6,2.6},{0.57},VR);
-   plot("pre_ph165/VR_SR/","nEle",{0,5},{1},VR);
-   plot("pre_ph165/VR_SR/","nMu",{0,5},{1},VR);
+   //~ plot("pre_ph165/VR_SR/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/","phoPt",{200,1000},{80},VR);
+   //~ plot("pre_ph165/VR_SR/","MT",{300,1000},{70},VR);
+   //~ plot("pre_ph165/VR_SR/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/","nEle",{0,5},{1},VR);
+   //~ plot("pre_ph165/VR_SR/","nMu",{0,5},{1},VR);
    //~ plot("pre_ph165/VR_SR/","lepPt",{0,800},{80},VR);
-   plot("pre_ph165/VR_SR/","nPho",{0,5},{1},VR);
+   //~ plot("pre_ph165/VR_SR/","nPho",{0,5},{1},VR);
    
-   plot("pre_ph165/VR_SR/noHTG/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/noHTG/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/noHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/noHTG/","phoPt",{200,1000},{100},VR);
-   plot("pre_ph165/VR_SR/noHTG/","MT",{300,1000},{100},VR);
-   plot("pre_ph165/VR_SR/noHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","phoPt",{200,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","MT",{300,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/noHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR_SR/noLepton/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/noLepton/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/noLepton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/noLepton/","phoPt",{200,1000},{80},VR);
-   plot("pre_ph165/VR_SR/noLepton/","MT",{300,1000},{70},VR);
-   plot("pre_ph165/VR_SR/noLepton/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","phoPt",{200,1000},{80},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","MT",{300,1000},{70},VR);
+   //~ plot("pre_ph165/VR_SR/noLepton/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR_SR/noDiphoton/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/noDiphoton/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/noDiphoton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/noDiphoton/","phoPt",{200,1000},{80},VR);
-   plot("pre_ph165/VR_SR/noDiphoton/","MT",{300,1000},{70},VR);
-   plot("pre_ph165/VR_SR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","phoPt",{200,1000},{80},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","MT",{300,1000},{70},VR);
+   //~ plot("pre_ph165/VR_SR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoPt",{200,1000},{80},VR);
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","MT",{300,1000},{70},VR);
-   plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoPt",{200,1000},{80},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","MT",{300,1000},{70},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv_highHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR_SR/exclusiv/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/exclusiv/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/exclusiv/","phoPt",{200,1000},{100},VR);
-   plot("pre_ph165/VR_SR/exclusiv/","MT",{300,1000},{100},VR);
-   plot("pre_ph165/VR_SR/exclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","phoPt",{200,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","MT",{300,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/exclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR_SR/noHighHTG/","HTG",{0,2400},{240},VR);
-   plot("pre_ph165/VR_SR/noHighHTG/","MET",{300,800},{50},VR);
-   plot("pre_ph165/VR_SR/noHighHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR_SR/noHighHTG/","phoPt",{200,1000},{100},VR);
-   plot("pre_ph165/VR_SR/noHighHTG/","MT",{300,1000},{100},VR);
-   plot("pre_ph165/VR_SR/noHighHTG/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","HTG",{0,2400},{240},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","MET",{300,800},{50},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","phoPt",{200,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","MT",{300,1000},{100},VR);
+   //~ plot("pre_ph165/VR_SR/noHighHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    
-   plot("pre_ph165/VR/noLepton/","HTG",{0,1200},{120},VR);
-   plot("pre_ph165/VR/noLepton/","MET",{200,500},{50},VR);
-   plot("pre_ph165/VR/noLepton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/noLepton/","phoPt",{150,400},{22},VR);
-   plot("pre_ph165/VR/noLepton/","MT",{200,700},{70},VR);
-   plot("pre_ph165/VR/noLepton/","phoEta",{-2.6,2.6},{0.57},VR);
-   plot("pre_ph165/VR/noLepton/","STG",{400,620},{20},VR);
-   plot("pre_ph165/VR/noLepton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   //~ plot("pre_ph165/VR/noLepton/","HTG",{0,1200},{120},VR);
+   //~ plot("pre_ph165/VR/noLepton/","MET",{200,500},{50},VR);
+   //~ plot("pre_ph165/VR/noLepton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/noLepton/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/noLepton/","MT",{200,700},{70},VR);
+   //~ plot("pre_ph165/VR/noLepton/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR/noLepton/","STG",{400,620},{20},VR);
+   //~ plot("pre_ph165/VR/noLepton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
-   plot("pre_ph165/VR/noDiphoton/","HTG",{0,1200},{120},VR);
-   plot("pre_ph165/VR/noDiphoton/","MET",{200,500},{50},VR);
-   plot("pre_ph165/VR/noDiphoton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/noDiphoton/","phoPt",{150,400},{22},VR);
-   plot("pre_ph165/VR/noDiphoton/","MT",{200,700},{70},VR);
-   plot("pre_ph165/VR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
-   plot("pre_ph165/VR/noDiphoton/","STG",{400,620},{20},VR);
-   plot("pre_ph165/VR/noDiphoton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","HTG",{0,1200},{120},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","MET",{200,500},{50},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","MT",{200,700},{70},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","STG",{400,620},{20},VR);
+   //~ plot("pre_ph165/VR/noDiphoton/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
    plot("pre_ph165/VR/noHTG/","HTG",{0,1200},{120},VR);
    plot("pre_ph165/VR/noHTG/","MET",{200,500},{50},VR);
    plot("pre_ph165/VR/noHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/noHTG/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/noHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noHTG/","phoPt",{150,320},{22},VR);
    plot("pre_ph165/VR/noHTG/","MT",{200,700},{70},VR);
    plot("pre_ph165/VR/noHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    plot("pre_ph165/VR/noHTG/","STG",{400,620},{20},VR);
@@ -809,38 +814,49 @@ void run()
    plot("pre_ph165/VR/noHighHTG/","HTG",{0,1200},{120},VR);
    plot("pre_ph165/VR/noHighHTG/","MET",{200,500},{50},VR);
    plot("pre_ph165/VR/noHighHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/noHighHTG/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/noHighHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/noHighHTG/","phoPt",{150,320},{22},VR);
    plot("pre_ph165/VR/noHighHTG/","MT",{200,700},{70},VR);
    plot("pre_ph165/VR/noHighHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    plot("pre_ph165/VR/noHighHTG/","STG",{400,620},{20},VR);
    plot("pre_ph165/VR/noHighHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
-   plot("pre_ph165/VR/exclusiv/","HTG",{0,1200},{120},VR);
-   plot("pre_ph165/VR/exclusiv/","MET",{200,500},{50},VR);
-   plot("pre_ph165/VR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/exclusiv/","phoPt",{150,400},{22},VR);
-   plot("pre_ph165/VR/exclusiv/","MT",{200,700},{70},VR);
-   plot("pre_ph165/VR/exclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
-   plot("pre_ph165/VR/exclusiv/","STG",{400,620},{20},VR);
-   plot("pre_ph165/VR/exclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","HTG",{0,1200},{120},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","MET",{200,500},{50},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","MT",{200,700},{70},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","STG",{400,620},{20},VR);
+   //~ plot("pre_ph165/VR/exclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
    plot("pre_ph165/VR/exclusiv_highHTG/","HTG",{0,1200},{120},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","MET",{200,500},{50},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/exclusiv_highHTG/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/exclusiv_highHTG/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/exclusiv_highHTG/","phoPt",{150,320},{22},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","MT",{200,700},{70},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","phoEta",{-2.6,2.6},{0.57},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","STG",{400,620},{20},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
-   plot("pre_ph165/VR/inclusiv/","HTG",{0,1200},{120},VR);
-   plot("pre_ph165/VR/inclusiv/","MET",{200,500},{50},VR);
-   plot("pre_ph165/VR/inclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
-   plot("pre_ph165/VR/inclusiv/","phoPt",{150,400},{22},VR);
-   plot("pre_ph165/VR/inclusiv/","MT",{200,700},{70},VR);
-   plot("pre_ph165/VR/inclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
-   plot("pre_ph165/VR/inclusiv/","STG",{400,620},{20},VR);
-   plot("pre_ph165/VR/inclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","HTG",{0,1200},{120},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","MET",{200,500},{50},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","MT",{200,700},{70},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","STG",{400,620},{20},VR);
+   //~ plot("pre_ph165/VR/leptonDiphotonVeto/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
+   //~ plot("pre_ph165/VR/inclusiv/","HTG",{0,1200},{120},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","MET",{200,500},{50},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","phoPt",{150,400},{22},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","MT",{200,700},{70},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","phoEta",{-2.6,2.6},{0.57},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","STG",{400,620},{20},VR);
+   //~ plot("pre_ph165/VR/inclusiv/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
    plot("pre_ph165/c_MET300/MT300/STg600/exclusive/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR);
    

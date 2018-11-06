@@ -326,14 +326,14 @@ contains
 
 ! ------------------------------
 ! open (status=0) or close (status=1) all input and output files 
-  subroutine PROSPINO_OPEN_CLOSE(status,slha,pdfNo)
+  subroutine PROSPINO_OPEN_CLOSE(status,slha,pdfNo,i_error_in)
     
     implicit none
 
     integer, intent(in) :: status
     character(len=32), intent(in)   :: slha
     character(len=4), intent(in)   :: pdfNo
-    integer             :: nin1,nin2,ndat1,ndat2,ndat3
+    integer             :: nin1,nin2,ndat1,ndat2,ndat3,i_error_in
 
     character(len=20), parameter :: form1="(/,a121)"
 
@@ -342,7 +342,12 @@ contains
     if (status == 0 ) then 
 !~        open(unit=nin2,  file="prospino.in.les_houches", action="read" )                         ! open all files here
        open(unit=nin2,  file="input/" // slha, action="read" )
-       open(unit=ndat1, file="output/prospino_" // trim(slha) // "_" // trim(pdfNo) // ".dat",            action="write")
+       
+       if (i_error_in == 1 ) then
+          open(unit=ndat1, file="output/prospino_" // trim(slha) // "_" // trim(pdfNo) // "_scale.dat",            action="write")
+      else
+          open(unit=ndat1, file="output/prospino_" // trim(slha) // "_" // trim(pdfNo) // ".dat",            action="write")
+      end if
        open(unit=ndat2, file="prospino.dat2",           action="write")
        open(unit=ndat3, file="prospino.dat3",           action="write")
     else if (status == 1) then 

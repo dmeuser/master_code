@@ -19,9 +19,11 @@ class sms():
         if modelname.find("T5Wg") != -1: self.T5Wg()
         if modelname.find("T6gg") != -1: self.T6gg()
         if modelname.find("T6Wg") != -1: self.T6Wg()
-        if modelname.find("GGM") != -1: self.GGM()
+        if modelname.find("GGM1") != -1: self.GGM1()
+        if modelname.find("GGM2") != -1: self.GGM2()
         if modelname.find("TChiNg") != -1: self.TChiNg_BR()
         if modelname.find("CharginoBR") != -1: self.CharginoBR()
+        if modelname.find("CharginoBRstrong") != -1: self.CharginoBRstrong()
 
     def T6gg(self):
         # model name
@@ -107,26 +109,26 @@ class sms():
         # diagonal lines
         self.diagOn = True
 
-    def GGM(self):
-        # model name
-        self.modelname = "GGM"
-        # decay chain
-        self.label= "GGM"
-        self.label2= "";
-        # scan range to plot
-        self.Xmin = 205-12.5
-        self.Xmax = 840+12.5
-        self.Ymin = 390-12.5
-        # self.Ymax = 1015+12.5
-        self.Ymax = 900
-        self.Zmin = 0.001
-        self.Zmax = 2.
-        # produce sparticle
-        self.sParticle = "m_{#tilde{B}} [GeV]"
-        # LSP
-        self.LSP = "m_{#tilde{W}} [GeV]"
-        # diagonal lines
-        self.diagOn = True
+    #~ def GGM(self):
+        #~ # model name
+        #~ self.modelname = "GGM"
+        #~ # decay chain
+        #~ self.label= "GGM"
+        #~ self.label2= "";
+        #~ # scan range to plot
+        #~ self.Xmin = 205-12.5
+        #~ self.Xmax = 840+12.5
+        #~ self.Ymin = 390-12.5
+        #~ # self.Ymax = 1015+12.5
+        #~ self.Ymax = 900
+        #~ self.Zmin = 0.001
+        #~ self.Zmax = 2.
+        #~ # produce sparticle
+        #~ self.sParticle = "m_{#tilde{B}} [GeV]"
+        #~ # LSP
+        #~ self.LSP = "m_{#tilde{W}} [GeV]"
+        #~ # diagonal lines
+        #~ self.diagOn = True
 
     def T1tttt(self):
         # model name
@@ -215,17 +217,17 @@ class sms():
         # model name
         self.modelname = "TChiNg_BR"
         # decay chain
-        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}/"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}#rightarrow"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow (#gamma,Z)#tilde{G}"
+        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+" #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} / "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+" #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow (#gamma,Z)#tilde{G}"
         self.label2= "";
         # plot boundary. The top 1/4 of the y axis is taken by the legend
         self.Xmin = 0.
         self.Xmax = 100.
         self.Ymin = 300.
-        self.Ymax = 1650.
+        self.Ymax = 1600.
         self.Zmin = 0.01
         self.Zmax = 1000.
         # produce sparticle
-        self.sParticle = "BR(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma) (%)"
+        self.sParticle = "BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%)"
         # LSP
         self.LSP = "m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)"
         # turn off diagonal lines
@@ -235,18 +237,80 @@ class sms():
         # model name
         self.modelname = "CharginoBR"
         # decay chain
-        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}#rightarrow"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft/"+"W^{#pm}#tilde{G}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma#tilde{G}"
+        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+" #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft/"+"W^{#pm}+#tilde{G}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}"
         self.label2= "";
         # plot boundary. The top 1/4 of the y axis is taken by the legend
         self.Xmin = 0.
         self.Xmax = 100.
         self.Ymin = 300.
-        self.Ymax = 1650.
+        self.Ymax = 1600.
         self.Zmin = 0.01
         self.Zmax = 1000.
         # produce sparticle
-        self.sParticle = "BR(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow W^{#pm}#tilde{G}) (%)"
+        self.sParticle = "BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}(#gamma#tilde{G}) + soft) (%)";
         # LSP
         self.LSP = "m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)"
+        # turn off diagonal lines
+        self.diagOn = False
+
+    def GGM1(self):
+        # model name
+        self.modelname = "GGM1"
+        # decay chain
+        self.label= "GGM M1M2"
+        self.label2= "";
+        # scan range to plot
+        self.Xmin = 275
+        self.Xmax = 1500
+        self.Ymin = 275
+        self.Ymax = 1800
+        #~ self.Ymax = 900
+        self.Zmin = 0.001
+        self.Zmax = 2.
+        # produce sparticle
+        self.sParticle = "#it{M}_{1} (GeV)"
+        # LSP
+        self.LSP = "#it{M}_{2} (GeV)"
+        # diagonal lines
+        self.diagOn = False
+    
+    def GGM2(self):
+        # model name
+        self.modelname = "GGM2"
+        # decay chain
+        self.label= "GGM M1M3"
+        self.label2= "";
+        # scan range to plot
+        self.Xmin = 50
+        self.Xmax = 1500
+        self.Ymin = 1000
+        self.Ymax = 2900
+        #~ self.Ymax = 900
+        self.Zmin = 0.001
+        self.Zmax = 0.01
+        # produce sparticle
+        self.sParticle = "#it{M}_{1} (GeV)"
+        # LSP
+        self.LSP = "#it{M}_{3} (GeV)"
+        # diagonal lines
+        self.diagOn = False
+       
+    def CharginoBRstrong(self):
+        # model name
+        self.modelname = "CharginoBRstrong"
+        # decay chain
+        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+" #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft/"+"W^{#pm}+#tilde{G}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}"
+        self.label2= "";
+        # plot boundary. The top 1/4 of the y axis is taken by the legend
+        self.Xmin = 0.
+        self.Xmax = 100.
+        self.Ymin = 0.
+        self.Ymax = 2400.
+        self.Zmin = 0.000001
+        self.Zmax = 10.
+        # produce sparticle
+        self.sParticle = "BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}(#gamma#tilde{G}) + soft) (%)";
+        # LSP
+        self.LSP = "m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV)"
         # turn off diagonal lines
         self.diagOn = False

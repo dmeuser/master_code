@@ -37,6 +37,7 @@ contains
 !tp needed for the scales check
 !tp    real(kind=double)  :: shat,that,uhat
 
+
     if (ii>11) then                                            ! finish early for inclusive case 
        dsig = 0.0 
        return
@@ -95,6 +96,8 @@ contains
     else if (iscaling==1) then 
        nlo = 1.0
     end if
+    
+!~     print *, ALPHAS(91.D0,2)
 
     if (ii<=0) then                                            ! note that there is no consistent alpha_s in leading oder
        inlo = 0

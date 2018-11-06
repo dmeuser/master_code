@@ -78,9 +78,18 @@ c   this initialization is needed for a consistent alpha_s
 
       if (inlo.eq.0) then 
          lambda_qcd = 0.165D0
+
+c leading to alphas(mz)=0.1195
+c~          lambda_qcd = 0.2455D0
+
+c leading to alphas(mz)=0.1165
+c~          lambda_qcd = 0.2075D0
+         
 ctq5         lambda_qcd = 0.146D0
       else if (inlo.eq.1) then 
          lambda_qcd = 0.226D0
+c~          lambda_qcd = 0.2455D0
+c~          lambda_qcd = 0.2075D0
 ctq5         lambda_qcd = 0.226D0
       else
          print*, " GET_LAMBDA_QCD: inlo set wrongly ",inlo
@@ -98,8 +107,8 @@ c   this initialization function is only needed for Cteq grids
       integer inlo
 
       if (inlo.eq.0) then 
-c~          call SetCtq6(4)
-         call SetCtq6(400)
+         call SetCtq6(4)
+c~          call SetCtq6(400)
 ctq5         call SetCtq5(3)
       else if (inlo.eq.1) then 
          call SetCtq6(400)

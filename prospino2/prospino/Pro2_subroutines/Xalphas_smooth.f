@@ -28,6 +28,8 @@ c               fill the common input ALS by arguments
       amb = amb_in
       amt = amt_in
       n0  = n0_in
+      
+      print *,xlambda
 ctp [end]      
 ctp      PI=4.D0*ATAN(1.D0)
       XLB1(1)=0D0

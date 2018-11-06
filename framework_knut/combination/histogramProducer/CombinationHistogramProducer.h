@@ -195,6 +195,8 @@ class CombinationHistogramProducer : public TSelector {
   int test_Sel_GG;
   int tempID;
   int evSurvive;
+  
+  bool isT5Wg_thirds;
 
 //  ClassDef(CombinationHistogramProducer, 1) // not for root compilation
 };

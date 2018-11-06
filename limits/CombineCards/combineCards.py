@@ -17,7 +17,7 @@ def getMasses(path):
 			part=part.split(".")[0]
 			if part.isdigit():
 				mass.append(part)
-	
+		
 		if len(mass)==2:
 			masses.append(str(mass[0])+"_"+mass[1])
 		else:
@@ -36,16 +36,21 @@ def combine(mass,path1,path2,output,ignore,corr):
 	n1=path1+"/datacard_"+sScan+"_"+mass+".txt"
 	n2=path2+"/datacard_"+sScan+"_"+mass+".txt"
 	
+	if sScan=="TChiNg":
+		n1=path1+"/datacard_TChiNG_"+mass+".txt"
+	
 	if path2.find("knut")!=-1 and sScan=="T5Wg":
 		n2=path2+"/Wg_"+mass+".txt"
-	elif path2.find("lepton")!=-1:
+	elif path2.find("lepton")!=-1 and path2.find("final")==-1:
 		if sScan=="T5Wg":
 			n2=path2+"/counting_t5Wg_"+mass+".txt"
 		elif sScan=="CharginoBR":
 			n2=path2+"/datacard_CharginoBR_"+mass+".txt"
 	elif path2.find("htg_leptonVeto")!=-1 and sScan=="T5Wg":
 		n2=path2+"/"+mass+".txt"
-	elif (path2.find("htgHigh")!=-1 and path2.find("BR")==-1) or path2.find("stVeto")!=-1 or (path2.find("htg")!=-1 and path2.find("BR")==-1) or path2.find("dilep")!=-1 or path2.find("STLeptonVeto")!=-1:
+	elif path2.find("DILEP")!=-1 and sScan=="T5Wg":
+		n2=path2+"/"+mass+".txt"
+	elif (path2.find("htgHigh")!=-1 and path2.find("BR")==-1) or path2.find("HTG")!=-1 or path2.find("stVeto")!=-1 or (path2.find("htg")!=-1 and path2.find("BR")==-1) or path2.find("dilep")!=-1 or path2.find("STLeptonVeto")!=-1:
 		n2=path2+"/"+mass+".txt"
 	
 	
@@ -59,12 +64,13 @@ def combine(mass,path1,path2,output,ignore,corr):
 		card2=MyDatacard(n2)
 		
 		for uncNames in corrpairs:
-			found1=card1.renameUncertainty(uncNames[0],uncNames[0]+"_CORR")
-			found2=card2.renameUncertainty(uncNames[1],uncNames[0]+"_CORR")
+			found1=card1.renameUncertainty(uncNames[0],uncNames[0])
+			found2=card2.renameUncertainty(uncNames[1],uncNames[0])
 			if found1==0 or found2==0: sys.exit(uncNames[0]+" and "+uncNames[1]+" not found")
 		
 		n1="temp/"+n1.split("/")[-1]
 		n2="temp/"+n2.split("/")[-1]
+		n2=n2+"_2"
 		card1.write(n1)
 		card2.write(n2)
 		
@@ -72,10 +78,12 @@ def combine(mass,path1,path2,output,ignore,corr):
 	for binName in ignore:
 		command=command+" --xc="+binName
 	
-	if path2.find("knut")!=-1 or path2.find("htg")!=-1 or path2.find("stVeto")!=-1 or path2.find("STLeptonVeto")!=-1 or path2.find("HTG")!=-1:
-		command=command+" Photon_ST="+n1+" Photon_HTG="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
+	if path2.find("htg")!=-1 or path2.find("stVeto")!=-1 or path2.find("STLeptonVeto")!=-1 or path2.find("HTG")!=-1:
+		command=command+" ST="+n1+" HTG="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	elif path2.find("lepton")!=-1:
-		command=command+" Photon_ST="+n1+" Photon_Lepton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
+		command=command+" "+n1+" Lepton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
+	elif path2.find("diphoton")!=-1:
+		command=command+" "+n1+" Diphoton="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	else:
 		command=command+" Photon_first="+n1+" Photon_second="+n2+" >"+output+"/datacard_"+sScan+"_"+mass+".txt"
 	

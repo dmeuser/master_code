@@ -32,6 +32,8 @@ def Scan_NeutralinoBr():
 		DC_zz = MyDatacard("input/ST/"+selection+"/TChiNg_zz/datacard_TChiNg_zz_"+str(mass)+".txt")
 		outputDC = MyDatacard("input/ST/"+selection+"/TChiNg_gg/datacard_TChiNg_gg_"+str(mass)+".txt")
 		
+		print mass
+		
 		for x_BR in range(0,102,2):
 			x_BR = x_BR/100.
 			
@@ -46,14 +48,16 @@ def Scan_NeutralinoBr():
 					statUnc = 1+statUnc/newYield
 				
 				#Systematic uncertainty
-				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				gzUpSyst = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty("syst_sig",nBin,"sig")
-				zzUpSyst = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty("syst_sig",nBin,"sig")
+				syst_sig="syst_sig"
+				if "Final" in selection: syst_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				gzUpSyst = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty(syst_sig,nBin,"sig")
+				zzUpSyst = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty(syst_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*gzUpSyst+(1-x_BR)**2*zzUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				gzDownSyst = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty("syst_sig",nBin,"sig")
-				zzDownSyst = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty("syst_sig",nBin,"sig")
+				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				gzDownSyst = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty(syst_sig,nBin,"sig")
+				zzDownSyst = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty(syst_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*gzDownSyst+(1-x_BR)**2*zzDownSyst
 				
 				if newYield==0:
@@ -62,14 +66,16 @@ def Scan_NeutralinoBr():
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic ISR uncertainty	
-				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				gzUpSystISR = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty("ISRsyst_sig",nBin,"sig")
-				zzUpSystISR = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty("ISRsyst_sig",nBin,"sig")
+				isr_sig="ISRsyst_sig"
+				if "Final" in selection: isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				gzUpSystISR = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty(isr_sig,nBin,"sig")
+				zzUpSystISR = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty(isr_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*gzUpSystISR+(1-x_BR)**2*zzUpSystISR
 				
-				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				gzDownSystISR = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty("ISRsyst_sig",nBin,"sig")
-				zzDownSystISR = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty("ISRsyst_sig",nBin,"sig")
+				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				gzDownSystISR = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty(isr_sig,nBin,"sig")
+				zzDownSystISR = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty(isr_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*gzDownSystISR+(1-x_BR)**2*zzDownSystISR
 				
 				if newYield==0:
@@ -77,8 +83,64 @@ def Scan_NeutralinoBr():
 				else:
 					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
+					isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}})
+					continue
+				
+				#Systematic PU uncertainty	
+				PU_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				gzUpSystPU = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty(PU_sig,nBin,"sig")
+				zzUpSystPU = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty(PU_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*gzUpSystPU+(1-x_BR)**2*zzUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				gzDownSystPU = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty(PU_sig,nBin,"sig")
+				zzDownSystPU = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty(PU_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*gzDownSystPU+(1-x_BR)**2*zzDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic JES uncertainty	
+				JES_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				gzUpSystJES = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty(JES_sig,nBin,"sig")
+				zzUpSystJES = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty(JES_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*gzUpSystJES+(1-x_BR)**2*zzUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				gzDownSystJES = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty(JES_sig,nBin,"sig")
+				zzDownSystJES = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty(JES_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*gzDownSystJES+(1-x_BR)**2*zzDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic PhotonSF uncertainty	
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				gzUpSystPhotonSF = DC_gz.exp[nBin]["sig"]+DC_gz.getUncertainty(PhotonSF_sig,nBin,"sig")
+				zzUpSystPhotonSF = DC_zz.exp[nBin]["sig"]+DC_zz.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*gzUpSystPhotonSF+(1-x_BR)**2*zzUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				gzDownSystPhotonSF = DC_gz.exp[nBin]["sig"]-DC_gz.getUncertainty(PhotonSF_sig,nBin,"sig")
+				zzDownSystPhotonSF = DC_zz.exp[nBin]["sig"]-DC_zz.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*gzDownSystPhotonSF+(1-x_BR)**2*zzDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
-				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
+				isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}, PU_sig: {nBin: systUncPU}, JES_sig: {nBin: systUncJES}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			directory="output/ST/NeutralinoBR/"+selection
 			if not os.path.exists(directory):
@@ -89,6 +151,7 @@ def Scan_NeutralinoBr():
 def Scan_CharginoBr():
 
 	for mass in range(300,1325,25):
+		print mass
 		DC_gg = MyDatacard("input/ST/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
 		DC_wg = MyDatacard("input/ST/"+selection+"/TChiWg/datacard_TChiWG_"+str(mass)+".txt")
 		outputDC = MyDatacard("input/ST/"+selection+"/TChiNg_gg_C1N2/datacard_TChiNg_gg_C1N2_"+str(mass)+".txt")
@@ -107,12 +170,14 @@ def Scan_CharginoBr():
 					statUnc = 1+statUnc/newYield
 				
 				#Systematic uncertainty
-				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				wgUpSyst = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				syst_sig="syst_sig"
+				if "Final" in selection: syst_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				wgUpSyst = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(syst_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				wgDownSyst = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				wgDownSyst = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(syst_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
 				
 				if newYield==0:
@@ -121,12 +186,14 @@ def Scan_CharginoBr():
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic ISR uncertainty	
-				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				wgUpSystISR = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				isr_sig="ISRsyst_sig"
+				if "Final" in selection: isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				wgUpSystISR = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(isr_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
 				
-				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				wgDownSystISR = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				wgDownSystISR = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(isr_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
 				
 				if newYield==0:
@@ -134,14 +201,68 @@ def Scan_CharginoBr():
 				else:
 					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
+					isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}})
+					continue
+				
+				#Systematic PU uncertainty	
+				PU_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				wgUpSystPU = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(PU_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				wgDownSystPU = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(PU_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic JES uncertainty	
+				JES_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				wgUpSystJES = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(JES_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				wgDownSystJES = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(JES_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic PhotonSF uncertainty	
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				wgUpSystPhotonSF = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*wgUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				wgDownSystPhotonSF = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*wgDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
-				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
+				isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}, PU_sig: {nBin: systUncPU}, JES_sig: {nBin: systUncJES}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			directory="output/ST/CharginoBR/"+selection
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 				
-			outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+			if x_BR==0.58:
+				outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_58"+".txt")
+			else:
+				outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+	print "Remember to rescale to C1_C1 xsec!"
 			
 def Scan_CharginoBr_strong(gluino_mass,neutralino_mass):
 	
@@ -177,14 +298,15 @@ def Scan_CharginoBr_strong(gluino_mass,neutralino_mass):
 					statUnc = 1.0
 				else:
 					statUnc = 1+statUnc/newYield
-				
 				#Systematic uncertainty
-				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				wgUpSyst = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				syst_sig="syst_sig"
+				if "Final" in selection: syst_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				wgUpSyst = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(syst_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("syst_sig",nBin,"sig")
-				wgDownSyst = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("syst_sig",nBin,"sig")
+				ggDownSyst = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(syst_sig,nBin,"sig")
+				wgDownSyst = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(syst_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
 				
 				if newYield==0:
@@ -193,12 +315,14 @@ def Scan_CharginoBr_strong(gluino_mass,neutralino_mass):
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic ISR uncertainty	
-				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				wgUpSystISR = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				isr_sig="ISRsyst_sig"
+				if "Final" in selection: isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				wgUpSystISR = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(isr_sig,nBin,"sig")
 				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
 				
-				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty("ISRsyst_sig",nBin,"sig")
-				wgDownSystISR = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty("ISRsyst_sig",nBin,"sig")
+				ggDownSystISR = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(isr_sig,nBin,"sig")
+				wgDownSystISR = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(isr_sig,nBin,"sig")
 				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
 				
 				if newYield==0:
@@ -206,8 +330,58 @@ def Scan_CharginoBr_strong(gluino_mass,neutralino_mass):
 				else:
 					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
+					isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}})
+					continue
+				
+				#Systematic PU uncertainty	
+				PU_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				wgUpSystPU = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(PU_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PU_sig,nBin,"sig")
+				wgDownSystPU = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(PU_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic JES uncertainty	
+				JES_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				wgUpSystJES = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(JES_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(JES_sig,nBin,"sig")
+				wgDownSystJES = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(JES_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic PhotonSF uncertainty	
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["sig"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				wgUpSystPhotonSF = DC_wg.exp[nBin]["sig"]+DC_wg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*wgUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["sig"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				wgDownSystPhotonSF = DC_wg.exp[nBin]["sig"]-DC_wg.getUncertainty(PhotonSF_sig,nBin,"sig")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*wgDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignal({nBin: newYield},{"statB"+nBin.split("n")[1]+"sig": {nBin: round(statUnc,2)},
-				"ISRsyst_sig": {nBin: systUncISR}, "syst_sig": {nBin: systUnc}})
+				isr_sig: {nBin: systUncISR}, syst_sig: {nBin: systUnc}, PU_sig: {nBin: systUncPU}, JES_sig: {nBin: systUncJES}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			if setGluinomass:
 				directory="output/ST/CharginoBRstrongG"+str(setmass)+"/"+selection
@@ -233,7 +407,7 @@ def Scan_NeutralinoBr_HTG():
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG":
+			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -248,14 +422,16 @@ def Scan_NeutralinoBr_HTG():
 					statUnc = 1+statUnc/newYield
 				
 				#Systematic uncertainty genMet
-				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
-				gzUpSyst = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("genMet",nBin,"signal")
-				zzUpSyst = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("genMet",nBin,"signal")
+				genMet_sig="genMet"
+				if "Final" in selection: genMet_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				gzUpSyst = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty(genMet_sig,nBin,"signal")
+				zzUpSyst = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty(genMet_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*gzUpSyst+(1-x_BR)**2*zzUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
-				gzDownSyst = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("genMet",nBin,"signal")
-				zzDownSyst = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("genMet",nBin,"signal")
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				gzDownSyst = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty(genMet_sig,nBin,"signal")
+				zzDownSyst = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty(genMet_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*gzDownSyst+(1-x_BR)**2*zzDownSyst
 				
 				if newYield==0:
@@ -264,14 +440,16 @@ def Scan_NeutralinoBr_HTG():
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic uncertainty	jes
-				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
-				gzUpSystJES = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("jes",nBin,"signal")
-				zzUpSystJES = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("jes",nBin,"signal")
+				jes_sig="jes"
+				if "Final" in selection: jes_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				gzUpSystJES = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty(jes_sig,nBin,"signal")
+				zzUpSystJES = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty(jes_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*gzUpSystJES+(1-x_BR)**2*zzUpSystJES
 				
-				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
-				gzDownSystJES = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("jes",nBin,"signal")
-				zzDownSystJES = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("jes",nBin,"signal")
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				gzDownSystJES = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty(jes_sig,nBin,"signal")
+				zzDownSystJES = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty(jes_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*gzDownSystJES+(1-x_BR)**2*zzDownSystJES
 				
 				if newYield==0:
@@ -280,14 +458,16 @@ def Scan_NeutralinoBr_HTG():
 					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 					
 				#Systematic uncertainty	pu
-				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
-				gzUpSystPU = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty("pu",nBin,"signal")
-				zzUpSystPU = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty("pu",nBin,"signal")
+				pu_sig="pu"
+				if "Final" in selection: pu_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				gzUpSystPU = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty(pu_sig,nBin,"signal")
+				zzUpSystPU = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty(pu_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*gzUpSystPU+(1-x_BR)**2*zzUpSystPU
 				
-				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
-				gzDownSystPU = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty("pu",nBin,"signal")
-				zzDownSystPU = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty("pu",nBin,"signal")
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				gzDownSystPU = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty(pu_sig,nBin,"signal")
+				zzDownSystPU = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty(pu_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*gzDownSystPU+(1-x_BR)**2*zzDownSystPU
 				
 				if newYield==0:
@@ -311,8 +491,47 @@ def Scan_NeutralinoBr_HTG():
 				else:
 					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+					"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					continue
+				
+				#Systematic uncertainty	isr
+				isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				gzUpSystISR = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty(isr_sig,nBin,"signal")
+				zzUpSystISR = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty(isr_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*gzUpSystISR+(1-x_BR)**2*zzUpSystISR
+				
+				ggDownSystISR = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				gzDownSystISR = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty(isr_sig,nBin,"signal")
+				zzDownSystISR = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty(isr_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*gzDownSystISR+(1-x_BR)**2*zzDownSystISR
+				
+				if newYield==0:
+					systUncISR = 1.0
+				else:
+					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	isr
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				gzUpSystPhotonSF = DC_gz.exp[nBin]["signal"]+DC_gz.getUncertainty(PhotonSF_sig,nBin,"signal")
+				zzUpSystPhotonSF = DC_zz.exp[nBin]["signal"]+DC_zz.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*gzUpSystPhotonSF+(1-x_BR)**2*zzUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				gzDownSystPhotonSF = DC_gz.exp[nBin]["signal"]-DC_gz.getUncertainty(PhotonSF_sig,nBin,"signal")
+				zzDownSystPhotonSF = DC_zz.exp[nBin]["signal"]-DC_zz.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*gzDownSystPhotonSF+(1-x_BR)**2*zzDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
-				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					jes_sig: {nBin: systUncJES}, genMet_sig: {nBin: systUnc}, pu_sig: {nBin: systUncPU}, "scale": {nBin: systUncSCALE}, isr_sig: {nBin: systUncISR}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			directory="output/HTG/NeutralinoBR/"+selection
 			if not os.path.exists(directory):
@@ -332,7 +551,7 @@ def Scan_CharginoBr_HTG():
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG":
+			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -347,12 +566,14 @@ def Scan_CharginoBr_HTG():
 					statUnc = 1+statUnc/newYield
 				
 				#Systematic uncertainty genMet
-				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
-				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("genMet",nBin,"signal")
+				genMet_sig="genMet"
+				if "Final" in selection: genMet_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(genMet_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
-				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("genMet",nBin,"signal")
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(genMet_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
 				
 				if newYield==0:
@@ -361,12 +582,14 @@ def Scan_CharginoBr_HTG():
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic uncertainty	jes
-				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
-				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("jes",nBin,"signal")
+				jes_sig="jes"
+				if "Final" in selection: jes_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(jes_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
 				
-				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
-				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("jes",nBin,"signal")
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(jes_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
 				
 				if newYield==0:
@@ -375,12 +598,14 @@ def Scan_CharginoBr_HTG():
 					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 					
 				#Systematic uncertainty	pu
-				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
-				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("pu",nBin,"signal")
+				pu_sig="pu"
+				if "Final" in selection: pu_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(pu_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
 				
-				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
-				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("pu",nBin,"signal")
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(pu_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
 				
 				if newYield==0:
@@ -402,14 +627,53 @@ def Scan_CharginoBr_HTG():
 				else:
 					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+					"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					continue
+				
+				#Systematic uncertainty	isr
+				isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				wgUpSystISR = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(isr_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
+				
+				ggDownSystISR = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				wgDownSystISR = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(isr_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
+				
+				if newYield==0:
+					systUncISR = 1.0
+				else:
+					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	isr
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				wgUpSystPhotonSF = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*wgUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				wgDownSystPhotonSF = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*wgDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
-				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					jes_sig: {nBin: systUncJES}, genMet_sig: {nBin: systUnc}, pu_sig: {nBin: systUncPU}, "scale": {nBin: systUncSCALE}, isr_sig: {nBin: systUncISR}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			directory="output/HTG/CharginoBR/"+selection
 			if not os.path.exists(directory):
 				os.makedirs(directory)
 			
-			outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+			if x_BR==0.58:
+				outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_58"+".txt")
+			else:
+				outputDC.write(filename=directory+"/datacard_CharginoBR_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt")
+	print "Remember to rescale to C1_C1 xsec!"
 
 def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 	
@@ -436,7 +700,7 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG":
+			if selection=="highHTG" or selection=="LEPcleanedHighHtgNN" or selection=="LEPcleanedHighHtgFinal":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -451,12 +715,14 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 					statUnc = 1+statUnc/newYield
 				
 				#Systematic uncertainty genMet
-				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("genMet",nBin,"signal")
-				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("genMet",nBin,"signal")
+				genMet_sig="genMet"
+				if "Final" in selection: genMet_sig="GenMet"
+				ggUpSyst = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				wgUpSyst = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(genMet_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
 				
-				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("genMet",nBin,"signal")
-				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("genMet",nBin,"signal")
+				ggDownSyst = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(genMet_sig,nBin,"signal")
+				wgDownSyst = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(genMet_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
 				
 				if newYield==0:
@@ -465,12 +731,14 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
 				#Systematic uncertainty	jes
-				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("jes",nBin,"signal")
-				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("jes",nBin,"signal")
+				jes_sig="jes"
+				if "Final" in selection: jes_sig="JES"
+				ggUpSystJES = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				wgUpSystJES = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(jes_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystJES+2*x_BR*(1-x_BR)*wgUpSystJES
 				
-				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("jes",nBin,"signal")
-				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("jes",nBin,"signal")
+				ggDownSystJES = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(jes_sig,nBin,"signal")
+				wgDownSystJES = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(jes_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystJES+2*x_BR*(1-x_BR)*wgDownSystJES
 				
 				if newYield==0:
@@ -479,12 +747,14 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 					
 				#Systematic uncertainty	pu
-				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty("pu",nBin,"signal")
-				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty("pu",nBin,"signal")
+				pu_sig="pu"
+				if "Final" in selection: pu_sig="PU"
+				ggUpSystPU = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				wgUpSystPU = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(pu_sig,nBin,"signal")
 				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
 				
-				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty("pu",nBin,"signal")
-				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty("pu",nBin,"signal")
+				ggDownSystPU = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(pu_sig,nBin,"signal")
+				wgDownSystPU = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(pu_sig,nBin,"signal")
 				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
 				
 				if newYield==0:
@@ -506,8 +776,43 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 				else:
 					systUncSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
 				
+				if "Final" not in selection:
+					outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
+					"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					continue
+				
+				#Systematic uncertainty	isr
+				isr_sig="ISR"
+				ggUpSystISR = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				wgUpSystISR = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(isr_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
+				
+				ggDownSystISR = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(isr_sig,nBin,"signal")
+				wgDownSystISR = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(isr_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
+				
+				if newYield==0:
+					systUncISR = 1.0
+				else:
+					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic uncertainty	isr
+				PhotonSF_sig="PhotonSF"
+				ggUpSystPhotonSF = DC_gg.exp[nBin]["signal"]+DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				wgUpSystPhotonSF = DC_wg.exp[nBin]["signal"]+DC_wg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldUpSyst = x_BR**2*ggUpSystPhotonSF+2*x_BR*(1-x_BR)*wgUpSystPhotonSF
+				
+				ggDownSystPhotonSF = DC_gg.exp[nBin]["signal"]-DC_gg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				wgDownSystPhotonSF = DC_wg.exp[nBin]["signal"]-DC_wg.getUncertainty(PhotonSF_sig,nBin,"signal")
+				yieldDownSyst = x_BR**2*ggDownSystPhotonSF+2*x_BR*(1-x_BR)*wgDownSystPhotonSF
+				
+				if newYield==0:
+					systUncPhotonSF = 1.0
+				else:
+					systUncPhotonSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
 				outputDC.newSignalHTG({nBin: newYield},{"signalStat_"+nBin: {nBin: round(statUnc,2)},
-				"jes": {nBin: systUncJES}, "genMet": {nBin: systUnc}, "pu": {nBin: systUncPU}, "scale": {nBin: systUncSCALE}})
+					jes_sig: {nBin: systUncJES}, genMet_sig: {nBin: systUnc}, pu_sig: {nBin: systUncPU}, "scale": {nBin: systUncSCALE}, isr_sig: {nBin: systUncISR}, PhotonSF_sig: {nBin: systUncPhotonSF}})
 			
 			if setGluinomass:
 				directory="output/HTG/CharginoBRstrongG"+str(setmass)+"/"+selection
@@ -520,11 +825,232 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 			
 			outputDC.write(filename=fname)
 			
+def Scan_CharginoBr_strong_diphoton(gluino_mass,neutralino_mass):
+	
+	setGluinomass=True
+	setmass=gluino_mass
+	if neutralino_mass!=0:
+		setGluinomass=False
+		setmass=neutralino_mass
+	
+	masses=getMasses("input/Diphoton/"+selection+"/T5gg/",setmass,setGluinomass)
+	
+	for mass in masses:
+		if setGluinomass:
+			DC_gg = MyDatacard("input/Diphoton/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+			outputDC = MyDatacard("input/Diphoton/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+		else:
+			DC_gg = MyDatacard("input/Diphoton/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+			outputDC = MyDatacard("input/Diphoton/"+selection+"/T5gg/datacard_T5gg_"+str(setmass)+"_"+str(mass)+".txt")
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			bins = ["bin1","bin2","bin3","bin4","bin5","bin6"]
+			
+			for nBin in bins:
+				newYield = x_BR**2*DC_gg.exp[nBin]["t5gg"]
+				
+				
+				#Statistic uncertainty
+				statUnc = x_BR**2*DC_gg.getUncertaintyGamma("mcStats_"+str(int(nBin[3])-1),nBin,"t5gg")
+				if newYield==0:
+					statUnc = 1.0
+				
+				#Systematic uncertainty photon scale factor
+				ggUpSyst = DC_gg.exp[nBin]["t5gg"]+DC_gg.getUncertainty("phoSf",nBin,"t5gg")
+				yieldUpSyst = x_BR**2*ggUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["t5gg"]-DC_gg.getUncertainty("phoSf",nBin,"t5gg")
+				yieldDownSyst = x_BR**2*ggDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic uncertainty	jes
+				ggUpSystJES = DC_gg.exp[nBin]["t5gg"]+DC_gg.getUncertainty("jes",nBin,"t5gg")
+				yieldUpSyst = x_BR**2*ggUpSystJES
+				
+				ggDownSystJES = DC_gg.exp[nBin]["t5gg"]-DC_gg.getUncertainty("jes",nBin,"t5gg")
+				yieldDownSyst = x_BR**2*ggDownSystJES
+				
+				if newYield==0:
+					systUncJES = 1.0
+				else:
+					systUncJES = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				
+				outputDC.newSignalDiphoton({nBin: newYield},{"mcStats_"+str(int(nBin[3])-1): {nBin: statUnc}, "phoSf": {nBin: systUnc},
+				"jes": {nBin: systUncJES}})
+			
+			if setGluinomass:
+				directory="output/Diphoton/CharginoBRstrongG"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongG"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			else:
+				directory="output/Diphoton/CharginoBRstrongN"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongN"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+			
+			outputDC.write(filename=fname)
+			
+def Scan_CharginoBr_strong_lepton(gluino_mass,neutralino_mass):
+	
+	setGluinomass=True
+	setmass=gluino_mass
+	if neutralino_mass!=0:
+		setGluinomass=False
+		setmass=neutralino_mass
+	
+	masses=getMasses("input/Lepton/"+selection+"/T5gg/",setmass,setGluinomass)
+
+	for mass in masses:
+		if setGluinomass:
+			DC_gg = MyDatacard("input/Lepton/"+selection+"/T5gg/datacard_CharginoBRstrong_GG_"+str(setmass)+"_"+str(mass)+".txt")
+			DC_wg = MyDatacard("input/Lepton/"+selection+"/T5Wg/datacard_CharginoBRstrong_WG_"+str(setmass)+"_"+str(mass)+".txt")
+			outputDC = MyDatacard("input/Lepton/"+selection+"/T5gg/datacard_CharginoBRstrong_GG_"+str(setmass)+"_"+str(mass)+".txt")
+		else:
+			DC_gg = MyDatacard("input/Lepton/"+selection+"/T5gg/datacard_CharginoBRstrong_GG_"+str(mass)+"_"+str(setmass)+".txt")
+			DC_wg = MyDatacard("input/Lepton/"+selection+"/T5Wg/datacard_CharginoBRstrong_WG_"+str(mass)+"_"+str(setmass)+".txt")
+			outputDC = MyDatacard("input/Lepton/"+selection+"/T5gg/datacard_CharginoBRstrong_GG_"+str(mass)+"_"+str(setmass)+".txt")
+		
+		print mass
+		
+		for x_BR in range(0,102,2):
+			x_BR = x_BR/100.
+			
+			for n in range(1,37,1):
+				nBin="bin"+str(n)
+				newYield = x_BR**2*DC_gg.exp[nBin]["SUSY"]+2*x_BR*(1-x_BR)*DC_wg.exp[nBin]["SUSY"]
+				
+				#Statistic uncertainty
+				statUnc = np.sqrt((x_BR**2*DC_gg.getUncertainty("SUSY_stat"+str(n),nBin,"SUSY"))**2+(2*x_BR*(1-x_BR)*DC_wg.getUncertainty("SUSY_stat"+str(n),nBin,"SUSY"))**2)
+				if newYield==0:
+					statUnc = 1.0
+				else:
+					statUnc = 1+statUnc/newYield
+				
+				#Systematic jes uncertainty
+				ggUpSyst = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("JES",nBin,"SUSY")
+				wgUpSyst = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("JES",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSyst+2*x_BR*(1-x_BR)*wgUpSyst
+				
+				ggDownSyst = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("JES",nBin,"SUSY")
+				wgDownSyst = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("JES",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSyst+2*x_BR*(1-x_BR)*wgDownSyst
+				
+				if newYield==0:
+					systUnc = 1.0
+				else:
+					systUnc = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic ISR uncertainty	
+				ggUpSystISR = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("ISR",nBin,"SUSY")
+				wgUpSystISR = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("ISR",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystISR+2*x_BR*(1-x_BR)*wgUpSystISR
+				
+				ggDownSystISR = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("ISR",nBin,"SUSY")
+				wgDownSystISR = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("ISR",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystISR+2*x_BR*(1-x_BR)*wgDownSystISR
+				
+				if newYield==0:
+					systUncISR = 1.0
+				else:
+					systUncISR = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+					
+				#Systematic ElectronSF uncertainty	
+				ggUpSystESF = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("ElectronSF",nBin,"SUSY")
+				wgUpSystESF = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("ElectronSF",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystESF+2*x_BR*(1-x_BR)*wgUpSystESF
+				
+				ggDownSystESF = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("ElectronSF",nBin,"SUSY")
+				wgDownSystESF = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("ElectronSF",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystESF+2*x_BR*(1-x_BR)*wgDownSystESF
+				
+				if newYield==0:
+					systUncESF = 1.0
+				else:
+					systUncESF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic PhotonSF uncertainty	
+				ggUpSystPSF = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("PhotonSF",nBin,"SUSY")
+				wgUpSystPSF = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("PhotonSF",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystPSF+2*x_BR*(1-x_BR)*wgUpSystPSF
+				
+				ggDownSystPSF = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("PhotonSF",nBin,"SUSY")
+				wgDownSystPSF = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("PhotonSF",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystPSF+2*x_BR*(1-x_BR)*wgDownSystPSF
+				
+				if newYield==0:
+					systUncPSF = 1.0
+				else:
+					systUncPSF = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic GenMet uncertainty	
+				ggUpSystGenMet = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("GenMet",nBin,"SUSY")
+				wgUpSystGenMet = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("GenMet",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystGenMet+2*x_BR*(1-x_BR)*wgUpSystGenMet
+				
+				ggDownSystGenMet = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("GenMet",nBin,"SUSY")
+				wgDownSystGenMet = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("GenMet",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystGenMet+2*x_BR*(1-x_BR)*wgDownSystGenMet
+				
+				if newYield==0:
+					systUncGenMet = 1.0
+				else:
+					systUncGenMet = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic PDFSCALE uncertainty	
+				ggUpSystPDFSCALE = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("PDFSCALE",nBin,"SUSY")
+				wgUpSystPDFSCALE = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("PDFSCALE",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystPDFSCALE+2*x_BR*(1-x_BR)*wgUpSystPDFSCALE
+				
+				ggDownSystPDFSCALE = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("PDFSCALE",nBin,"SUSY")
+				wgDownSystPDFSCALE = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("PDFSCALE",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystPDFSCALE+2*x_BR*(1-x_BR)*wgDownSystPDFSCALE
+				
+				if newYield==0:
+					systUncPDFSCALE = 1.0
+				else:
+					systUncPDFSCALE = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				#Systematic PU uncertainty	
+				ggUpSystPU = DC_gg.exp[nBin]["SUSY"]+DC_gg.getUncertainty("PU",nBin,"SUSY")
+				wgUpSystPU = DC_wg.exp[nBin]["SUSY"]+DC_wg.getUncertainty("PU",nBin,"SUSY")
+				yieldUpSyst = x_BR**2*ggUpSystPU+2*x_BR*(1-x_BR)*wgUpSystPU
+				
+				ggDownSystPU = DC_gg.exp[nBin]["SUSY"]-DC_gg.getUncertainty("PU",nBin,"SUSY")
+				wgDownSystPU = DC_wg.exp[nBin]["SUSY"]-DC_wg.getUncertainty("PU",nBin,"SUSY")
+				yieldDownSyst = x_BR**2*ggDownSystPU+2*x_BR*(1-x_BR)*wgDownSystPU
+				
+				if newYield==0:
+					systUncPU = 1.0
+				else:
+					systUncPU = 1+(yieldUpSyst-yieldDownSyst)/(2.*newYield)
+				
+				outputDC.newSignalLepton({nBin: newYield},{"SUSY_stat"+str(n): {nBin: round(statUnc,2)},
+					"JES": {nBin: systUnc}, "ElectronSF": {nBin: systUncESF}, "PhotonSF": {nBin: systUncPSF}, "ISR": {nBin: systUncISR}
+					, "GenMet": {nBin: systUncGenMet}, "PDFSCALE": {nBin: systUncPDFSCALE}, "PU": {nBin: systUncPU}})
+			
+			if setGluinomass:
+				directory="output/Lepton/CharginoBRstrongG"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongG"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			else:
+				directory="output/Lepton/CharginoBRstrongN"+str(setmass)+"/"+selection
+				fname=directory+"/datacard_CharginoBRstrongN"+str(setmass)+"_"+str(mass)+"_"+"%i"%(x_BR*100)+".txt"
+			if not os.path.exists(directory):
+				os.makedirs(directory)
+				
+			outputDC.write(filename=fname)
+			
 #Run different scanning types:
 
 parser = argparse.ArgumentParser()
-parser.add_argument('analysis', nargs='?', help="ST or HTG")
-parser.add_argument('scan', nargs='?', help="NeutralinoBR or CharginoBR")
+parser.add_argument('analysis', nargs='?', help="ST or HTG or Diphoton")
+parser.add_argument('scan', nargs='?', help="NeutralinoBR or CharginoBR or CharginoBRstrong")
 parser.add_argument('selection', nargs='?', help="choose as selection like leptonVeto, htgVeto etc.")
 parser.add_argument('--gluinomass', type=int, default=0, help="For CharginoBRstrong choose gluino mass or neutralino mass")
 parser.add_argument('--neutralinomass', type=int, default=0, help="For CharginoBRstrong choose gluino mass or neutralino mass")
@@ -557,6 +1083,32 @@ elif (args.analysis=="HTG"):
 			print "Choose neutralino or gluinomass"
 		else:
 			Scan_CharginoBr_strong_HTG(args.gluinomass,args.neutralinomass)
+	else:
+		print "Unknown scan"
+		
+elif (args.analysis=="Diphoton"):
+	#~ if args.scan=="NeutralinoBR":
+		#~ Scan_NeutralinoBr_HTG()
+	#~ elif args.scan=="CharginoBR":
+		#~ Scan_CharginoBr_HTG()
+	if args.scan=="CharginoBRstrong":
+		if args.neutralinomass==0 and args.gluinomass==0:
+			print "Choose neutralino or gluinomass"
+		else:
+			Scan_CharginoBr_strong_diphoton(args.gluinomass,args.neutralinomass)
+	else:
+		print "Unknown scan"
+
+elif (args.analysis=="Lepton"):
+	#~ if args.scan=="NeutralinoBR":
+		#~ Scan_NeutralinoBr_HTG()
+	#~ elif args.scan=="CharginoBR":
+		#~ Scan_CharginoBr_HTG()
+	if args.scan=="CharginoBRstrong":
+		if args.neutralinomass==0 and args.gluinomass==0:
+			print "Choose neutralino or gluinomass"
+		else:
+			Scan_CharginoBr_strong_lepton(args.gluinomass,args.neutralinomass)
 	else:
 		print "Unknown scan"
 
