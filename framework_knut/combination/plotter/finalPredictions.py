@@ -544,7 +544,7 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         weight = "weight*lowEMHT" if lowEmht else "weight*!lowEMHT"
         if "qcdClosure" in name: subSet = None
         else: subSet = zg+wg+ttg+wjets+ttjets_nlo+znunu
-        #gjetHist, gjetSyst, info = gjetPredictionHist(dirHist, preSet, subSet, nBins, lowEmht, name+"_"+dirDir, preDirJet="original")
+        #~ gjetHist, gjetSyst, info = gjetPredictionHist(dirHist, preSet, subSet, nBins, lowEmht, name+"_"+dirDir, preDirJet="original")
         gjetHist, gjetSyst, info = gjetPrediction(dirHist, preSet, subSet, "met", nBins, weight, name)
         print info
         gjetHist.SetLineColor(rwth.myLightBlue)
@@ -783,7 +783,8 @@ if __name__ == "__main__":
     #selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
     #~ selections = ["all_cleaned", "dilep_cleaned"]
     #~ selections = ["original","st_cleaned"]
-    selections = ["st_cleaned"]
+    #~ selections = ["dilep_cleaned"]
+    selections = ["dilep_vetoedEvents"]
 
 
     for selection in selections:
@@ -793,8 +794,8 @@ if __name__ == "__main__":
         #~ finalDistributionSignalHist("electronClosure", False, ewk_highestHT, selection)
         #~ finalDistributionSignalHist("ee", True, data, "original_ee", dataHt)
         #~ finalDistributionSignalHist("ee", False, data, "original_ee", dataHt)
-        finalDistributionSignalHist("final", True, data, selection, dataHt)
-        #~ finalDistributionSignalHist("final", False, data, selection, dataHt)
+        #~ finalDistributionSignalHist("final", True, data, selection, dataHt)
+        finalDistributionSignalHist("final", False, data, selection, dataHt)
         
         #~ finalDistributionSignalHist("validation_final", False, data, selection, dataHt)
 

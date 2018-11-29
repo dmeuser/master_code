@@ -73,16 +73,16 @@ def validateSignalScan(scanName, point):
 
     binning = [350, 450, 600]
     # get signal yield old
-    fOld = "../../phd/histogramProducer/{}_signalScan.root".format(scanName)
-    hOldL = aux.getFromFile(fOld, "Wg_{}/signal_lowEMHT/met".format(point))
-    hOldH = aux.getFromFile(fOld, "Wg_{}/signal_highEMHT/met".format(point))
-    #hOldL.Add(aux.getFromFile(fOld, "Wg_{}/signal_lowEMHT/met_contamination".format(point)), -1)
-    #hOldH.Add(aux.getFromFile(fOld, "Wg_{}/signal_highEMHT/met_contamination".format(point)), -1)
+    #~ fOld = "../../phd/histogramProducer/{}_signalScan.root".format(scanName)
+    #~ hOldL = aux.getFromFile(fOld, "Wg_{}/signal_lowEMHT/met".format(point))
+    #~ hOldH = aux.getFromFile(fOld, "Wg_{}/signal_highEMHT/met".format(point))
+    #~ #hOldL.Add(aux.getFromFile(fOld, "Wg_{}/signal_lowEMHT/met_contamination".format(point)), -1)
+    #~ #hOldH.Add(aux.getFromFile(fOld, "Wg_{}/signal_highEMHT/met_contamination".format(point)), -1)
 
-    hOldL = aux.rebin(hOldL, binning)
-    hOldH = aux.rebin(hOldH, binning)
-    acceptancesOld = [hOldL.GetBinContent(i+1) for i in range(3)] + [hOldH.GetBinContent(i+1) for i in range(3)]
-    print [a*weight for a in acceptancesOld]
+    #~ hOldL = aux.rebin(hOldL, binning)
+    #~ hOldH = aux.rebin(hOldH, binning)
+    #~ acceptancesOld = [hOldL.GetBinContent(i+1) for i in range(3)] + [hOldH.GetBinContent(i+1) for i in range(3)]
+    #~ print [a*weight for a in acceptancesOld]
 
     dataset1 = Dataset(scanName, 0)
     hL = metHist(dataset1, point+"/original/nominal", binning+[800], True)
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     #validateHistVsTree(dset, "simpleTree", "0_0/original/jCR/1.000000")
     #validateHist()
     #validateSignalScan("SMS-T6Wg", "1600_100")
-    validateSignalScan("SMS-T5Wg", "2000_1000")
+    validateSignalScan("SMS-T5Wg", "800_10")

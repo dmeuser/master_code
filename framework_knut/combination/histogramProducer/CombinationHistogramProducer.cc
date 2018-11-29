@@ -159,6 +159,10 @@ void CombinationHistogramProducer::Init(TTree *tree)
   isZZ = inputName.find("TChiZZ") != string::npos;
   
   isT5Wg_thirds = inputName.find("thirds") != string::npos; //to rescale T5Wg with 2/3 charged and 1/3 uncharged gluino decays
+  
+  isPrefire = inputName.find("prefire") != string::npos; //Check prefiring effect
+  TFile file_jetPrefireMap2016("Map_Jet_L1IsoEG30eff_bxm1_looseJet_SingleMuon_Run2016B-H.root");
+  prefireMap2016 = (TEfficiency*)file_jetPrefireMap2016.Get("prefireEfficiencyMap");
 
   weighters["sf_photon_id_loose"] = Weighter("../plotter/data/dataMcScaleFactors_80X.root", "EGamma_SF2D");
   weighters["sf_photon_pixel"] = Weighter("../plotter/data/ScalingFactors_80X_Summer16.root", "Scaling_Factors_HasPix_R9 Inclusive");
@@ -486,6 +490,18 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
     if (*signal_nBinos==1) gen_weight = 8./9;
     else if (*signal_nBinos==2) gen_weight = 4./9;
   }
+  
+  float tempPrefire = 0.;
+  if (isPrefire) {  //rescale to check prefiring effect
+    for (auto& j : *jets){
+      if (j.isLoose) {
+        tempPrefire = prefireMap2016->GetEfficiency(prefireMap2016->FindFixBin(abs(j.p.Eta()),j.p.Pt()));
+        gen_weight *= (1.0-tempPrefire);
+        //~ std::cout<<j.p.Eta()<<"   "<<j.p.Pt()<<"   "<<tempPrefire<<"   "<<gen_weight<<"    "<<std::endl;
+      }
+    }
+  }
+  //~ std::cout<<"------------------------"<<std::endl;
     
   
   if (genHt600 && *genHt>600) {
@@ -557,12 +573,14 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
   fillHistograms(Selection::dilep_cleaned, Region::sR, signalSel && !isDiPhoton && !isLepPhoton);
   fillHistograms(Selection::stlep_cleaned, Region::sR, signalSel && !isStPhoton && !isLepPhoton);
   fillHistograms(Selection::all_cleaned, Region::sR, signalSel && !isDiPhoton && !isLepPhoton && !isStPhoton);
+  fillHistograms(Selection::dilep_vetoedEvents, Region::sR, signalSel && (isDiPhoton || isLepPhoton));
   if (signalGenE && !isDiPhoton) fillHistograms(Selection::di_cleaned, Region::genE, true);
   if (signalGenE && !isLepPhoton) fillHistograms(Selection::lep_cleaned, Region::genE, true);
   if (signalGenE && !isStPhoton) fillHistograms(Selection::st_cleaned, Region::genE, true);
   if (signalGenE && !isDiPhoton && !isLepPhoton) fillHistograms(Selection::dilep_cleaned, Region::genE, true);
   if (signalGenE && !isStPhoton && !isLepPhoton) fillHistograms(Selection::stlep_cleaned, Region::genE, true);
   if (signalGenE && !isDiPhoton && !isLepPhoton && !isStPhoton) fillHistograms(Selection::all_cleaned, Region::genE, true);
+  if (signalGenE && (isDiPhoton || isLepPhoton)) fillHistograms(Selection::dilep_vetoedEvents, Region::genE, true);
 
   weight_ = *mc_weight * *pu_weight * *hlt_ht600_pre;
   if (!selPhotons.size() && htg_ > 700 && (*hlt_ht600 || !isData)) {
@@ -606,6 +624,7 @@ Bool_t CombinationHistogramProducer::Process(Long64_t entry)
       if (!isDiPhotonEl && !isLepPhotonEl) fillHistograms(Selection::dilep_cleaned, Region::eCR, true);
       if (!isStPhotonEl && !isLepPhotonEl) fillHistograms(Selection::stlep_cleaned, Region::eCR, true);
       if (!isDiPhotonEl && !isLepPhotonEl && !isStPhotonEl) fillHistograms(Selection::all_cleaned, Region::eCR, true);
+      if (!isDiPhotonEl && (isDiPhoton || isLepPhoton)) fillHistograms(Selection::dilep_vetoedEvents, Region::eCR, true);
       
       //Check overlap for jCR to study uncertainty correlations
       if (!isLepPhotonEl && met->p.Pt()<100) phoCR_leptonVeto << *runNo << ":" << *lumNo << ":" << *evtNo << std::endl;

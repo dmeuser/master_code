@@ -29,7 +29,8 @@ using namespace std;
 enum class Selection: char {
   original, di_cleaned, lep_cleaned, st_cleaned, dilep_cleaned, stlep_cleaned, all_cleaned,
   original_ee, all_cleaned_ee,
-  all_cleaned_gg
+  all_cleaned_gg,
+  dilep_vetoedEvents
 };
 
 const map<Selection, string> selectionNames {
@@ -42,7 +43,8 @@ const map<Selection, string> selectionNames {
   {Selection::all_cleaned, "all_cleaned"},
   {Selection::original_ee, "original_ee"},
   {Selection::all_cleaned_ee, "all_cleaned_ee"},
-  {Selection::all_cleaned_gg, "all_cleaned_gg"}
+  {Selection::all_cleaned_gg, "all_cleaned_gg"},
+  {Selection::dilep_vetoedEvents, "dilep_vetoedEvents"}
 };
 
 enum class Histogram {
@@ -197,6 +199,9 @@ class CombinationHistogramProducer : public TSelector {
   int evSurvive;
   
   bool isT5Wg_thirds;
+  bool isPrefire;
+  
+  TEfficiency *prefireMap2016;
 
 //  ClassDef(CombinationHistogramProducer, 1) // not for root compilation
 };

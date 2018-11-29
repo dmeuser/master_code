@@ -1016,9 +1016,14 @@ class Label2D(Label):
     def __init__(self, drawAll=True, sim=False, status="Private Work", info=""):
         saveStuff.append(self)
         cmsText = "#font[61]{CMS}"
-        if sim: cmsText += " #scale[0.76]{#font[52]{Simulation}}"
-        if status: cmsText += "#scale[0.76]{#font[52]{%s}}"%status
-        self.cms = ROOT.TLatex(.15, .95, cmsText)
+        #~ if sim: cmsText += " #scale[0.76]{#font[52]{Simulation}}"
+        #~ if status: cmsText += "#scale[0.76]{#font[52]{%s}}"%status
+        #~ self.cms = ROOT.TLatex(.15, .95, cmsText)
+        
+        if sim:
+            self.cms = ROOT.TLatex( 0.2, .887, "#font[61]{CMS} #scale[0.76]{#font[52]{Simulation}}" )
+        self.pub = ROOT.TLatex( 0.2, .857, "#scale[0.76]{#font[52]{%s}}"%status )
+        
         self.info = ROOT.TLatex(0.2, .895, info)
         self.lum = ROOT.TLatex( .47, .95, "%.1f fb^{-1} (%s TeV)"%(intLumi/1000., self.cmsEnergy) )
         if drawAll: self.draw()
