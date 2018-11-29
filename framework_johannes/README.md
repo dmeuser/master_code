@@ -29,29 +29,36 @@ Meaningful modules can be chosen as arguments:
 
 ## Output ##
 Plots are stored as canvases in a root file.
-The `view.py` script can be used for browsing the file,
-it sets the right styles.
 
 ## Adding new modules ##
 To add a new module, create a new `<module>.cpp` file in `src/modules`.
 The entry function has to be `extern "C" void run() {...}`.
 Add `<module>` to the list in `src/modules/CMakeLists.txt`
 
-
-## PDF and Scale Weights ##
-index description-from-LHEheader
-0   <weight id="1"> mur=1 muf=1 </weight>
-1   <weight id="2"> mur=1 muf=2 </weight>
-2   <weight id="3"> mur=1 muf=0.5 </weight>
-3   <weight id="4"> mur=2 muf=1 </weight>
-4   <weight id="5"> mur=2 muf=2 </weight>
-5   <weight id="6"> mur=2 muf=0.5 </weight>
-6   <weight id="7"> mur=0.5 muf=1 </weight>
-7   <weight id="8"> mur=0.5 muf=2 </weight>
-8   <weight id="9"> mur=0.5 muf=0.5 </weight>
-
-10  <weight id="11">Member 1</weight>
-11  <weight id="12">Member 2</weight>
-12  <weight id="13">Member 3</weight>
-13  <weight id="14">Member 4</weight>
+## Changes/Additions made by the Combination ##
+All scripts (in `src/modules`) used by the initial analysis are kept.
+Additional scripts are denoted with a prepending `danilo_`.
+The additional/changed scripts are used for the following tasks:
+- `danilo_GGM_scan` : Study of kinematic variables for both GGM scans
+- `danilo_SFapplication` : Based to `SFapplication`
+- `danilo_acceptanceHist` : Plot signal acceptances
+- `danilo_check_overlap` : Study single events, falsely removed by vetoes
+- `danilo_check_scan` : Check gen particles of first GGM simulation attempts
+- `danilo_cutflow_GGM` : Simple cutflows for GGM scenarios
+- `danilo_datacards` : Used to create datacards
+- `danilo_distributions` : Based on `distributions` with addition vetoes
+- `danilo_interpolateAcc` : GGM acceptance interpolated
+- `danilo_maxSensitivity` : Creates plots of most sensitive search
+- `danilo_nDecays` : Gen studies of decays in GGM scenarios
+- `danilo_plot1d_limit` : Plotting tool for 1D limits
+- `danilo_plot2d_scan` : Plotting tool for GGM xsecs
+- `danilo_plotGGMparameter` : Plotting tool for sparticle masses in GGM
+- `danilo_plotOverlap` : Plotting tool for overlap between searches
+- `danilo_plotSig` : Plotting tool for significance in GGM scenarios
+- `danilo_plot_GGM` : Plotting tool for GGM kinematics
+- `danilo_plot_postfitBKG` : Plotting tool for postfit studies
+- `danilo_rValuediff` : Compare r values for different strong scenarios
+- `danilo_signal_scan` : Based on `signal_scan` with additional vetoes
+- `danilo_signal_scan_newTrig` : Studies for possible new trigger
+- `danilo_totsignalyield` : GGM signal yields and unc.
 ...
