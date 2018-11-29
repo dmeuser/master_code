@@ -18,14 +18,15 @@ void run()
 io::RootFileSaver saver("plots.root","danilo_plot2d_scan");
 TCanvas can;
 
-for (TString order :{"NLO","LO"}){
+//~ for (TString order :{"NLO","LO"}){
+for (TString order :{"NLO"}){
          //With LHAPDF modified prospino
          TString fileLoc="../input/xsecs_M1_M2.root";
          if (order=="LO") fileLoc="../input/xsecs_M1_M2_LO.root";
 
          TFile file3(fileLoc,"read");
          
-         for (TString svar :{"xsecs","pdf_uncertainty","alphaS_uncertainty", "scaleUp_uncertainty", "scaleDown_uncertainty","total_uncertainty","alphaUp","alphaDown","alphaDiff","N1C1_MassPlane_hist"}) {
+         for (TString svar :{"xsecs","pdf_uncertainty","alphaS_uncertainty", "scaleUp_uncertainty", "scaleDown_uncertainty","total_uncertainty","alphaUp","alphaDown","alphaDiff","N1C1_MassPlane_hist","hist_KN2C1","hist_KC1C1","hist_KN1C1"}) {
             TH2F *hist = (TH2F*) file3.Get(svar);
             can.cd();
             if (svar == "xsecs" || svar == "N1C1_MassPlane_hist") {
@@ -65,6 +66,11 @@ for (TString order :{"NLO","LO"}){
                         }
                   }
             }
+            
+            if (svar == "hist_KN2C1" || svar == "hist_KN1C1" || svar == "hist_KC1C1") {
+				hist->SetMinimum(1.04);
+				hist->SetMaximum(1.40);
+			}
                         
             
             hist->GetYaxis()->SetTitleOffset(1.3);
@@ -94,7 +100,7 @@ for (TString order :{"NLO","LO"}){
 
          TFile file4(fileLoc,"read");
          
-         for (TString svar :{"xsecs","pdf_uncertainty","alphaS_uncertainty", "scaleUp_uncertainty", "scaleDown_uncertainty","total_uncertainty","alphaUp","alphaDown","alphaDiff","N1C1_MassPlane_hist"}) {
+         for (TString svar :{"xsecs","pdf_uncertainty","alphaS_uncertainty", "scaleUp_uncertainty", "scaleDown_uncertainty","total_uncertainty","alphaUp","alphaDown","alphaDiff","N1C1_MassPlane_hist","hist_KN2C1","hist_KC1C1"}) {
             
             TH2F *hist = (TH2F*) file4.Get(svar);
             can.cd();
@@ -127,6 +133,11 @@ for (TString order :{"NLO","LO"}){
             if (svar == "scale_uncertainty") {
                   hist->SetMaximum(1.5);
             }
+            
+            if (svar == "hist_KN2C1" || svar == "hist_KC1C1") {
+				hist->SetMinimum(0.95);
+				hist->SetMaximum(1.30);
+			}
             
             hist->GetYaxis()->SetTitleOffset(1.3);
             hist->GetXaxis()->SetTitleOffset(0.9);

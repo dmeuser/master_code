@@ -230,5 +230,5 @@ extern "C"
 
 void run(){
 	plot_M1M2();
-	//~ plot_physmass();
+	plot_physmass();
 }

@@ -1287,36 +1287,67 @@ int plot_CharginoBRstrongG1950(){
 	io::RootFileSaver saver("plots.root",TString::Format("danilo_plot_combined%.1f/%s",cfg.processFraction*100,"Limits"));
 	TCanvas can;
 	
-	TFile file_1("../input/limits/limits_CharginoBRstrongG1950_inclusivNN.root","read");
-	TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgNN.root","read");
-	TFile file_3("../input/limits/limits_CharginoBRstrongG1950_leptonHighHtgVetoNN_LEPcleanedHighHtgNN_leptonFull.root","read");
+	//~ TFile file_1("../input/limits/limits_CharginoBRstrongG1950_inclusivNN.root","read");
+	//~ TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgNN.root","read");
+	//~ TFile file_3("../input/limits/limits_CharginoBRstrongG1950_leptonHighHtgVetoNN_LEPcleanedHighHtgNN_leptonFull.root","read");
+	TFile file_1("../input/limits/limits_CharginoBRstrongG1950_inclusivFinal.root","read");
+	TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgFinal.root","read");
+	TFile file_3("../input/limits/limits_CharginoBRstrongG1950_ST_HTG_lepton_final.root","read");
 	
 	TGraph *inclusiv_exp = (TGraph*) file_1.Get("gr_expC_sm");
 	TGraph *htg_exp = (TGraph*) file_2.Get("gr_expC_sm");
 	TGraph *combi_exp = (TGraph*) file_3.Get("gr_expC_sm");
+	TGraph *inclusiv_obs = (TGraph*) file_1.Get("gr_obsC_sm");
+	TGraph *htg_obs = (TGraph*) file_2.Get("gr_obsC_sm");
+	TGraph *combi_obs = (TGraph*) file_3.Get("gr_obsC_sm");
 	
-	combi_exp->SetTitle(";BR(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow W^{#pm}#tilde{G}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	TH2F axis("","",100,0,100,100,0,1950);
+	axis.SetTitle(";BR(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow W^{#pm}#tilde{G}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	axis.Draw("axis");
+	axis.SetStats(0);
 	
 	combi_exp->SetLineColor(kBlue);
-	combi_exp->SetLineWidth(3);
+	combi_exp->SetLineWidth(2);
 	combi_exp->SetLineStyle(2);
-	combi_exp->Draw();
+	combi_exp->Draw("same");
+	combi_obs->SetLineColor(kBlue);
+	combi_obs->SetLineWidth(2);
+	combi_obs->SetLineStyle(1);
+	combi_obs->Draw("same");
 	
 	inclusiv_exp->SetLineColor(kGreen+1);
-	inclusiv_exp->SetLineWidth(3);
+	inclusiv_exp->SetLineWidth(2);
 	inclusiv_exp->SetLineStyle(2);
 	inclusiv_exp->Draw("same");
+	inclusiv_obs->SetLineColor(kGreen+1);
+	inclusiv_obs->SetLineWidth(2);
+	inclusiv_obs->SetLineStyle(1);
+	inclusiv_obs->Draw("same");
 	
 	htg_exp->SetLineColor(kRed+1);
-	htg_exp->SetLineWidth(3);
+	htg_exp->SetLineWidth(2);
 	htg_exp->SetLineStyle(2);
 	htg_exp->Draw("same");
+	htg_obs->SetLineColor(kRed+1);
+	htg_obs->SetLineWidth(2);
+	htg_obs->SetLineStyle(1);
+	htg_obs->Draw("same");
+	
+	TGraph *exp = new TGraph();
+	TGraph *obs = new TGraph();
+	exp->SetLineWidth(2);
+	obs->SetLineWidth(2);
+	exp->SetLineStyle(2);
+	
+	axis.Draw("axis same");
 	
 	gfx::LegendEntries legE;
-	legE.append(*inclusiv_exp,"Photon+ST (exp)","l");
-	legE.append(*htg_exp,"Photon+HTG (exp)","l");
-	legE.append(*combi_exp,"Combined (exp)","l");
-	TLegend leg=legE.buildLegend(.7,.2,0.9,.5,1);
+	legE.append(*inclusiv_obs,"Photon+S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}","l");
+	legE.append(*htg_obs,"Photon+H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}","l");
+	legE.append(*combi_obs,"Combination","l");
+	legE.prepend(*exp,"Expected","l");
+	legE.prepend(*obs,"Observed","l");
+	TLegend leg=legE.buildLegend(.4,.7,0.7,.9,2);
 	leg.SetTextSize(0.03);
 	leg.Draw();
 	
@@ -2044,12 +2075,12 @@ void run(){
 	//~ plot_GGM_combi();
 	//~ plot_GGM2_combi();
 	//~ plot_GGM2_combi_filledAreas();
-	plot_GGM_combi_physmass();
-	plot_GGM2_combi_physmass();
-	//~ plot_TChiNg_diffcombi();
-	plot_CharginoBR_C1C1();
-	plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh();
-	//~ plot_T5Wg_diffCombi();
-	plot_TChiNg_BR_combi();
-	//~ plot_T5Wg_diphotonCase();
+	//~ plot_GGM_combi_physmass();
+	//~ plot_GGM2_combi_physmass();
+	plot_TChiNg_diffcombi();
+	//~ plot_CharginoBR_C1C1();
+	//~ plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh();
+	plot_T5Wg_diffCombi();
+	//~ plot_TChiNg_BR_combi();
+	plot_T5Wg_diphotonCase();
 }

@@ -142,13 +142,13 @@ void run()
       
       
       //Compare two 2D acceptance histograms (T5Wg)
-      TString selection = "inclusiv";
-      //~ TString selection = "exclusiv_highHTG";
+      //~ TString selection = "inclusiv";
+      TString selection = "exclusiv_highHTG";
       TFile file3("../output/signal_scan_"+selection+"_v03D.root","read");
       
       TGraph2D *graph3 = (TGraph2D*) file3.Get("T5Wg/pre_ph165/c_MET300/MT300/STg/T5Wg_acceptance");
-      TGraph2D *graph4 = (TGraph2D*) file3.Get("T5Wg_prefire/pre_ph165/c_MET300/MT300/STg/T5Wg_prefire_acceptance");
-      //~ TGraph2D *graph4 = (TGraph2D*) file3.Get("T5Wg_prefire2016/pre_ph165/c_MET300/MT300/STg/T5Wg_prefire2016_acceptance");
+      //~ TGraph2D *graph4 = (TGraph2D*) file3.Get("T5Wg_prefire/pre_ph165/c_MET300/MT300/STg/T5Wg_prefire_acceptance");
+      TGraph2D *graph4 = (TGraph2D*) file3.Get("T5Wg_prefire2016/pre_ph165/c_MET300/MT300/STg/T5Wg_prefire2016_acceptance");
       
       TH2D *hist1 = graph3->GetHistogram();
       TH2D *hist2 = graph4->GetHistogram();

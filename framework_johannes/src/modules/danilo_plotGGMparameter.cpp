@@ -24,7 +24,7 @@ void run()
 
             TFile file3(fileLoc,"read");
 
-            for (TString svar :{"massNLSP","massChargino","massGluino", "massNeutralino2","massDiff","BRtoPhoton","BRtoZ"}) {
+            for (TString svar :{"massNLSP","massChargino","massGluino", "massNeutralino2","massDiff","BRtoPhoton","BRtoZ","massHiggsH","massStop"}) {
                   
                   if (scan=="M1_M3" && svar=="massDiff") continue;
                   
@@ -42,6 +42,8 @@ void run()
                   else if (svar=="massNLSP") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)");
                   else if (svar=="massNeutralino2") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{2}}}} (GeV)");
                   else if (svar=="massGluino") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{#tilde{g}}} (GeV)");
+                  else if (svar=="massHiggsH") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{H}} (GeV)");
+                  else if (svar=="massStop") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{#tilde{t}}} (GeV)");
                   else if (svar=="massDiff") hist->GetZaxis()->SetTitle("|m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}-m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}| (GeV)");
                   else if (svar=="BRtoPhoton") hist->GetZaxis()->SetTitle("BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%)");
                   else if (svar=="BRtoZ") hist->GetZaxis()->SetTitle("BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow Z + #tilde{G}) (%)");
