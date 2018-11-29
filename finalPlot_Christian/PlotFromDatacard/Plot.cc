@@ -41,7 +41,9 @@ class Bin{
    double sig;
    std::vector<Background> bkgd;
    double Systematics() const {double r2=0;for (auto it=bkgd.begin();it!=bkgd.end();++it)r2+=it->systematics2;return sqrt(r2);}
+   //~ double Systematics() const {double r2=0;for (auto it=bkgd.begin();it!=bkgd.end();++it)std::cout<<sqrt(it->systematics2)<<std::endl;}
    double Statistics()  const {double r2=0;for (auto it=bkgd.begin();it!=bkgd.end();++it)r2+=it->statistics2;return sqrt(r2);}
+   //~ double Statistics()  const {double r2=0;for (auto it=bkgd.begin();it!=bkgd.end();++it)std::cout<<sqrt(it->statistics2)<<std::endl;}
    double TotalBkgd(  ) const {double b=0; for (auto it=bkgd.begin();it!=bkgd.end();++it) b+=it->yield;return b;}
 };
 
@@ -113,7 +115,8 @@ void ParseSystematicsLine(std::istringstream& iss, std::string& key, const std::
       while (iss >> str) { 
          std::stringstream ss(str);
          if (ss >> syst)
-            s2[index]+=(syst-1.0)*(syst-1.0)*rate[index]*rate[index]; 
+            //~ s2[index]+=(syst-1.0)*(syst-1.0)*rate[index]*rate[index]; 
+            s2[index]+=rate[index]*syst; 
          //std::cout << key << "  " <<index << "   "<<str<< "   " << rate[index]<<"+="<<sqrt(v2[index])<<std::endl;
          ++index;
       }
@@ -136,10 +139,12 @@ template<typename T> void Print(std::ostream& os, std::vector<T>& v)
 
 void PrintTable(std::ostream& os, const std::vector<Bin>& bins)
 {
-   os << "";          for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &   " << it->name; os << std::endl;
-   os << "Data  ";    for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(10) << it->data << "$"; os << std::endl;
-   os << "Signal";    for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(10) << it->sig << "$";  os << std::endl;
-   os << "Tot. Bkgd"; for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(8)  << it->TotalBkgd()<<"\\pm"<<std::setw(8)<<it->Systematics() << "$";  os << std::endl;
+   os << "Search Bin" << "  &  " << "Tot. Bkgd" << "  &  " << "Data" <<"\\\\"; os << std::endl;
+   for (auto it=bins.begin(); it!=bins.end(); ++it) os << std::stoi(it->label)+1 << "  &   $" << std::round(it->TotalBkgd()*10)/10.0<<"\\pm"<<std::setw(8)<<round(sqrt(it->Systematics()*it->Systematics()+it->Statistics()*it->Statistics())*10)/10.0 << "$" << "  &  $" << std::setw(10) << it->data << "$\\\\" << std::endl;
+   //~ os << "Search Bin";          for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &   " << std::stoi(it->label)+1; os << std::endl;
+   //~ os << "Tot. Bkgd"; for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(8)  << it->TotalBkgd()<<"\\pm"<<std::setw(8)<<sqrt(it->Systematics()*it->Systematics()+it->Statistics()*it->Statistics()) << "$";  os << std::endl;
+   //~ os << "Data  ";    for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(10) << it->data << "$"; os << std::endl;
+   //~ os << "Signal";    for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(10) << it->sig << "$";  os << std::endl;
 }
 
 TH1F getRatio(TH1F const &h1, TH1F const &h2, TString title, ErrorType et)
@@ -272,10 +277,10 @@ int main(int argc, char* argv[])
 
    ///Print some of the read stuff
    std::cout<<imax<<"  "<<jmax<<"  "<<kmax<<std::endl;
-   //Print(std::cout, bin_labels);
-   //Print(std::cout, data);
-   //Print(std::cout, process_labels);
-   //Print(std::cout, rates);
+   //~ Print(std::cout, bin_labels);
+   //~ Print(std::cout, data);
+   //~ Print(std::cout, process_labels);
+   //~ Print(std::cout, rates);
 
 
    ///Read systematics from datacard
@@ -357,7 +362,9 @@ int main(int argc, char* argv[])
          b[bit->color]->SetBinContent(i+1, b[bit->color]->GetBinContent(i+1) + bit->yield );
          //b[bit->color]->SetBinError(i+1, sqrt(b[bit->color]->GetBinError(i+1)*b[bit->color]->GetBinError(i+1) + bit->systematics2 + bit->statistics2) );
          //if (i==0) std::cout << i << "  "<< bit->name<< "  c:"<<bit->color <<",  yield:"<<b[bit->color]->GetBinContent(i+1) <<", tot: "<< bins[i].TotalBkgd()<<std::endl;
-      }   
+      }
+      
+      std::cout<<i+1<<"    "<<tot->GetBinContent(i+1)<<"    "<<tot->GetBinError(i+1)<<"   "<<d->GetBinContent(i+1)<<std::endl;   
    }  
    TGraphErrors h_syst(syst); 
    h_syst.SetFillStyle(3354);
