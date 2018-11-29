@@ -323,6 +323,16 @@ void run()
    ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/STG"   ,";STg;EventsBIN" ,50,400,800);
    ADD_HIST("pre_ph165/VR/leptonDiphotonVeto/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
    
+   //Event in the validation region which are vetoed by lepton, diphoton or highHtg veto
+   ADD_HIST("pre_ph165/VR/vetoedFinal/HTG"   ,";%HTG;EventsBIN" ,50,0,2500);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/MET"   ,";%MET;EventsBIN" ,50,0,800);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/absdPhi_pmMet_Pho"   ,";min(|#Delta#phi(#pm MET,#gamma_{1})|);EventsBIN" ,50,0,1.7);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/phoPt"   ,";#gamma_{1} PT;EventsBIN" ,50,150,700);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/MT"   ,";MT(#gamma_{1},p_{T}^{miss});EventsBIN" ,50,300,1000);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/phoEta" ,";#gamma #eta;EventsBIN",52,-2.6,2.6);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/STG"   ,";STg;EventsBIN" ,50,400,800);
+   ADD_HIST("pre_ph165/VR/vetoedFinal/absphiMETnJetPh",";|#Delta#phi|(%MET,nearest jet/#gamma);EventsBIN",50,0,5);
+   
    //For Limits and syst errors
    ADD_HIST("pre_ph165/c_MET300/MT300/exclusiv/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
    ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);  
@@ -350,6 +360,9 @@ void run()
    
    ADD_HIST("pre_ph165/c_MET300/MT300/leptonDiphotonVeto/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
    ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);
+   
+   ADD_HIST("pre_ph165/c_MET300/MT300/vetoedFinal/STg"   ,";STg;EventsBIN"           ,2000,0,2000);
+   ADD_HIST("pre_ph165/c_MET100/MT100/METl300vMTl300/vetoedFinal/absphiMETnJetPh",";|#Delta#phi(p_{T}^{miss},nearest jet/#gamma)| (radians);EventsBIN",50,0,5);
    
    //Overlap in validation region
    ADD_HIST("pre_ph165/VR/overlap"   ,";;EventsBIN"           ,5,-0.5,4.5);
@@ -822,6 +835,9 @@ void run()
                   if (highEmhtVeto == 0 && leptoVeto == 0 && diphotonVeto == 0) {
                      hs.fill("pre_ph165/c_MET300/MT300/exclusiv_highHTG/STg",STg);
                   }
+                  else{
+                     hs.fill("pre_ph165/c_MET300/MT300/vetoedFinal/STg",STg);
+                  }
                   
                   if (emhtVeto == 0) {
                      hs.fill("pre_ph165/c_MET300/MT300/htgVeto/STg",STg);
@@ -858,6 +874,9 @@ void run()
                      
                      if (highEmhtVeto == 0 && leptoVeto == 0 && diphotonVeto == 0){
                         hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     else{
+                        hs.fill("pre_ph165/c_MET100/MT100/METl300vMTl300/vetoedFinal/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
                      }
                      
                      if (leptoVeto == 0 && diphotonVeto == 0){
@@ -1073,6 +1092,18 @@ void run()
                         hs.fill("pre_ph165/VR/exclusiv_highHTG/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
                      }
                      
+                     //Only vetoed events for in case of final strategy
+                     if ((leptoVeto == true || diphotonVeto == true || highEmhtVeto == true) && STg < 600) {
+                        hs.fill("pre_ph165/VR/vetoedFinal/HTG",emht);
+                        hs.fill("pre_ph165/VR/vetoedFinal/MET",met);
+                        hs.fill("pre_ph165/VR/vetoedFinal/absdPhi_pmMet_Pho",TMath::Min(fabs(dPhiMETph),fabs(fabs(dPhiMETph)-TMath::Pi())));
+                        hs.fill("pre_ph165/VR/vetoedFinal/phoPt",phoPt);
+                        hs.fill("pre_ph165/VR/vetoedFinal/MT",MT);
+                        hs.fill("pre_ph165/VR/vetoedFinal/phoEta",pho[0]->p.Eta());
+                        hs.fill("pre_ph165/VR/vetoedFinal/STG",STg);
+                        hs.fill("pre_ph165/VR/vetoedFinal/absphiMETnJetPh",std::abs(dPhiMETnearJetPh));
+                     }
+                     
                      //without overlap to any analysis included in the combination only VR (but without htgVeto)
                      if (leptoVeto == false && diphotonVeto == false && STg < 600) {
                         hs.fill("pre_ph165/VR/leptonDiphotonVeto/HTG",emht);
@@ -1157,6 +1188,7 @@ void run()
       {"pre_ph165/VR/noHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/vetoedFinal/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
    //for final datacards
@@ -1176,6 +1208,8 @@ void run()
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/exclusiv_highHTG/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/vetoedFinal/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/vetoedFinal/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/leptonDiphotonVeto/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/",{"absphiMETnJetPh"}},
    };
@@ -1229,6 +1263,7 @@ void run()
       {"pre_ph165/VR/noHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/noHighHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv_highHTG/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
+      {"pre_ph165/VR/vetoedFinal/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/leptonDiphotonVeto/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       {"pre_ph165/VR/exclusiv/",{"HTG","MET","absdPhi_pmMet_Pho","phoPt","MT","phoEta","STG","absphiMETnJetPh"}},
       //for final datacards
@@ -1248,6 +1283,8 @@ void run()
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/htgHighLeptonVeto/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/exclusiv_highHTG/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/exclusiv_highHTG/",{"absphiMETnJetPh"}},
+      {"pre_ph165/c_MET300/MT300/vetoedFinal/",{"STg"}},
+      {"pre_ph165/c_MET100/MT100/METl300vMTl300/vetoedFinal/",{"absphiMETnJetPh"}},
       {"pre_ph165/c_MET300/MT300/leptonDiphotonVeto/",{"STg"}},
       {"pre_ph165/c_MET100/MT100/METl300vMTl300/leptonDiphotonVeto/",{"absphiMETnJetPh"}},
    };

@@ -217,7 +217,8 @@ void plot(TString sSelection,TString sVar,int iRebin,
    )
 {
    bool const showData=(plotMode!=SR_BLIND && plotMode!=PRE);
-   bool const showSignal=(plotMode!=CR && plotMode!=VR);
+   bool showSignal=(plotMode!=CR && plotMode!=VR);
+   if (sSelection.Contains("vetoedFinal")) showSignal=false;
    io::RootFileReader histReader(TString::Format("histograms_%s.root",cfg.treeVersion.Data()),TString::Format("danilo_distributions%.1f",cfg.processFraction*100));
 
    TString saveName=sSelection+sVar;
@@ -840,6 +841,16 @@ void run()
    plot("pre_ph165/VR/exclusiv_highHTG/","STG",{400,620},{20},VR);
    plot("pre_ph165/VR/exclusiv_highHTG/","absphiMETnJetPh",{0,3.14},{0.4},VR);
    
+   plot("pre_ph165/VR/vetoedFinal/","HTG",{0,1200},{120},VR);
+   plot("pre_ph165/VR/vetoedFinal/","MET",{200,500},{50},VR);
+   plot("pre_ph165/VR/vetoedFinal/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
+   //~ plot("pre_ph165/VR/vetoedFinal/","phoPt",{150,400},{22},VR);
+   plot("pre_ph165/VR/vetoedFinal/","phoPt",{150,320},{85},VR);
+   plot("pre_ph165/VR/vetoedFinal/","MT",{200,700},{70},VR);
+   plot("pre_ph165/VR/vetoedFinal/","phoEta",{-2.6,2.6},{0.57},VR);
+   plot("pre_ph165/VR/vetoedFinal/","STG",{400,620},{220},VR);
+   plot("pre_ph165/VR/vetoedFinal/","absphiMETnJetPh",{0,3.14},{0.4},VR);
+   
    //~ plot("pre_ph165/VR/leptonDiphotonVeto/","HTG",{0,1200},{120},VR);
    //~ plot("pre_ph165/VR/leptonDiphotonVeto/","MET",{200,500},{50},VR);
    //~ plot("pre_ph165/VR/leptonDiphotonVeto/","absdPhi_pmMet_Pho",{0,1.6},{0.16},VR);
@@ -870,4 +881,5 @@ void run()
    plot("pre_ph165/c_MET300/MT300/htgHighVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
    plot("pre_ph165/c_MET300/MT300/htgHighLeptonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
    plot("pre_ph165/c_MET300/MT300/leptonDiphotonVeto/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
+   plot("pre_ph165/c_MET300/MT300/vetoedFinal/","STg",{600,800,1000,1300,1600},{200,200,300,300},SR_NOSTACK);
 }
