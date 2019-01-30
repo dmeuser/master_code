@@ -269,7 +269,7 @@ def writeDataCards(outputDir, dset, selection, dataDatacard, combi, onlyHigh):
         acc, cont, syst = getSignalUncertainties(dset, selection, d, combi)
         # subtract signal contamination
         acc = [a-b for a,b in zip(acc,cont)]
-
+        
         if onlyHigh:
             acc = acc[3:]
             cont = cont[3:]
@@ -279,7 +279,10 @@ def writeDataCards(outputDir, dset, selection, dataDatacard, combi, onlyHigh):
         if combi == "gg": acc = [4.*a for a in acc]
         elif combi == "wg": acc = [2.*a for a in acc]
         elif combi: print "ERROR: Do not know what to do with combination '{}'".format(combi)
-
+        
+        # add impact from prefiring (ARC review)
+        acc = [0.99*a for a in acc]
+        
         systs = {}
         for sName, valueList in syst.iteritems():
             if sName == "stat":
@@ -287,7 +290,6 @@ def writeDataCards(outputDir, dset, selection, dataDatacard, combi, onlyHigh):
                     systs["signalStat_{}".format(binName)] = {binName:unc}
             else:
                 systs[sName] = dict(zip(binNames, valueList))
-        #~ print systs
         dc.newSignal( dict(zip(binNames, acc)), systs)
         dcName = "{}/{}.txt".format(outputDir, d)
         dc.write(dcName)
@@ -608,7 +610,8 @@ def signalScan(dset, selection, dataDatacard, saveName="", combi="", onlyHigh=Fa
 
     #~ outputDir = "limitCalculations/{}_{}".format(dset.label, selection)
     #~ outputDir = "limitCalculations_newNui/{}_{}".format(dset.label, selection)
-    outputDir = "limitCalculations_final/{}_{}".format(dset.label, selection)
+    #~ outputDir = "limitCalculations_final/{}_{}".format(dset.label, selection)
+    outputDir = "limitCalculations_finalPre/{}_{}".format(dset.label, selection)
     if saveName: outputDir += "_" + saveName
     if combi: outputDir += "_" + combi
     if onlyHigh: outputDir += "_highHtg"
@@ -629,101 +632,98 @@ def signalScan(dset, selection, dataDatacard, saveName="", combi="", onlyHigh=Fa
 
 if __name__ == "__main__":
     
-    ##########################################################################################
-    #########When adding signal uncertainties, change genMet to log uniform!!!################
-    ##########################################################################################
-    #~ signalScan(t5wg, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(t5wg, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(t5wg, "original", "dataCards_final/final_original.txt", "test", "gg", onlyHigh=True)
-    #~ signalScan(t5wg, "original", "dataCards_final/final_original.txt", "test", "gg")
-    #~ signalScan(t5wg, "original", "dataCards_final/final_original.txt", "test", "wg")
-    #~ signalScan(t6wg, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(t6wg, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(t6wg, "original", "dataCards_final/final_original.txt", "test", "gg")
-    #~ signalScan(t6wg, "original", "dataCards_final/final_original.txt", "test", "gg", onlyHigh=True)
+    #~ signalScan(t5wg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(t5wg, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(t5wg, "original", "dataCards_finalPre/final_original.txt", "test", "gg", onlyHigh=True)
+    #~ signalScan(t5wg, "original", "dataCards_finalPre/final_original.txt", "test", "gg")
+    #~ signalScan(t5wg, "original", "dataCards_finalPre/final_original.txt", "test", "wg")
+    #~ signalScan(t6wg, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(t6wg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(t6wg, "original", "dataCards_finalPre/final_original.txt", "test", "gg")
+    #~ signalScan(t6wg, "original", "dataCards_finalPre/final_original.txt", "test", "gg", onlyHigh=True)
     
-    #~ signalScan(t5wg, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", "gg", onlyHigh=True)
-    #~ signalScan(t5wg, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", "wg", onlyHigh=True)
+    #~ signalScan(t5wg, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", "gg", onlyHigh=True)
+    #~ signalScan(t5wg, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", "wg", onlyHigh=True)
     
-    #~ signalScan(t5wg_thirds, "original", "dataCards_final/final_original.txt", "test")
+    #~ signalScan(t5wg_thirds, "original", "dataCards_finalPre/final_original.txt", "test")
 
-    #signalScan(t5wg, "di_cleaned", "dataCards_final/final_di_cleaned.txt", "test")
-    #~ signalScan(t5wg, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test")
-    #~ signalScan(t5wg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test")
-    #signalScan(t5wg, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test")
-    #~ signalScan(t5wg, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test", "gg")
-    #signalScan(t5wg, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    signalScan(t5wg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(t5wg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", "gg", onlyHigh=True)
+    #signalScan(t5wg, "di_cleaned", "dataCards_finalPre/final_di_cleaned.txt", "test")
+    #~ signalScan(t5wg, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test")
+    #~ signalScan(t5wg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test")
+    #signalScan(t5wg, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test")
+    #~ signalScan(t5wg, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test", "gg")
+    #signalScan(t5wg, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #~ signalScan(t5wg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(t5wg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", "gg", onlyHigh=True)
     
-    #~ signalScan(t5wg, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(t5wg, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", "gg", onlyHigh=True)
+    #~ signalScan(t5wg, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(t5wg, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", "gg", onlyHigh=True)
 
     
-    #~ signalScan(t6wg, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test", "gg")
+    #~ signalScan(t6wg, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test", "gg")
 
 
     # repeat with tching
-    #~ signalScan(tching, "original", "dataCards_final/final_original.txt", "test")
-    #signalScan(tching, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test")
-    #~ signalScan(tching, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    #signalScan(tching, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(tching, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(tching, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test")
+    #~ signalScan(tching, "original", "dataCards_finalPre/final_original.txt", "test")
+    #signalScan(tching, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test")
+    #~ signalScan(tching, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #signalScan(tching, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tching, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(tching, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test")
     
     
     # repeat with tchiwg
-    #~ signalScan(tchiwg, "original", "dataCards_final/final_original.txt", "test")
-    #signalScan(tchiwg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test")
-    #~ signalScan(tchiwg, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    #signalScan(tchiwg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchiwg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #signalScan(tchiwg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test")
+    #~ signalScan(tchiwg, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #signalScan(tchiwg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
     
     
     # GGM scan
-    #~ signalScan(ggm1, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(ggm1, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm2, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(ggm2, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm1, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm2, "lep_cleaned", "dataCards_final/final_lep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm1, "stlep_cleaned", "dataCards_final/final_stlep_cleaned.txt", "test")
-    #~ signalScan(ggm1, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    #~ signalScan(ggm2, "stlep_cleaned", "dataCards_final/final_stlep_cleaned.txt", "test")
-    #~ signalScan(ggm1, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm2, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(ggm2, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
+    #~ signalScan(ggm1, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(ggm1, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm2, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(ggm2, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm1, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm2, "lep_cleaned", "dataCards_finalPre/final_lep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm1, "stlep_cleaned", "dataCards_finalPre/final_stlep_cleaned.txt", "test")
+    #~ signalScan(ggm1, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #~ signalScan(ggm2, "stlep_cleaned", "dataCards_finalPre/final_stlep_cleaned.txt", "test")
+    #~ signalScan(ggm1, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    signalScan(ggm2, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(ggm2, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
 
     
     
     # Scaled BR for TChiNg neutralino br
-    #~ signalScan(tchigg, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(tchizg, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(tchizz, "original", "dataCards_final/final_original.txt", "test")
+    #~ signalScan(tchigg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(tchizg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(tchizz, "original", "dataCards_finalPre/final_original.txt", "test")
     
-    #~ signalScan(tchigg, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(tchizg, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
-    #~ signalScan(tchizz, "original", "dataCards_final/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(tchigg, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(tchizg, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
+    #~ signalScan(tchizz, "original", "dataCards_finalPre/final_original.txt", "test", onlyHigh=True)
     
-    #~ signalScan(tchigg, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test")
-    #~ signalScan(tchizg, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test")
-    #~ signalScan(tchizz, "st_cleaned", "dataCards_final/final_st_cleaned.txt", "test")
+    #~ signalScan(tchigg, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test")
+    #~ signalScan(tchizg, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test")
+    #~ signalScan(tchizz, "st_cleaned", "dataCards_finalPre/final_st_cleaned.txt", "test")
     
-    #~ signalScan(tchigg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(tchizg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(tchizz, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchigg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchizg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchizz, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
     
-    #~ signalScan(tchigg, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    #~ signalScan(tchizg, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
-    #~ signalScan(tchizz, "all_cleaned", "dataCards_final/final_all_cleaned.txt", "test")
+    #~ signalScan(tchigg, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #~ signalScan(tchizg, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
+    #~ signalScan(tchizz, "all_cleaned", "dataCards_finalPre/final_all_cleaned.txt", "test")
     
     
     # Scaled BR for TChiNg chargino br
-    #~ signalScan(tchigg_N2C1, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(tchiwg, "original", "dataCards_final/final_original.txt", "test")
-    #~ signalScan(tchigg_N2C1, "stlep_cleaned", "dataCards_final/final_stlep_cleaned.txt", "test")
-    #~ signalScan(tchiwg, "stlep_cleaned", "dataCards_final/final_stlep_cleaned.txt", "test")
+    #~ signalScan(tchigg_N2C1, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(tchiwg, "original", "dataCards_finalPre/final_original.txt", "test")
+    #~ signalScan(tchigg_N2C1, "stlep_cleaned", "dataCards_finalPre/final_stlep_cleaned.txt", "test")
+    #~ signalScan(tchiwg, "stlep_cleaned", "dataCards_finalPre/final_stlep_cleaned.txt", "test")
     
-    #~ signalScan(tchigg_N2C1, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
-    #~ signalScan(tchiwg, "dilep_cleaned", "dataCards_final/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchigg_N2C1, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
+    #~ signalScan(tchiwg, "dilep_cleaned", "dataCards_finalPre/final_dilep_cleaned.txt", "test", onlyHigh=True)
 
     

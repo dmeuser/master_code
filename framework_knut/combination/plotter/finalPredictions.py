@@ -539,6 +539,7 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
         dirHist = metHist(dirSet, "0_0/{}/genE".format(dirDir), nBins, lowEmht)
     style.additionalPoissonUncertainty = False
     aux.drawOpt(dirHist, "data")
+    
 
     if "electronClosure" not in name:
         weight = "weight*lowEMHT" if lowEmht else "weight*!lowEMHT"
@@ -712,10 +713,13 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
     if "validation" in name: return
     #~ dataCardName = "dataCards/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
     #~ dataCardName = "dataCards_newNui/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
-    dataCardName = "dataCards_final/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
+    #~ dataCardName = "dataCards_final/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
+    dataCardName = "dataCards_finalPre/{}_{}.txt".format(name.replace("_lowEMHT", "").replace("_highEMHT",""), dirDir)
     if lowEmht: dc = limitTools.MyDatacard()
     else: dc = limitTools.MyDatacard(dataCardName)
+    print dirHist.GetNbinsX()
     for bin in range(dirHist.GetNbinsX()-2, dirHist.GetNbinsX()+1):
+        print "in"
         binName = "bin{}_{}".format(name.split("_")[1],bin)
         bw = dirHist.GetBinWidth(bin) if style.divideByBinWidth else 1
         dc.addBin(binName, int(round(dirHist.GetBinContent(bin)*bw)),
@@ -771,6 +775,7 @@ def finalDistributionSignalHist(name, lowEmht, dirSet, dirDir, preSet=None):
                     "tg": 1.004},
                 "ISR": {"signal": 1.001},
                 "GenMet": {"signal": 1.001},
+                "Prefiring": {"signal": 1.01},
             })
     dc.write(dataCardName, True)
 
@@ -780,11 +785,11 @@ if __name__ == "__main__":
     gqcd_highestHT.label = "(#gamma)+jet"
 
     #~ selections = ["original", "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned","stlep_cleaned"]
-    #selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
+    #~ selections = ["original"] #, "all_cleaned", "di_cleaned", "lep_cleaned", "dilep_cleaned", "st_cleaned"]
     #~ selections = ["all_cleaned", "dilep_cleaned"]
-    #~ selections = ["original","st_cleaned"]
-    #~ selections = ["dilep_cleaned"]
-    selections = ["dilep_vetoedEvents"]
+    selections = ["original","lep_cleaned","dilep_cleaned"]
+    #~ selections = ["lep_cleaned"]
+    #~ selections = ["dilep_vetoedEvents"]
 
 
     for selection in selections:
@@ -794,7 +799,7 @@ if __name__ == "__main__":
         #~ finalDistributionSignalHist("electronClosure", False, ewk_highestHT, selection)
         #~ finalDistributionSignalHist("ee", True, data, "original_ee", dataHt)
         #~ finalDistributionSignalHist("ee", False, data, "original_ee", dataHt)
-        #~ finalDistributionSignalHist("final", True, data, selection, dataHt)
+        finalDistributionSignalHist("final", True, data, selection, dataHt)
         finalDistributionSignalHist("final", False, data, selection, dataHt)
         
         #~ finalDistributionSignalHist("validation_final", False, data, selection, dataHt)
