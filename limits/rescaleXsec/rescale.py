@@ -62,7 +62,7 @@ def Scan_NeutralinoBrHTG(selection):
 			ratio=newXsec/oldXsec
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal":
+			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal" or selection=="DILEPcleanedHighHtgFinalPre":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -127,13 +127,15 @@ def Scan_NeutralinoBrLepton(selection):
 #~ selection="inclusiveNN"
 #~ selection="inclusiveFinal"
 #~ selection="exclusiveHighHtgNN"
-selection="exclusiveHighHtgFinal"
+#~ selection="exclusiveHighHtgFinal"
 #~ selection="originalNN"
 #~ selection="originalFinal"
+#~ selection="originalFinalPre"
 #~ selection="DILEPcleanedHighHtgNN"
 #~ selection="DILEPcleanedHighHtgFinal"
+selection="DILEPcleanedHighHtgFinalPre"
 
-Scan_NeutralinoBr(selection)
-#~ Scan_NeutralinoBrHTG(selection)
+#~ Scan_NeutralinoBr(selection)
+Scan_NeutralinoBrHTG(selection)
 #~ Scan_NeutralinoBrDiphoton(selection)
 #~ Scan_NeutralinoBrLepton(selection)

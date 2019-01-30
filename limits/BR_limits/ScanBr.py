@@ -407,7 +407,7 @@ def Scan_NeutralinoBr_HTG():
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal":
+			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal" or selection=="DILEPcleanedHighHtgFinalPre":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -551,7 +551,7 @@ def Scan_CharginoBr_HTG():
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal":
+			if selection=="highHTG" or selection=="DILEPcleanedHighHtgNN" or selection=="DILEPcleanedHighHtgFinal" or selection=="DILEPcleanedHighHtgFinalPre":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:
@@ -700,7 +700,7 @@ def Scan_CharginoBr_strong_HTG(gluino_mass,neutralino_mass):
 			x_BR = x_BR/100.
 			
 			bins = ["binlowEMHT_24","binlowEMHT_25","binlowEMHT_26","binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
-			if selection=="highHTG" or selection=="LEPcleanedHighHtgNN" or selection=="LEPcleanedHighHtgFinal":
+			if selection=="highHTG" or selection=="LEPcleanedHighHtgNN" or selection=="LEPcleanedHighHtgFinal" or selection=="LEPcleanedHighHtgFinalPre":
 				bins = ["binhighEMHT_24","binhighEMHT_25","binhighEMHT_26"]
 			
 			for nBin in bins:

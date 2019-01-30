@@ -299,7 +299,7 @@ class sms():
         # model name
         self.modelname = "CharginoBRstrong"
         # decay chain
-        self.label= "pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}"+" #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft/"+"W^{#pm}+#tilde{G}, "+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}"
+        self.label= "pp #rightarrow #tilde{g}#tilde{g}, "+"#tilde{g} #rightarrow q#bar{q}+"+"#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} (#gamma#tilde{G}) / "+"q#bar{q}+#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} (W^{#pm}#tilde{G})"
         self.label2= "";
         # plot boundary. The top 1/4 of the y axis is taken by the legend
         self.Xmin = 0.
@@ -309,8 +309,8 @@ class sms():
         self.Zmin = 0.000001
         self.Zmax = 10.
         # produce sparticle
-        self.sParticle = "BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}(#gamma#tilde{G}) + soft) (%)";
+        self.sParticle = "BF(#lower[-0.12]{#tilde{g}} #rightarrow q#bar{q}#lower[-0.12]{#tilde{#chi}}#scale[0.85]{^{#pm}}) (%)";
         # LSP
-        self.LSP = "m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV)"
+        self.LSP = "m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)"
         # turn off diagonal lines
         self.diagOn = False

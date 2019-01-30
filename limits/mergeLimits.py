@@ -26,13 +26,13 @@ def getMasses(point):
 	elif sScan.find("CharginoBRstrongN")!=-1 : pattern="datacard_CharginoBRstrongN(.*)_(.*)_(.*)"
 	elif sScan.find("CharginoBRstrongG")!=-1 : pattern="datacard_CharginoBRstrongG(.*)_(.*)_(.*)"
 	if sScan=="T5Wg" and selection=="lepton" and selection!="lepton_final": pattern="counting_t5Wg_(.*)_(.*)"
-	if sScan=="T5Wg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="T5Wg_thirds" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="T6gg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="T5gg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="T6Wg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="GGM_M1_M2" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
-	if sScan=="GGM_M1_M3" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal") : pattern="(.*)_(.*)"
+	if sScan=="T5Wg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="T5Wg_thirds" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="T6gg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="T5gg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="T6Wg" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="GGM_M1_M2" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
+	if sScan=="GGM_M1_M3" and (selection=="htg" or selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") : pattern="(.*)_(.*)"
 	if sScan=="GGM_M1_M3" and selection=="lepton" : pattern="counting_GMSB_(.*)_(.*)"
 	#~ if sScan=="GGM_M1_M3" and selection=="diphoton_final" : pattern="counting_GGM_(.*)_(.*)"
 	m=re.search(pattern,point)
@@ -210,8 +210,8 @@ def mergeLimits():
 			key=m2
 		#~ if sScan=="CharginoBR" or sScan=="CharginoBR_C1C1":
 			#~ m1=100-m1
-		#~ if strongBR:
-			#~ m2=100-m2
+		if strongBR:
+			m2=100-m2
 		xs=xsec[key]
 		datacard="input/"+sScan+"_"+selection+"/"+point+".txt"
 		rLimits=translateCombineOutput(readInOutput(datacard,sScan,selection))
@@ -279,7 +279,7 @@ def getContour(gr2,lvl=""):
 	c.Update()
 	cont=gr2.GetContourList(1.)
 	print cont
-	if sScan=="GGM_M1_M2" and lvl=="exp" or (sScan=="GGM_M1_M2" and selection=="allCombined_final") or (sScan=="CharginoBR_C1C1" and (selection=="htgNN" or selection=="htgFinal") and lvl=="exp" and cont):
+	if sScan=="GGM_M1_M2" and lvl=="exp" or (sScan=="GGM_M1_M2" and selection=="allCombined_final") or (sScan=="CharginoBR_C1C1" and (selection=="htgNN" or selection=="htgFinal" or selection=="htgFinalPre") and lvl=="exp" and cont):
 		i=1
 		for ci in cont:
 			if selection=="allCombined_final" and lvl.find("2")==-1:

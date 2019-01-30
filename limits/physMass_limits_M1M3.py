@@ -22,7 +22,6 @@ def toPhysMass(hs,cont):
 			data = pyslha.readSLHAFile("input/SLHA_M1_M3/out_M1_%i_M3_%i.slha"%(m1,m3))
 			massblock = data.blocks["MASS"]
 			if hs.GetBinContent(i,j)!=0:
-				print m1,m3
 				graph.SetPoint(k,massblock[1000022],massblock[1000021],hs.GetBinContent(i,j))
 				quant.Fill(massblock[1000022],massblock[1000021])
 				k+=1
@@ -164,6 +163,7 @@ def smoothContour_knut(gr, neighbors=5, sigma=0.5):
 ###########Testing#########
 ###########################
 
+"""
 #~ for cont in ["h_obs","h_exp","h_exp+1","h_exp-1","h_exp+2","h_exp-2"]:
 #~ for analysis in ["inclusiv","htg","lepton","diphoton","allCombined_FullST"]:
 #~ for analysis in ["inclusivNN","htgNN","lepton","diphoton","allCombined_highHtgNN"]:
@@ -207,4 +207,39 @@ for analysis in ["inclusivFinal","htgFinal","lepton_final","diphoton_final","all
 		cont_sm.Write("cont_sm",rt.TObject.kOverwrite)
 
 	f.Close()
+"""
 
+# Uncertainty bands for combined
+for analysis in ["allCombined_final"]:
+	print analysis
+	for cont in ["h_exp+1","h_exp-1","h_obs+1","h_obs-1"]:
+		print cont
+		f=rt.TFile("output/limits_GGM_M1_M3_"+analysis+".root","read")
+		hist=f.Get(cont)
+		gr=toPhysMass(hist,cont)
+		f.Close()
+
+		#~ f=rt.TFile("output/physmass_GGM_M1_M3.root","update")
+		#~ f=rt.TFile("output/physmass_GGM_M1_M3_NN.root","update")
+		f=rt.TFile("output/physmass_GGM_M1_M3_final.root","update")
+		f.mkdir(analysis)
+		f.cd(analysis)
+		
+		x="M_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
+		y="m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV)"
+		hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",30,30,750,100,2350,5300)
+		hsInter.GetYaxis().SetTitleOffset(1.3)
+		for i in range(1,hsInter.GetXaxis().GetNbins()+1):
+			for j in range(1,hsInter.GetYaxis().GetNbins()+1):
+				hsInter.SetBinContent(i,j,gr.Interpolate(hsInter.GetXaxis().GetBinCenter(i),hsInter.GetYaxis().GetBinCenter(j)))
+				if (hsInter.GetXaxis().GetBinCenter(i)>hsInter.GetYaxis().GetBinCenter(j)):
+					hsInter.SetBinContent(i,j,0)
+
+		hsInter.Write("hist_Inter_"+cont,rt.TObject.kOverwrite)
+	    
+		contour=getContourHS(hsInter)
+		cont_sm=smoothContour_knut(contour)
+		
+		cont_sm.Write("cont_"+cont+"_sm",rt.TObject.kOverwrite)
+	    
+		f.Close()
