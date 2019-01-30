@@ -218,7 +218,7 @@ void plot(TString sSelection,TString sVar,int iRebin,
 {
    bool const showData=(plotMode!=SR_BLIND && plotMode!=PRE);
    bool showSignal=(plotMode!=CR && plotMode!=VR);
-   if (sSelection.Contains("vetoedFinal")) showSignal=false;
+   if (sSelection.Contains("vetoedFinal") || sSelection.Contains("exclusiv_highHTG")) showSignal=false;
    io::RootFileReader histReader(TString::Format("histograms_%s.root",cfg.treeVersion.Data()),TString::Format("danilo_distributions%.1f",cfg.processFraction*100));
 
    TString saveName=sSelection+sVar;

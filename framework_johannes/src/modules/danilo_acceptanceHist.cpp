@@ -178,12 +178,15 @@ void run()
       
       hist_diff->Draw("colz");
       can.RedrawAxis();
-      saver.save(can,"Prefire/T5Wg_diffPrefire_"+selection,true,true);
-      //~ saver.save(can,"Prefire/T5Wg_diffPrefire2016_"+selection,true,true);
+      //~ saver.save(can,"Prefire/T5Wg_diffPrefire_"+selection,true,true);
+      saver.save(can,"Prefire/T5Wg_diffPrefire2016_"+selection,true,true);
       can.Clear();
       
-      //Compare two 2D acceptance histograms (GGM)
-      selection = "inclusiv";
+      //////////////////////////////////////////////
+      //Compare two 2D acceptance histograms (GGM)//
+      //////////////////////////////////////////////
+      //~ selection = "inclusiv";
+      selection = "exclusiv_highHTG";
       TFile file5("../output/signal_scan_"+selection+"_v03D.root","read");
       
       TGraph2D *graph7 = (TGraph2D*) file5.Get("GGM_M1_M2/pre_ph165/c_MET300/MT300/STg/GGM_M1_M2_acceptance");
@@ -220,7 +223,9 @@ void run()
       saver.save(can,"Prefire/GGM_M1_M2_diffPrefire2016_"+selection,true,true);
       can.Clear();
       
-      //Compare two 1D acceptance histograms
+      ////////////////////////////////////////
+      //Compare two 1D acceptance histograms//
+      ////////////////////////////////////////
       selection = "inclusiv";
       //~ TString selection = "exclusiv_highHTG";
       TFile file4("../output/signal_scan_"+selection+"_v03D.root","read");
@@ -254,16 +259,6 @@ void run()
       hist_diff1d->SetBit(TH1::kNoTitle);
       hist_diff1d->GetXaxis()->SetTitle("m_{NLSP} (GeV)");
       hist_diff1d->GetYaxis()->SetTitle("relative efficience difference (%)");
-      //~ hist_diff1d->GetYaxis()->SetTitleOffset(1.3);
-      //~ hist_diff1d->GetXaxis()->SetTitleOffset(0.9);
-      //~ hist_diff1d->GetZaxis()->SetTitleOffset(1.3);
-      //~ hist_diff1d->GetYaxis()->SetTitleSize(0.05);
-      //~ hist_diff1d->GetXaxis()->SetTitleSize(0.05);
-      //~ hist_diff1d->GetZaxis()->SetTitleSize(0.05);
-      //~ hist_diff1d->GetYaxis()->SetLabelSize(0.04);
-      //~ hist_diff1d->GetXaxis()->SetLabelSize(0.04);
-      //~ hist_diff1d->GetZaxis()->SetLabelSize(0.04);
-      //~ hist_diff1d->GetZaxis()->SetLabelOffset(0.02);
       hist_diff1d->SetStats(false);
       
       std::cout<<hist4->GetBinContent(3)<<std::endl;

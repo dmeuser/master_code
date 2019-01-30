@@ -15,11 +15,14 @@
 extern "C"
 void run()
 {
-      for (TString scan :{"M1_M2","M1_M3"}){
+      for (TString scan :{"M1_M2","M1_M3","T5Wg"}){
             io::RootFileSaver saver("plots.root","danilo_plotSig");
             TCanvas can;
             
             TString fileLoc="../input/limits/Significance/significance_GGM_"+scan+"_allCombined_final.root";
+            if (scan=="T5Wg"){
+				fileLoc="../input/limits/Significance/significance_"+scan+"_ST_HTG_lepton_final.root";
+			}
 
             TFile file3(fileLoc,"read");
 
@@ -32,6 +35,9 @@ void run()
 			hist->GetXaxis()->SetTitle("#it{M}_{1} (GeV)");
 			hist->GetYaxis()->SetTitle("#it{M}_{2} (GeV)");
 			if (scan=="M1_M3") hist->GetYaxis()->SetTitle("#it{M}_{3} (GeV)");
+			else if (scan=="T5Wg"){
+				hist->SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+			}
 
 			hist->GetZaxis()->SetTitle("Observed significance");
 
@@ -49,6 +55,10 @@ void run()
 			if (scan=="M1_M3") {
 				hist->SetAxisRange(50,1500,"X");
 				hist->SetAxisRange(1000,2500,"Y");
+			}
+			else if (scan=="T5Wg") {
+				hist->SetAxisRange(1400,2100,"X");
+				hist->SetAxisRange(0,2400,"Y");
 			}
 			hist->SetStats(false);
 			hist->Draw("colz");
