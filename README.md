@@ -10,3 +10,5 @@
 - "prospino2" : Prospino framework used for GGM cross section calculation
 - "susyhit" : Tool to derive sparticle decay BFs
 
+The final version of datacards and limits is usually called "FinalPre" which includes the prefiring additions added during the ARC review
+
