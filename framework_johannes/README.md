@@ -11,7 +11,7 @@
 
 On lx-cluster:
 
-- use `CMSSW_7_4_X`
+- use `CMSSW_8_0_26_patch1`
 - use `cmake28` instead of `cmake`
 
 ## Run ##
