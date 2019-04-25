@@ -33,7 +33,7 @@ void run()
                   TFile file("../output/signal_scan_"+selection+"_v03D.root","read");
                   
                   std::vector<TString> sVar = {"acceptance"};
-                  if (scan == "GGM_M1_M2" && selection=="inclusiv") {
+                  if (scan == "GGM_M1_M2" && selection=="inclusiv"){
                         sVar.push_back("nEvents");
                         sVar.push_back("nEventsBin3");
                         sVar.push_back("nEventsBin4");

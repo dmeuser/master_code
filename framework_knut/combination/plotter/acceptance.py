@@ -24,7 +24,6 @@ def diffPrefire(scanName,dset,fullRange):
 	
 	for d in dirs:
 		mass = d.split("_")
-		#~ graphAcc.SetPoint(graphAcc.GetN(), int(mass[0]), int(mass[1]), getAcceptance(scanName+"_prefire2016",d))
 		if (getAcceptance(scanName,d,fullRange)!=0):
 			graphAcc.SetPoint(graphAcc.GetN(), int(mass[0]), int(mass[1]), (getAcceptance(scanName,d,fullRange)-getAcceptance(scanName+"_prefire2016",d,fullRange))*100/(getAcceptance(scanName,d,fullRange)))
 			if ((getAcceptance(scanName,d,fullRange)-getAcceptance(scanName+"_prefire2016",d,fullRange))*100/(getAcceptance(scanName,d,fullRange)))>1.7 :
@@ -35,8 +34,8 @@ def diffPrefire(scanName,dset,fullRange):
 	
 	graphAcc.SetTitle("")
 	style.style2d()
-	#~ histAcc = graphAcc.GetHistogram("old");
-	histAcc = graphAcc.GetHistogram();
+	histAcc = graphAcc.GetHistogram("old");
+	#~ histAcc = graphAcc.GetHistogram();
 	c = ROOT.TCanvas("","",600,500)
 	
 	if dset==ggm1:
@@ -45,6 +44,7 @@ def diffPrefire(scanName,dset,fullRange):
 	else:
 		histAcc.GetXaxis().SetTitle("m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV)");
 		histAcc.GetYaxis().SetTitle("m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+		histAcc.GetXaxis().SetRangeUser(1400,2100)
 	histAcc.GetZaxis().SetTitle("relative efficience difference (%)");
 	histAcc.SetStats(False);
 	histAcc.Draw("colz")

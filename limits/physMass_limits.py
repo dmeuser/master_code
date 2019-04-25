@@ -33,6 +33,7 @@ def toPhysMass(hs,cont):
 					print massblock[1000022],m1,m2
 					double.SetPoint(l,massblock[1000022],hs.GetBinContent(i,j))
 					l+=1
+	"""
 	f=rt.TFile("test/physmass.root","update")
 	if (f.cd(cont)!=1):
 		f.mkdir(cont)
@@ -48,6 +49,7 @@ def toPhysMass(hs,cont):
 	quant.Draw("colz")
 	#~ c3.Write("quant",rt.TObject.kOverwrite)
 	f.Close()
+	"""
 	return graph
 
 
@@ -172,10 +174,12 @@ def smoothContour_knut(gr, neighbors=5, sigma=0.5):
 #~ for analysis in ["inclusivNN","htgNN","lepton","diphoton","allCombined_highHtgNN"]:
 #~ for analysis in ["inclusivFinal","htgFinal","lepton_final","diphoton_final","allCombined_final"]:
 #~ for analysis in ["inclusivFinal","htgFinalPre","lepton_final","diphoton_final","allCombined_finalPre"]:
-for analysis in ["htgFinalPre",]:
+for analysis in ["allCombined_finalPre",]:
 	print analysis
 	#~ cont="h_exp"
-	cont="h_obs"
+	#~ cont="h_obs"
+	cont="h_exp_xs"
+	#~ cont="h_obs_xs"
 	f=rt.TFile("output/limits_GGM_M1_M2_"+analysis+".root","read")
 	hist=f.Get(cont)
 	gr=toPhysMass(hist,cont)
@@ -185,13 +189,15 @@ for analysis in ["htgFinalPre",]:
 	#~ f=rt.TFile("output/physmass_GGM_M1_M2_NN.root","update")
 	#~ f=rt.TFile("output/physmass_GGM_M1_M2_final.root","update")
 	f=rt.TFile("output/physmass_GGM_M1_M2_finalPre.root","update")
-	f.mkdir(analysis)
+	if (f.cd(analysis)!=1):
+		f.mkdir(analysis)
 	f.cd(analysis)
 	
 	x="m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
 	y="m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}} (GeV)"
 	#~ hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",100,100,725,100,135,1240)
-	hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",50,50,725,100,135,1240)
+	#~ hsInter=rt.TH2F("",";"+x+";"+y+";signal strength",50,50,725,100,135,1240)
+	hsInter=rt.TH2F("",";"+x+";"+y+";",50,50,725,100,135,1240)
 	hsInter.GetYaxis().SetTitleOffset(1.3)
 	for i in range(1,hsInter.GetXaxis().GetNbins()+1):
 		for j in range(1,hsInter.GetYaxis().GetNbins()+1):
@@ -201,6 +207,12 @@ for analysis in ["htgFinalPre",]:
 
 	if cont=="h_obs":
 		hsInter.Write("hist_Inter_obs",rt.TObject.kOverwrite)
+	elif cont=="h_obs_xs":
+		hsInter.Write("hist_Inter_obs_xs",rt.TObject.kOverwrite)
+		continue
+	elif cont=="h_exp_xs":
+		hsInter.Write("hist_Inter_exp_xs",rt.TObject.kOverwrite)
+		continue
 	else:
 		hsInter.Write("hist_Inter",rt.TObject.kOverwrite)
     

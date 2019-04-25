@@ -131,7 +131,7 @@ int plot_exclusive(){
 	htgVeto_exp->SetLineStyle(2);
 	htgVeto_exp->Draw("same");
 	
-	diphotonVeto_exp->SetLineColor(kMagenta);
+	diphotonVeto_exp->SetLineColor(kViolet);
 	diphotonVeto_exp->SetLineWidth(3);
 	diphotonVeto_exp->SetLineStyle(2);
 	diphotonVeto_exp->Draw("same");
@@ -199,7 +199,7 @@ int plot_TChiNg_BR(){
 	htgVeto_exp->SetLineStyle(2);
 	htgVeto_exp->Draw("same");
 	
-	diphotonVeto_exp->SetLineColor(kMagenta);
+	diphotonVeto_exp->SetLineColor(kViolet);
 	diphotonVeto_exp->SetLineWidth(3);
 	diphotonVeto_exp->SetLineStyle(2);
 	diphotonVeto_exp->Draw("same");
@@ -256,7 +256,7 @@ int plot_htgVeto_FullKnut(){
 	combined_exp->SetLineStyle(2);
 	combined_exp->Draw("same");
 	
-	combined_split_exp->SetLineColor(kMagenta);
+	combined_split_exp->SetLineColor(kViolet);
 	combined_split_exp->SetLineWidth(3);
 	combined_split_exp->SetLineStyle(2);
 	combined_split_exp->Draw("same");
@@ -343,7 +343,7 @@ int plot_CharginoBR(){
 	
 	lepton_exp->SetTitle(";BR(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow W^{#pm}#tilde{G}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	
-	lepton_exp->SetLineColor(kMagenta);
+	lepton_exp->SetLineColor(kViolet);
 	lepton_exp->SetLineWidth(3);
 	lepton_exp->SetLineStyle(2);
 	lepton_exp->Draw();
@@ -391,25 +391,22 @@ int plot_CharginoBR_C1C1(){
 	io::RootFileSaver saver("plots.root",TString::Format("danilo_plot_combined%.1f/%s",cfg.processFraction*100,"Limits"));
 	TCanvas can;
 	
-	//~ TFile file_1("../input/limits/limits_CharginoBR_C1C1_inclusivNN.root","read");
-	//~ TFile file_2("../input/limits/limits_CharginoBR_C1C1_lepton.root","read");
 	TFile file_1("../input/limits/limits_CharginoBR_C1C1_inclusivFinal.root","read");
 	TFile file_2("../input/limits/limits_CharginoBR_C1C1_lepton_final.root","read");
-	//~ TFile file_3("../input/limits/limits_CharginoBR_C1C1_allCombined_htgHighNN.root","read");
-	TFile file_3("../input/limits/limits_CharginoBR_C1C1_allCombined_final.root","read");
-	//~ TFile file_4("../input/limits/limits_CharginoBR_C1C1_htgNN.root","read");
-	TFile file_4("../input/limits/limits_CharginoBR_C1C1_htgFinal.root","read");
-	//~ TFile file_5("../input/limits/limits_CharginoBR_C1C1_diphoton.root","read");
+	//~ TFile file_3("../input/limits/limits_CharginoBR_C1C1_allCombined_final.root","read");
+	TFile file_3("../input/limits/limits_CharginoBR_C1C1_allCombined_finalPre.root","read");
+	//~ TFile file_4("../input/limits/limits_CharginoBR_C1C1_htgFinal.root","read");
+	TFile file_4("../input/limits/limits_CharginoBR_C1C1_htgFinalPre.root","read");
 	TFile file_5("../input/limits/limits_CharginoBR_C1C1_diphoton_final.root","read");
 	
 	TGraph *inclusiv_exp = (TGraph*) file_1.Get("gr_expC_sm");
 	TGraph *lepton_exp = (TGraph*) file_2.Get("gr_expC_sm");
-	TGraph *st_lepton_exp = (TGraph*) file_3.Get("gr_expC_sm");
+	TGraph *combined_exp = (TGraph*) file_3.Get("gr_expC_sm");
 	TGraph *htg_exp = (TGraph*) file_4.Get("multicont_gr_2_sm");
 	TGraph *diphoton_exp = (TGraph*) file_5.Get("gr_expC_sm");
 	TGraph *inclusiv_obs = (TGraph*) file_1.Get("gr_obsC_sm");
 	TGraph *lepton_obs = (TGraph*) file_2.Get("gr_obsC_sm");
-	TGraph *st_lepton_obs = (TGraph*) file_3.Get("gr_obsC_sm");
+	TGraph *combined_obs = (TGraph*) file_3.Get("gr_obsC_sm");
 	TGraph *htg_obs = (TGraph*) file_4.Get("gr_obsC_sm");
 	TGraph *diphoton_obs = (TGraph*) file_5.Get("gr_obsC_sm");
 	TGraph *combined_exp_p1 = (TGraph*) file_3.Get("gr_exp+1C_sm");
@@ -417,8 +414,32 @@ int plot_CharginoBR_C1C1(){
 	TGraph *combined_obs_p1 = (TGraph*) file_3.Get("gr_obs+1C_sm");
 	TGraph *combined_obs_m1 = (TGraph*) file_3.Get("gr_obs-1C_sm");
 	
-	TH2F axis("","",26,0,100,26,300,1300);
-	axis.SetTitle(";BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}(#gamma#tilde{G}) + soft) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_005-b.root","update");
+	combined_exp->Write("combination_exp",TObject::kOverwrite);
+	combined_obs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	inclusiv_exp->Write("st_exp",TObject::kOverwrite);
+	inclusiv_obs->Write("st_obs",TObject::kOverwrite);
+	lepton_exp->Write("lepton_exp",TObject::kOverwrite);
+	lepton_obs->Write("lepton_obs",TObject::kOverwrite);
+	diphoton_exp->Write("diphoton_exp",TObject::kOverwrite);
+	diphoton_obs->Write("diphoton_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_3.Get("h_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_3.Get("h_obs_xs");
+	for(int i=0;i<=combi_hist_obs->GetNbinsY();i++){
+		combi_hist_obs->SetBinContent(1,i,0);
+	}
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
+	
+	TH2F axis("","",26,0,100,26,300,1600);
+	axis.SetTitle(";#it{B}(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}(#gamma#tilde{G}) + soft) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
 	
@@ -454,11 +475,11 @@ int plot_CharginoBR_C1C1(){
 	combined_obs_unc->Draw("F same");
 	
 	//Limit contours	
-	lepton_exp->SetLineColor(kMagenta);
+	lepton_exp->SetLineColor(kViolet);
 	lepton_exp->SetLineWidth(2);
 	lepton_exp->SetLineStyle(2);
 	lepton_exp->Draw("same");
-	lepton_obs->SetLineColor(kMagenta);
+	lepton_obs->SetLineColor(kViolet);
 	lepton_obs->SetLineWidth(2);
 	lepton_obs->SetLineStyle(1);
 	lepton_obs->Draw("same");
@@ -472,14 +493,14 @@ int plot_CharginoBR_C1C1(){
 	inclusiv_obs->SetLineStyle(1);
 	inclusiv_obs->Draw("same");
 	
-	st_lepton_exp->SetLineColor(kBlue);
-	st_lepton_exp->SetLineWidth(2);
-	st_lepton_exp->SetLineStyle(2);
-	st_lepton_exp->Draw("same");
-	st_lepton_obs->SetLineColor(kBlue);
-	st_lepton_obs->SetLineWidth(2);
-	st_lepton_obs->SetLineStyle(1);
-	st_lepton_obs->Draw("same");
+	combined_exp->SetLineColor(kBlue);
+	combined_exp->SetLineWidth(2);
+	combined_exp->SetLineStyle(2);
+	combined_exp->Draw("same");
+	combined_obs->SetLineColor(kBlue);
+	combined_obs->SetLineWidth(2);
+	combined_obs->SetLineStyle(1);
+	combined_obs->Draw("same");
 	
 	//~ htg_exp->SetLineColor(kRed+1);
 	//~ htg_exp->SetLineWidth(2);
@@ -516,12 +537,25 @@ int plot_CharginoBR_C1C1(){
 	//~ legE.append(*htg_obs,"Photon+H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}","l");
 	legE.append(*lepton_obs,"Photon+Lepton","l");
 	legE.append(*diphoton_obs,"Diphoton","l");
-	//~ legE.append(*st_lepton_obs,"Combination","l");
+	//~ legE.append(*combined_obs,"Combination","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.2,.7,0.7,.9,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+   leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+
+   TLatex label=gfx::cornerLabel("pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft/W^{#pm}+#tilde{G}, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}",1);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_combi_CharginoBR_C1C1",true,false);
 	
@@ -565,7 +599,7 @@ int plot_leptonVeto_FullLepton_corrCheck(){
 	Vg->SetLineStyle(2);
 	Vg->Draw("same");
 	
-	Efake->SetLineColor(kMagenta);
+	Efake->SetLineColor(kViolet);
 	Efake->SetLineWidth(3);
 	Efake->SetLineStyle(2);
 	Efake->Draw("same");
@@ -602,8 +636,10 @@ int plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh(){
 	//~ TFile file_4("../input/limits/limits_T5Wg_htgHighLeptonVetoNN_leptonFull_htgHighNN.root","read");
 	TFile file_1("../input/limits/limits_T5Wg_inclusivFinal.root","read");
 	TFile file_2("../input/limits/limits_T5Wg_lepton_final.root","read");
-	TFile file_3("../input/limits/limits_T5Wg_htgFinal.root","read");
-	TFile file_4("../input/limits/limits_T5Wg_ST_HTG_lepton_final.root","read");
+	//~ TFile file_3("../input/limits/limits_T5Wg_htgFinal.root","read");
+	TFile file_3("../input/limits/limits_T5Wg_htgFinalPre.root","read");
+	//~ TFile file_4("../input/limits/limits_T5Wg_ST_HTG_lepton_final.root","read");
+	TFile file_4("../input/limits/limits_T5Wg_ST_HTG_lepton_finalPre.root","read");
 	
 	TGraph *st_exp = (TGraph*) file_1.Get("gr_expC_sm");
 	TGraph *lepton_exp = (TGraph*) file_2.Get("gr_expC_sm");
@@ -619,17 +655,49 @@ int plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh(){
 	TGraph *combined_obs_m1 = (TGraph*) file_4.Get("gr_obs-1C_sm");
 	TGraph *diag = new TGraph();
 	
-	diag->SetPoint(1,500,490);
-	diag->SetPoint(2,2500,2490);
+	diag->SetPoint(1,500,480);
+	diag->SetPoint(2,2500,2480);
 	
-	TH2F axis("","",27,1400,2200,27,0,2400);
+	//Write to root file for webpage
+	double x,y;
+	std::vector<TGraph*> Graphs = {combined_exp,combined_obs,combined_exp_p1,combined_exp_m1,combined_obs_p1,combined_obs_m1,st_exp,st_obs,htg_exp,htg_obs,lepton_exp,lepton_obs};
+	for(auto const& temp:Graphs){
+		for(int i=0; i<temp->GetN(); i++){
+			temp->GetPoint(i,x,y);
+			if(abs(x-y)<20){
+				temp->RemovePoint(i);
+				i--;
+			}
+		}
+	}
+	
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_006-a.root","update");
+	combined_exp->Write("combination_exp",TObject::kOverwrite);
+	combined_obs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	st_exp->Write("st_exp",TObject::kOverwrite);
+	st_obs->Write("st_obs",TObject::kOverwrite);
+	htg_exp->Write("htg_exp",TObject::kOverwrite);
+	htg_obs->Write("htg_obs",TObject::kOverwrite);
+	lepton_exp->Write("lepton_exp",TObject::kOverwrite);
+	lepton_obs->Write("lepton_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_4.Get("h_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_4.Get("h_obs_xs");
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
+	
+	TH2F axis("","",27,1400,2200,27,0,2900);
 	axis.SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
 	
 	//Uncertainty bands
 	TGraph *combined_exp_unc = new TGraph();
-	double x,y;
 	for(int i=0; i<combined_exp_p1->GetN();i++){
 		combined_exp_p1->GetPoint(i,x,y);
 		combined_exp_unc->SetPoint(i,x,y);
@@ -667,28 +735,28 @@ int plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh(){
 	st_obs->SetLineStyle(1);
 	st_obs->Draw("same");
 	
-	int points = lepton_exp->GetN();
-	int diff = points-lepton_obs->GetN();
-	for (int i=points; i>=points-5; i--) {
-		lepton_exp->RemovePoint(i);
-		lepton_obs->RemovePoint(i-diff);
-	}
+	//~ int points = lepton_exp->GetN();
+	//~ int diff = points-lepton_obs->GetN();
+	//~ for (int i=points; i>=points-5; i--) {
+		//~ lepton_exp->RemovePoint(i);
+		//~ lepton_obs->RemovePoint(i-diff);
+	//~ }
 	
-	lepton_exp->SetLineColor(kMagenta);
+	lepton_exp->SetLineColor(kViolet);
 	lepton_exp->SetLineWidth(2);
 	lepton_exp->SetLineStyle(2);
 	lepton_exp->Draw("same");
-	lepton_obs->SetLineColor(kMagenta);
+	lepton_obs->SetLineColor(kViolet);
 	lepton_obs->SetLineWidth(2);
 	lepton_obs->SetLineStyle(1);
 	lepton_obs->Draw("same");
 	
-	points = htg_exp->GetN();
-	diff = points-htg_obs->GetN();
-	for (int i=points; i>=points-5; i--) {
-		htg_exp->RemovePoint(i);
-		htg_obs->RemovePoint(i-diff);
-	}
+	//~ points = htg_exp->GetN();
+	//~ diff = points-htg_obs->GetN();
+	//~ for (int i=points; i>=points-5; i--) {
+		//~ htg_exp->RemovePoint(i);
+		//~ htg_obs->RemovePoint(i-diff);
+	//~ }
 	
 	htg_exp->SetLineColor(kRed+1);
 	htg_exp->SetLineWidth(2);
@@ -731,9 +799,22 @@ int plot_T5Wg_htgHighLeptonVeto_leptonFull_htgHigh(){
 	//~ legE.append(*combined_obs,"Combination","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.18,.74,.68,.94,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+   leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+
+   TLatex label=gfx::cornerLabel("pp #rightarrow #tilde{g}#tilde{g}, #tilde{g} #rightarrow qq#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma/W^{#pm}#tilde{G}",1);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_T5Wg_combine_ST_Lepton_HTG",true,false);
 	
@@ -1061,7 +1142,7 @@ int plot_T6gg_diffCombi(){
 	
 	stVeto_exp->SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{q}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	
-	stVeto_exp->SetLineColor(kMagenta);
+	stVeto_exp->SetLineColor(kViolet);
 	stVeto_exp->SetLineWidth(3);
 	stVeto_exp->SetLineStyle(2);
 	stVeto_exp->Draw();
@@ -1195,7 +1276,7 @@ int plot_TChiNg_BR_diffcombi(){
 	combi_exp->SetLineStyle(2);
 	combi_exp->Draw("same");
 	
-	combi2_exp->SetLineColor(kMagenta);
+	combi2_exp->SetLineColor(kViolet);
 	combi2_exp->SetLineWidth(3);
 	combi2_exp->SetLineStyle(2);
 	combi2_exp->Draw("same");
@@ -1228,12 +1309,12 @@ int plot_TChiNg_BR_combi(){
 	//~ TFile file_2("../input/limits/limits_TChiNg_BR_htgNN.root","read");
 	//~ TFile file_3("../input/limits/limits_TChiNg_BR_lepton.root","read");
 	TFile file_1("../input/limits/limits_TChiNg_BR_inclusivFinal.root","read");
-	TFile file_2("../input/limits/limits_TChiNg_BR_htgFinal.root","read");
+	//~ TFile file_2("../input/limits/limits_TChiNg_BR_htgFinal.root","read");
+	TFile file_2("../input/limits/limits_TChiNg_BR_htgFinalPre.root","read");
 	TFile file_3("../input/limits/limits_TChiNg_BR_lepton_final.root","read");
-	//~ TFile file_4("../input/limits/limits_TChiNg_BR_diphoton.root","read");
 	TFile file_4("../input/limits/limits_TChiNg_BR_diphoton_final.root","read");
-	//~ TFile file_5("../input/limits/limits_TChiNg_BR_allCombined_highHtgNN.root","read");
-	TFile file_5("../input/limits/limits_TChiNg_BR_allCombined_final.root","read");
+	//~ TFile file_5("../input/limits/limits_TChiNg_BR_allCombined_final.root","read");
+	TFile file_5("../input/limits/limits_TChiNg_BR_allCombined_finalPre.root","read");
 	
 	TGraph *inclusiv_exp = (TGraph*) file_1.Get("gr_expC_sm");
 	TGraph *htg_exp = (TGraph*) file_2.Get("gr_expC_sm");
@@ -1250,8 +1331,38 @@ int plot_TChiNg_BR_combi(){
 	TGraph *combined_obs_p1 = (TGraph*) file_5.Get("gr_obs+1C_sm");
 	TGraph *combined_obs_m1 = (TGraph*) file_5.Get("gr_obs-1C_sm");
 	
-	TH2F axis("","",26,0,100,26,300,1300);
-	axis.SetTitle(";BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_005-a.root","update");
+	combi_exp->Write("combination_exp",TObject::kOverwrite);
+	combi_obs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	inclusiv_exp->Write("st_exp",TObject::kOverwrite);
+	inclusiv_obs->Write("st_obs",TObject::kOverwrite);
+	htg_exp->Write("htg_exp",TObject::kOverwrite);
+	htg_obs->Write("htg_obs",TObject::kOverwrite);
+	lepton_exp->Write("lepton_exp",TObject::kOverwrite);
+	lepton_obs->Write("lepton_obs",TObject::kOverwrite);
+	diphoton_exp->Write("diphoton_exp",TObject::kOverwrite);
+	diphoton_obs->Write("diphoton_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_5.Get("h_exp_xs_redone");
+	for(int i=0;i<=combi_hist->GetNbinsY();i++){
+		combi_hist->SetBinContent(1,i,0);
+	}
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_5.Get("h_obs_xs_redone");
+	for(int i=0;i<=combi_hist_obs->GetNbinsY();i++){
+		combi_hist_obs->SetBinContent(1,i,0);
+	}
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
+	fileOut.Close();
+	
+	TH2F axis("","",26,0,100,26,300,1600);
+	axis.SetTitle(";#it{B}(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
 	
@@ -1305,11 +1416,11 @@ int plot_TChiNg_BR_combi(){
 	htg_obs->SetLineStyle(1);
 	htg_obs->Draw("same");
 	
-	lepton_exp->SetLineColor(kMagenta);
+	lepton_exp->SetLineColor(kViolet);
 	lepton_exp->SetLineWidth(2);
 	lepton_exp->SetLineStyle(2);
 	lepton_exp->Draw("same");
-	lepton_obs->SetLineColor(kMagenta);
+	lepton_obs->SetLineColor(kViolet);
 	lepton_obs->SetLineWidth(2);
 	lepton_obs->SetLineStyle(1);
 	lepton_obs->Draw("same");
@@ -1352,9 +1463,22 @@ int plot_TChiNg_BR_combi(){
 	//~ legE.append(*combi_obs,"Combination","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.45,.15,.95,.35,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+   leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+   
+   TLatex label=gfx::cornerLabel("pp #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} /#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}+soft, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow (#gamma,Z)+#tilde{G}",1);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_TChiNg_BR_combi",true,false);
 	
@@ -1411,8 +1535,10 @@ int plot_CharginoBRstrongG1950(){
 	//~ TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgNN.root","read");
 	//~ TFile file_3("../input/limits/limits_CharginoBRstrongG1950_leptonHighHtgVetoNN_LEPcleanedHighHtgNN_leptonFull.root","read");
 	TFile file_1("../input/limits/limits_CharginoBRstrongG1950_inclusivFinal.root","read");
-	TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgFinal.root","read");
-	TFile file_3("../input/limits/limits_CharginoBRstrongG1950_ST_HTG_lepton_final.root","read");
+	//~ TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgFinal.root","read");
+	TFile file_2("../input/limits/limits_CharginoBRstrongG1950_htgFinalPre.root","read");
+	//~ TFile file_3("../input/limits/limits_CharginoBRstrongG1950_ST_HTG_lepton_final.root","read");
+	TFile file_3("../input/limits/limits_CharginoBRstrongG1950_ST_HTG_lepton_finalPre.root","read");
 	
 	TGraph *inclusiv_exp = (TGraph*) file_1.Get("gr_expC_sm");
 	TGraph *htg_exp = (TGraph*) file_2.Get("gr_expC_sm");
@@ -1425,8 +1551,30 @@ int plot_CharginoBRstrongG1950(){
 	TGraph *combined_obs_p1 = (TGraph*) file_3.Get("gr_obs+1C_sm");
 	TGraph *combined_obs_m1 = (TGraph*) file_3.Get("gr_obs-1C_sm");
 	
-	TH2F axis("","",100,0,100,100,0,1950);
-	axis.SetTitle(";BF(#lower[-0.12]{#tilde{g}} #rightarrow q#bar{q}#lower[-0.12]{#tilde{#chi}}#scale[0.85]{^{#pm}}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_006-b.root","update");
+	combi_exp->Write("combination_exp",TObject::kOverwrite);
+	combi_obs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	inclusiv_exp->Write("st_exp",TObject::kOverwrite);
+	inclusiv_obs->Write("st_obs",TObject::kOverwrite);
+	htg_exp->Write("htg_exp",TObject::kOverwrite);
+	htg_obs->Write("htg_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_3.Get("h_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_3.Get("h_obs_xs");
+	for(int i=0;i<=combi_hist_obs->GetNbinsY();i++){
+		combi_hist_obs->SetBinContent(combi_hist_obs->GetNbinsX(),i,0);
+	}
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
+	
+	TH2F axis("","",100,0,100,100,0,2580);
+	axis.SetTitle(";#it{B}(#lower[-0.12]{#tilde{g}} #rightarrow q#bar{q}#lower[-0.12]{#tilde{#chi}}#scale[0.85]{^{#pm}}) (%);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
 	
@@ -1507,9 +1655,22 @@ int plot_CharginoBRstrongG1950(){
 	//~ legE.append(*combi_obs,"Combination","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.6,.14,.92,.26,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+   leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+
+   TLatex label=gfx::cornerLabel("pp #rightarrow #tilde{g}#tilde{g}, #tilde{g} #rightarrow qq#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}, #lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0/#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma/W^{#pm}#tilde{G}",1);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_CharginoBRstrongG1950",true,false);
 	
@@ -1612,7 +1773,7 @@ int plot_GGM_combi(){
 	//~ TFile file_5("../input/limits/limits_GGM_M1_M2_allCombined_final.root","read");
 	TFile file_5("../input/limits/limits_GGM_M1_M2_allCombined_finalPre.root","read");
 	
-	TH2F axis("","",26,250,1500,26,250,1500);
+	TH2F axis("","",26,250,1500,26,250,1800);
 	axis.SetTitle(";#it{M}_{1} (GeV);#it{M}_{2} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
@@ -1640,8 +1801,10 @@ int plot_GGM_combi(){
 			diphoton.SetPoint(diphoton.GetN(),1500,250);
 		}
 	}
-	diphoton.SetFillColorAlpha(kCyan,0.3);
-	diphoton.SetLineWidth(3);
+	//~ diphoton.SetFillColorAlpha(kCyan,0.3);
+	//~ diphoton.SetFillColorAlpha(kBlue,0.1);
+	diphoton.SetFillColorAlpha(kCyan,0.9);
+	diphoton.SetLineWidth(0);
 	diphoton.SetLineStyle(2);
 	diphoton.Draw("same F");
 	
@@ -1668,8 +1831,9 @@ int plot_GGM_combi(){
 			st.SetPoint(st.GetN(),1500,250);
 		}
 	}
-	st.SetFillColorAlpha(kGreen,0.2);
-	st.SetLineWidth(3);
+	//~ st.SetFillColorAlpha(kGreen,0.2);
+	st.SetFillColorAlpha(kRed,0.5);
+	st.SetLineWidth(0);
 	st.SetLineStyle(2);
 	st.Draw("same F");
 	
@@ -1691,8 +1855,9 @@ int plot_GGM_combi(){
 			lepton.SetPoint(lepton.GetN(),1500,250);
 		}
 	}
-	lepton.SetFillColorAlpha(kOrange,0.2);
-	lepton.SetLineWidth(3);
+	//~ lepton.SetFillColorAlpha(kOrange,0.2);
+	lepton.SetFillColorAlpha(kYellow,0.5);
+	lepton.SetLineWidth(0);
 	lepton.SetLineStyle(2);
 	lepton.Draw("same F");
 	
@@ -1714,8 +1879,8 @@ int plot_GGM_combi(){
 			combi.SetPoint(combi.GetN(),1500,250);
 		}
 	}
-	combi.SetFillColorAlpha(kBlack,0.1);
-	combi.SetLineWidth(3);
+	combi.SetFillColorAlpha(kBlack,0.15);
+	combi.SetLineWidth(0);
 	combi.SetLineStyle(2);
 	combi.Draw("same F");
 	
@@ -1727,10 +1892,10 @@ int plot_GGM_combi(){
 	//~ uncorr_exp->Draw("same");
 	
 	axis.Draw("axis same");
-	TLatex text1(400,1000,"Lepton/Diphoton");
+	TLatex text1(400,1000,"Photon+Lepton/Diphoton");
 	TLatex text2(750,700,"All");
-	TLatex text3(1000,600,"SinglePhoton/Lepton");
-	TLatex text4(1250,750,"Lepton");
+	TLatex text3(1000,630,"Photon+(S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}/H_{#scale[.8]{T}}^{#scale[.8]{#gamma}})/Photon+Lepton");
+	TLatex text4(1250,750,"Photon+Lepton");
 	TLatex text5(575,1300,"Combination");
 	TLatex text6(450,1225,"Diphoton");
 	text1.SetTextSize(0.03);
@@ -1745,9 +1910,40 @@ int plot_GGM_combi(){
 	text4.Draw("same");
 	text5.Draw("same");
 	text6.Draw("same");
-	
+   
+   gfx::LegendEntries legE;
+	//~ legE.append(*st_obs,"Photon+S_{#scale[.8]{T}}^{#scale[.8]{#gamma}} ","l");
+   TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+	leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
+	leg.Draw();
+   
+   TLatex label=gfx::cornerLabel("GGM electroweak production",1,5);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_GGM_combine_all",true,false);
+	
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_004-a.root","update");
+	combi.Write("combination_exp",TObject::kOverwrite);
+	st.Write("singlePhoton_exp",TObject::kOverwrite);
+	lepton.Write("lepton_exp",TObject::kOverwrite);
+	diphoton.Write("diphoton_exp",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_5.Get("h_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_5.Get("h_obs_xs");
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
 	
 	return 0;
 }
@@ -1784,7 +1980,7 @@ int plot_T5Wg_allCombined(){
 	st_exp->SetLineStyle(2);
 	st_exp->Draw("same");
 	
-	lepton_exp->SetLineColor(kMagenta);
+	lepton_exp->SetLineColor(kViolet);
 	lepton_exp->SetLineWidth(3);
 	lepton_exp->SetLineStyle(2);
 	lepton_exp->Draw("same");
@@ -1895,7 +2091,7 @@ int plot_GGM2_combi(){
 	axis.SetStats(0);
 
 	
-	lepton->SetLineColor(kMagenta);
+	lepton->SetLineColor(kViolet);
 	lepton->SetLineWidth(3);
 	lepton->SetLineStyle(2);
 	lepton->Draw("same");
@@ -1930,7 +2126,7 @@ int plot_GGM_combi_physmass(){
 	//~ TFile file_1("../input/limits/physmass_GGM_M1_M2_NN.root","read");
 	TFile file_1("../input/limits/physmass_GGM_M1_M2_finalPre.root","read");
 	
-	TH2F axis("","",27,120,715,27,120,1220);
+	TH2F axis("","",27,120,715,27,225,1500);
 	axis.SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
@@ -1954,10 +2150,44 @@ int plot_GGM_combi_physmass(){
 	diag->SetPoint(1,100,220);
 	diag->SetPoint(2,2200,2320);
 	
+	//Write to root file for webpage
+	double x,y;
+	std::vector<TGraph*> Graphs = {combined,combined_obs,combined_exp_p1,combined_exp_m1,combined_obs_p1,combined_obs_m1,st,st_obs,htg,htg_obs,lepton,lepton_obs,diphoton,diphoton_obs};
+	for(auto const& temp:Graphs){
+		for(int i=0; i<temp->GetN(); i++){
+			temp->GetPoint(i,x,y);
+			if(x<100){
+				temp->RemovePoint(i);
+				i--;
+			}
+		}
+	}
+	
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure_004-b.root","update");
+	combined->Write("combination_exp",TObject::kOverwrite);
+	combined_obs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	st->Write("st_exp",TObject::kOverwrite);
+	st_obs->Write("st_obs",TObject::kOverwrite);
+	htg->Write("htg_exp",TObject::kOverwrite);
+	htg_obs->Write("htg_obs",TObject::kOverwrite);
+	lepton->Write("lepton_exp",TObject::kOverwrite);
+	lepton_obs->Write("lepton_obs",TObject::kOverwrite);
+	diphoton->Write("diphoton_exp",TObject::kOverwrite);
+	diphoton_obs->Write("diphoton_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_1.Get("allCombined_finalPre/hist_Inter_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_1.Get("allCombined_finalPre/hist_Inter_obs_xs");
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
+	
 	
 	//Uncertainty bands
 	TGraph *combined_exp_unc = new TGraph();
-	double x,y;
 	for(int i=0; i<combined_exp_p1->GetN();i++){
 		combined_exp_p1->GetPoint(i,x,y);
 		combined_exp_unc->SetPoint(i,x,y);
@@ -1986,11 +2216,11 @@ int plot_GGM_combi_physmass(){
 	combined_obs_unc->Draw("F same");
 	
 	//Limit contours
-	lepton->SetLineColor(kMagenta);
+	lepton->SetLineColor(kViolet);
 	lepton->SetLineWidth(2);
 	lepton->SetLineStyle(2);
 	lepton->Draw("same");
-	lepton_obs->SetLineColor(kMagenta);
+	lepton_obs->SetLineColor(kViolet);
 	lepton_obs->SetLineWidth(2);
 	lepton_obs->SetLineStyle(1);
 	lepton_obs->Draw("same");
@@ -2057,9 +2287,22 @@ int plot_GGM_combi_physmass(){
 	legE.append(*diag,"m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} = m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} + 120 GeV","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.4,.15,.9,.35,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+	leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+   
+   TLatex label=gfx::cornerLabel("GGM electroweak production",1,5);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"LimitsPhysMass_GGM_combine",true,false);
 	return 0;
@@ -2070,23 +2313,42 @@ int plot_GGM2_combi_physmass(){
 	TCanvas can;
 	
 	//~ TFile file_1("../input/limits/physmass_GGM_M1_M3_NN.root","read");
-	TFile file_1("../input/limits/physmass_GGM_M1_M3_final.root","read");
+	TFile file_1("../input/limits/physmass_GGM_M1_M3_finalPre.root","read");
 	
-	TH2F axis("","",100,75,740,100,2350,5300);
+	TH2F axis("","",100,75,740,100,2350,5800);
 	axis.SetTitle(";m#kern[0.1]{_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}} (GeV);m#kern[0.1]{_{#lower[-0.12]{#tilde{g}}}} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
 	
 	TGraph *lepton = (TGraph*) file_1.Get("lepton_final/cont_sm");
-	TGraph *combined = (TGraph*) file_1.Get("allCombined_final/cont_sm");
+	TGraph *combined = (TGraph*) file_1.Get("allCombined_finalPre/cont_sm");
 	TGraph *diphoton = (TGraph*) file_1.Get("diphoton_final/cont_sm");
 	TGraph *leptonObs = (TGraph*) file_1.Get("lepton_final/cont_obs_sm");
-	TGraph *combinedObs = (TGraph*) file_1.Get("allCombined_final/cont_obs_sm");
+	TGraph *combinedObs = (TGraph*) file_1.Get("allCombined_finalPre/cont_obs_sm");
 	TGraph *diphotonObs = (TGraph*) file_1.Get("diphoton_final/cont_obs_sm");
-	TGraph *combined_exp_p1 = (TGraph*) file_1.Get("allCombined_final/cont_h_exp+1_sm");
-	TGraph *combined_exp_m1 = (TGraph*) file_1.Get("allCombined_final/cont_h_exp-1_sm");
-	TGraph *combined_obs_p1 = (TGraph*) file_1.Get("allCombined_final/cont_h_obs+1_sm");
-	TGraph *combined_obs_m1 = (TGraph*) file_1.Get("allCombined_final/cont_h_obs-1_sm");
+	TGraph *combined_exp_p1 = (TGraph*) file_1.Get("allCombined_finalPre/cont_h_exp+1_sm");
+	TGraph *combined_exp_m1 = (TGraph*) file_1.Get("allCombined_finalPre/cont_h_exp-1_sm");
+	TGraph *combined_obs_p1 = (TGraph*) file_1.Get("allCombined_finalPre/cont_h_obs+1_sm");
+	TGraph *combined_obs_m1 = (TGraph*) file_1.Get("allCombined_finalPre/cont_h_obs-1_sm");
+	
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure-aux_001-b.root","update");
+	combined->Write("combination_exp",TObject::kOverwrite);
+	combinedObs->Write("combination_obs",TObject::kOverwrite);
+	combined_exp_p1->Write("combination_exp+1",TObject::kOverwrite);
+	combined_exp_m1->Write("combination_exp-1",TObject::kOverwrite);
+	combined_obs_p1->Write("combination_obs+1",TObject::kOverwrite);
+	combined_obs_m1->Write("combination_obs-1",TObject::kOverwrite);
+	lepton->Write("lepton_exp",TObject::kOverwrite);
+	leptonObs->Write("lepton_obs",TObject::kOverwrite);
+	diphoton->Write("diphoton_exp",TObject::kOverwrite);
+	diphotonObs->Write("diphoton_obs",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_1.Get("allCombined_finalPre/hist_Inter_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_1.Get("allCombined_finalPre/hist_Inter_obs_xs");
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
 	
 	//Uncertainty bands
 	TGraph *combined_exp_unc = new TGraph();
@@ -2120,11 +2382,11 @@ int plot_GGM2_combi_physmass(){
 	combined_obs_unc->Draw("F same");
 	
 	//Limit contours
-	lepton->SetLineColor(kMagenta);
+	lepton->SetLineColor(kViolet);
 	lepton->SetLineWidth(2);
 	lepton->SetLineStyle(2);
 	lepton->Draw("same");
-	leptonObs->SetLineColor(kMagenta);
+	leptonObs->SetLineColor(kViolet);
 	leptonObs->SetLineWidth(2);
 	leptonObs->SetLineStyle(1);
 	leptonObs->Draw("same");
@@ -2165,9 +2427,22 @@ int plot_GGM2_combi_physmass(){
 	//~ legE.append(*combinedObs,"Combination","l");
 	legE.prepend(*exp,"Expected #pm 1 #sigma_{exp.}","lf");
 	legE.prepend(*obs,"Observed #pm 1 #sigma_{theo.}","lf");
-	TLegend leg=legE.buildLegend(.3,.75,0.7,.9,2);
-	leg.SetTextSize(0.03);
+	TLegend leg=legE.buildLegend(.2,.75,.9,.88,3);
+	leg.SetTextSize(0.028);
+   TPave pave=TPave(gPad->GetLeftMargin(),0.74,1-gPad->GetRightMargin(),1-gPad->GetTopMargin(),3,"NDC");
+   pave.SetFillColor(kWhite);
+   pave.SetBorderSize(1);
+   pave.SetLineWidth(3);
+   pave.SetLineColor(kBlack);
+   pave.Draw();
 	leg.Draw();
+   
+   TLatex label=gfx::cornerLabel("GGM electroweak production",1,5);
+   TLatex label2=gfx::cornerLabel("95% CL exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"LimitsPhysMass_GGM2_combine",true,false);
 	
@@ -2241,7 +2516,8 @@ int plot_GGM2_combi_filledAreas(){
 	
 	TFile file_1("../input/limits/limits_GGM_M1_M3_lepton_final.root","read");
 	TFile file_2("../input/limits/limits_GGM_M1_M3_diphoton_final.root","read");
-	TFile file_3("../input/limits/limits_GGM_M1_M3_allCombined_final.root","read");
+	//~ TFile file_3("../input/limits/limits_GGM_M1_M3_allCombined_final.root","read");
+	TFile file_3("../input/limits/limits_GGM_M1_M3_allCombined_finalPre.root","read");
 	
 	
 	TGraph *lepton = (TGraph*) file_1.Get("gr_expC_sm");
@@ -2272,10 +2548,10 @@ int plot_GGM2_combi_filledAreas(){
 	combined->SetLineStyle(2);
 	combined->Draw("same F");
 	
-	TLatex text1(1230,1010,"Lepton");
+	TLatex text1(1230,1010,"Photon+Lepton");
 	TLatex text2(960,1320,"Combination");
 	TLatex text3(170,2020,"Diphoton");
-	TLatex text4(400,1350,"Lepton/Diphoton");
+	TLatex text4(400,1350,"Photon+Lepton/Diphoton");
 	text1.SetTextSize(0.03);
 	text2.SetTextSize(0.03);
 	text3.SetTextSize(0.03);
@@ -2284,8 +2560,30 @@ int plot_GGM2_combi_filledAreas(){
 	text2.Draw("same");
 	text3.Draw("same");
 	text4.Draw("same");
+   
+   TLatex label=gfx::cornerLabel("GGM electroweak production",1,5);
+   TLatex label2=gfx::cornerLabel("95% CL expected exclusion limits",2);
+   label.SetTextSize(0.028);
+   label2.SetTextSize(0.028);
+   label.Draw();
+   label2.Draw();
 	
 	saver.save(can,"Limits_GGM2_allCombined_filledAreas",true,false);
+	
+	//Write to root file for webpage
+	TFile fileOut("../output/PAS_root/CMS-PAS-SUS-18-005_Figure-aux_001-a.root","update");
+	combined->RemovePoint(combined->GetN()-1);
+	lepton->RemovePoint(lepton->GetN()-1);
+	diphoton->RemovePoint(diphoton->GetN()-1);
+	combined->Write("combination_exp",TObject::kOverwrite);
+	lepton->Write("lepton_exp",TObject::kOverwrite);
+	diphoton->Write("diphoton_exp",TObject::kOverwrite);
+	
+	TH2F *combi_hist = (TH2F*) file_3.Get("h_exp_xs");
+	combi_hist->Write("combination_exp_xs",TObject::kOverwrite);
+	TH2F *combi_hist_obs = (TH2F*) file_3.Get("h_obs_xs");
+	combi_hist_obs->Write("combination_obs_xs",TObject::kOverwrite);
+	fileOut.Close();
 	
 	return 0;
 }
@@ -2317,7 +2615,7 @@ int plot_GGM2_combi_filledAreas_M1M2(){
 		combined->SetPoint(i,x,(x+y)/2);
 	}
 	
-	TH2F axis("","",27,150,1500,27,500,2000);
+	TH2F axis("","",26,250,1500,26,250,1500);
 	axis.SetTitle(";#it{M}_{1} (GeV);#it{M}_{2} (GeV)");
 	axis.Draw("axis");
 	axis.SetStats(0);
@@ -2325,7 +2623,7 @@ int plot_GGM2_combi_filledAreas_M1M2(){
 	//~ lepton->SetPoint(lepton->GetN(),0,0);
 	lepton->SetFillColorAlpha(kOrange,0.2);
 	lepton->SetLineWidth(3);
-	lepton->SetLineStyle(2);
+	//~ lepton->SetLineStyle(2);
 	lepton->SetLineColor(kOrange);
 	//~ lepton->Draw("same F");
 	lepton->Draw("same");
@@ -2333,7 +2631,7 @@ int plot_GGM2_combi_filledAreas_M1M2(){
 	//~ diphoton->SetPoint(diphoton->GetN(),0,0);
 	diphoton->SetFillColorAlpha(kCyan,0.3);
 	diphoton->SetLineWidth(3);
-	diphoton->SetLineStyle(2);
+	//~ diphoton->SetLineStyle(2);
 	diphoton->SetLineColor(kCyan);
 	diphoton->Draw("same");
 	
@@ -2341,7 +2639,7 @@ int plot_GGM2_combi_filledAreas_M1M2(){
 	//~ combined->SetPoint(combined->GetN(),0,0);
 	combined->SetFillColorAlpha(kBlack,0.1);
 	combined->SetLineWidth(3);
-	combined->SetLineStyle(2);
+	//~ combined->SetLineStyle(2);
 	combined->SetLineColor(kGray);
 	combined->Draw("same");
 	
@@ -2385,10 +2683,10 @@ void run(){
 	//~ plot_CharginoBRstrongG1700();
 	//~ plot_T5Wg_allCombined();
 	//~ plot_GGM2_diffcombi();
-	//~ plot_GGM_combi();
+	plot_GGM_combi();
 	//~ plot_GGM2_combi();
 	//~ plot_GGM2_combi_filledAreas();
-	plot_GGM_combi_physmass();
+	//~ plot_GGM_combi_physmass();
 	//~ plot_GGM2_combi_physmass();
 	//~ plot_TChiNg_diffcombi();
 	//~ plot_CharginoBR_C1C1();

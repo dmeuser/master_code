@@ -15,11 +15,13 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TH1F.h"
+#include "TFile.h"
 #include "THStack.h"
 #include "TGraphErrors.h"
 #include "TLegend.h"
 #include "TLine.h"
 #include "TLatex.h"
+#include "TGraphAsymmErrors.h"
 
 
 enum ErrorType {
@@ -140,7 +142,7 @@ template<typename T> void Print(std::ostream& os, std::vector<T>& v)
 void PrintTable(std::ostream& os, const std::vector<Bin>& bins)
 {
    os << "Search Bin" << "  &  " << "Tot. Bkgd" << "  &  " << "Data" <<"\\\\"; os << std::endl;
-   for (auto it=bins.begin(); it!=bins.end(); ++it) os << std::stoi(it->label)+1 << "  &   $" << std::round(it->TotalBkgd()*10)/10.0<<"\\pm"<<std::setw(8)<<round(sqrt(it->Systematics()*it->Systematics()+it->Statistics()*it->Statistics())*10)/10.0 << "$" << "  &  $" << std::setw(10) << it->data << "$\\\\" << std::endl;
+   for (auto it=bins.begin(); it!=bins.end(); ++it) os << std::stoi(it->label)+1 << "  &  &  & $" << std::round(it->TotalBkgd()*10)/10.0<<"\\pm"<<std::setw(8)<<round(sqrt(it->Systematics()*it->Systematics()+it->Statistics()*it->Statistics())*10)/10.0 << "$" << "  &  $" << std::setw(10) << it->data << "$\\\\" << std::endl;
    //~ os << "Search Bin";          for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &   " << std::stoi(it->label)+1; os << std::endl;
    //~ os << "Tot. Bkgd"; for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(8)  << it->TotalBkgd()<<"\\pm"<<std::setw(8)<<sqrt(it->Systematics()*it->Systematics()+it->Statistics()*it->Statistics()) << "$";  os << std::endl;
    //~ os << "Data  ";    for (auto it=bins.begin(); it!=bins.end(); ++it) os << "  &  $" << std::setw(10) << it->data << "$"; os << std::endl;
@@ -252,6 +254,7 @@ int main(int argc, char* argv[])
    std::string line;
    int linenumber=0;
 
+
    ///Variables to store input datacard file values
    int imax, jmax, kmax = 0;
    std::vector<std::string> bin_labels, systbin_labels, process_labels;
@@ -276,7 +279,7 @@ int main(int argc, char* argv[])
    }
 
    ///Print some of the read stuff
-   std::cout<<imax<<"  "<<jmax<<"  "<<kmax<<std::endl;
+   //~ std::cout<<imax<<"  "<<jmax<<"  "<<kmax<<std::endl;
    //~ Print(std::cout, bin_labels);
    //~ Print(std::cout, data);
    //~ Print(std::cout, process_labels);
@@ -344,7 +347,7 @@ int main(int argc, char* argv[])
       tot->SetBinError(        i+1, sqrt(pow(bins[i].Systematics(),2)+pow(bins[i].Statistics(),2)));
       syst->SetBinContent(     i+1, bins[i].TotalBkgd());
       syst->SetBinError(       i+1, sqrt(pow(bins[i].Systematics(),2)+pow(bins[i].Statistics(),2)));
-      onlytotal->SetBinContent(i+1, sqrt(pow(bins[i].Systematics(),2)+pow(bins[i].Statistics(),2)));
+      onlytotal->SetBinContent(i+1, 0);
       onlytotal->SetBinError(  i+1, sqrt(pow(bins[i].Systematics(),2)+pow(bins[i].Statistics(),2)));
       //~ onlysyst->SetBinContent( i+1, bins[i].Systematics());
       onlysyst->SetBinContent( i+1, bins[i].TotalBkgd());
@@ -364,7 +367,8 @@ int main(int argc, char* argv[])
          //if (i==0) std::cout << i << "  "<< bit->name<< "  c:"<<bit->color <<",  yield:"<<b[bit->color]->GetBinContent(i+1) <<", tot: "<< bins[i].TotalBkgd()<<std::endl;
       }
       
-      std::cout<<i+1<<"    "<<tot->GetBinContent(i+1)<<"    "<<tot->GetBinError(i+1)<<"   "<<d->GetBinContent(i+1)<<std::endl;   
+      d->SetBinErrorOption(TH1::kPoisson);
+      //~ std::cout<<i+1<<"  "<<d->GetBinContent(i+1)<<"  "<<d->GetBinError(i+1)<<"  "<<d->GetBinErrorLow(i+1)<<"  "<<d->GetBinErrorUp(i+1)<<std::endl;   
    }  
    TGraphErrors h_syst(syst); 
    h_syst.SetFillStyle(3354);
@@ -382,9 +386,9 @@ int main(int argc, char* argv[])
             leg->prepend( *(it->second), BNames[it->first].c_str(),"f");
             break;
          }
-   }      
+   }
+   leg->append(h_syst,"Total bkg. unc.","fe");
    leg->append(*s,"GGM #it{M}_{1} = 1000 GeV #it{M}_{2} = 750 GeV","l");
-   leg->prepend(h_syst,"Total bkg. unc.","fe");
    leg->prepend(*d,"Data","pe");
 
    a->SetMinimum(0.5);
@@ -394,20 +398,21 @@ int main(int argc, char* argv[])
    d->SetMarkerSize( 0.5 ); 
    s->SetLineColor( kRed );
    s->SetLineWidth( 2 );
+   a->GetYaxis()->SetTickLength(0.02);
    
    a->Draw();
    st->Draw("hf,same");
    h_syst.Draw("2");
    s->Draw("h,same");
-   d->Draw("pe0,same");
+   d->Draw("PE0,same");
    tot->Draw("hist,same");
-   TLegend * dleg = new TLegend(leg->buildLegend(0.4,0.7,0.95,0.9));
+   TLegend * dleg = new TLegend(leg->buildLegend(0.15,0.75,0.95,0.9));
    dleg->SetNColumns(3);
    dleg->Draw("same");
 
    TLine * aline = new TLine();
    TLatex * atext = new TLatex();
-   atext->SetTextSize(0.025);
+   atext->SetTextSize(0.02);
    atext->SetTextFont();
    aline->SetLineWidth(2);
    aline->DrawLine(4.5,a->GetMinimum(),4.5,1.5*syst->GetMaximum());
@@ -415,17 +420,28 @@ int main(int argc, char* argv[])
    aline->DrawLine(43.5,a->GetMinimum(),43.5,1.5*syst->GetMaximum());
    aline->SetLineStyle(2);
    aline->DrawLine(25.5,a->GetMinimum(),25.5,1.5*syst->GetMaximum());
-   atext->DrawLatex(2.0,0.7*syst->GetMaximum(),"S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
-   atext->DrawLatex(5.5,0.7*syst->GetMaximum(),"H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
-   atext->DrawLatex(15.5,0.7*syst->GetMaximum(),"Lepton (#mu#gamma)");
-   atext->DrawLatex(33.5,0.7*syst->GetMaximum(),"Lepton (e#gamma)");
-   atext->DrawLatex(44.5,0.7*syst->GetMaximum(),"Diphoton");
+   atext->DrawLatex(1.25,0.8*syst->GetMaximum(),"Photon");
+   atext->DrawLatex(2.0,0.5*syst->GetMaximum(),"+S_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
+   atext->DrawLatex(4.75,0.8*syst->GetMaximum(),"Photon");
+   atext->DrawLatex(5.5,0.5*syst->GetMaximum(),"+H_{#scale[.8]{T}}^{#scale[.8]{#gamma}}");
+   atext->DrawLatex(13.5,0.8*syst->GetMaximum(),"Photon+Lepton (#mu#gamma)");
+   atext->DrawLatex(31.5,0.8*syst->GetMaximum(),"Photon+Lepton (e#gamma)");
+   atext->DrawLatex(45.0,0.8*syst->GetMaximum(),"Diphoton");
 
+   gPad->SetTicky();
    gPad->RedrawAxis();
 
    can.cdLow();
 
-   TLegend * sleg = new TLegend(0.65,0.85,0.85,0.95);
+   //~ TLegend * sleg = new TLegend(0.65,0.85,0.85,0.95);
+   
+   //Save histograms to be further used to create yaml for HepData
+   
+   TFile fileOut("histOut.root","update");
+   d->Write("data",TObject::kOverwrite);
+   tot->Write("totalBKG",TObject::kOverwrite);
+   s->Write("GGM_1000_750",TObject::kOverwrite);
+   fileOut.Close();
 
 
 
@@ -434,65 +450,106 @@ int main(int argc, char* argv[])
    TGraphErrors grRatioSyst=hist::getRatioGraph(*onlysyst,*tot,"Ratio",hist::ONLY1);
    TGraphErrors grRatioTot=hist::getRatioGraph(*tot,*tot,"Ratio",hist::ONLY1);
    hRatio.GetXaxis()->SetTitle("Search bin");
-   hRatio.GetXaxis()->SetTitleFont(42);   
-   //~ hRatio.SetMaximum(2.7);
+   hRatio.GetXaxis()->SetTitleFont(42);
+   
+   TGraphAsymmErrors gRatio(&hRatio);
+   
+   for (int i=1; i<=hRatio.GetNbinsX(); i++) {
+      gRatio.SetPointEYlow(i-1,d->GetBinErrorLow(i)/tot->GetBinContent(i));
+      gRatio.SetPointEYhigh(i-1,d->GetBinErrorUp(i)/tot->GetBinContent(i));
+      //~ std::cout<<i<<"  "<<d->GetBinError(i)<<"  "<<d->GetBinErrorLow(i)<<"  "<<d->GetBinErrorUp(i)<<"  "<<std::endl;
+      //~ std::cout<<i<<"  "<<tot->GetBinContent(i)<<std::endl;
+      //~ std::cout<<i<<"  "<<gRatio.GetErrorYlow(i-1)<<"   "<<gRatio.GetErrorYhigh(i-1)<<std::endl;
+   }
+   
+   gPad->SetTicky();
+   hRatio.GetYaxis()->SetTickLength(0.015);
    hRatio.SetMaximum(4.2);
    hRatio.SetMinimum(0.);
    hRatio.Draw("axis");
-   //~ grRatioStat.SetFillStyle(1001);
-   //~ grRatioStat.SetFillColor(kGray+1);
-   //~ grRatioStat.SetLineColor(kGray+1);
-   grRatioTot.SetFillStyle(1001);
-   grRatioTot.SetFillColor(kGray+1);
-   grRatioTot.SetLineColor(kGray+1);
-   grRatioSyst.SetFillStyle(1001);
-   grRatioSyst.SetFillColor(kGray);
-   grRatioSyst.SetLineColor(kGray);
-   //~ gfx::scaleXerrors(grRatioTot,.3);
+   
+   grRatioTot.SetFillStyle(3354);
+   grRatioTot.SetFillColor(kRed+1);
+   grRatioTot.SetLineColor(kWhite);
            
    
    //~ grRatioSyst.Draw("2");
    grRatioTot.Draw("2");     
-   hRatio.Draw("pe,same");
+   //~ hRatio.Draw("pe,same");
+   gRatio.SetMarkerStyle(8); 
+   gRatio.SetMaximum(2.95);
+   gRatio.SetMinimum(-2.95);
+   grRatioTot.Draw("2");
+   gRatio.Draw("p Z same");
    aline->SetLineWidth(1);   
-   aline->DrawLine(0,1,49.5,1);  
-   sleg->AddEntry(&grRatioTot,"Total bkg. unc.","f");
+   aline->DrawLine(0.5,1,49.5,1);
+   
+   aline->SetLineWidth(2);
+   aline->SetLineStyle(1);
+   aline->DrawLine(4.5,0.,4.5,4.2);
+   aline->DrawLine(7.5,0.,7.5,4.2);
+   aline->DrawLine(43.5,0.,43.5,4.2);
+   aline->SetLineStyle(2);
+   aline->DrawLine(25.5,0.,25.5,4.2);
+   //~ sleg->AddEntry(&grRatioTot,"Total bkg. unc.","f");
    //~ sleg->AddEntry(&grRatioSyst,"Syst.","f");
 
    
-/*
 
-   TH1F hPull=hist::getRatio(hist::getPull(*d,*tot,"Pull (d-b)/#sigma_{tot}",hist::ONLY1), *onlytotal, "Pull (d-b)/#sigma_{tot}",hist::ONLY1);
-   TGraphErrors grPullStat=hist::getPullGraph(*onlystat,*onlytotal,"Ratio",hist::ONLY1);
-   TGraphErrors grPullSyst=hist::getPullGraph(*onlysyst,*onlytotal,"Ratio",hist::ONLY1);
-   grPullStat.SetFillStyle(3345);
-   grPullStat.SetFillColor(kMagenta+4);
-   grPullSyst.SetFillStyle(3354);
-   grPullSyst.SetFillColor(kRed+1);
-   gfx::scaleXerrors(grPullStat,.99);
-   gfx::scaleXerrors(grPullSyst,.85);
+ /*  
+   //~ TH1F hPull=hist::getRatio(hist::getPull(*d,*tot,"Pull (d-b)/#sigma_{tot}",hist::ONLY1), *onlytotal, "Pull (d-b)/#sigma_{tot}",hist::ONLY1);
+   TH1F hPull(*d);
+   hPull.Add(tot,-1);
+   hPull.SetBinErrorOption(TH1::kPoisson);
+   TGraphAsymmErrors gPull(&hPull);
+   TGraphErrors grPullTot(onlytotal);
+   
+   for (int i=1; i<=hPull.GetNbinsX(); i++) {
+      gPull.SetPointEYlow(i-1,d->GetBinErrorLow(i));
+      gPull.SetPointEYhigh(i-1,d->GetBinErrorUp(i));
+      //~ std::cout<<i<<"  "<<d->GetBinError(i)<<"  "<<d->GetBinErrorLow(i)<<"  "<<d->GetBinErrorUp(i)<<"  "<<std::endl;
+      //~ std::cout<<i<<"  "<<hPull.GetBinContent(i)<<"  "<<hPull.GetBinErrorLow(i)<<"  "<<hPull.GetBinErrorUp(i)<<"  "<<std::endl;
+   }
+   
+   //~ TGraphErrors grPullStat=hist::getPullGraph(*onlystat,*onlytotal,"Ratio",hist::ONLY1);
+   //~ TGraphErrors grPullStat=hist::getPullGraph(*syst,*syst,"Ratio",hist::ONLY1);
+   //~ TGraphErrors grPullSyst=hist::getPullGraph(*onlysyst,*onlytotal,"Ratio",hist::ONLY1);
+   //~ grPullStat.SetFillStyle(3345);
+   //~ grPullStat.SetFillColor(kMagenta+4);
+   //~ grPullSyst.SetFillStyle(3354);
+   //~ grPullSyst.SetFillColor(kRed+1);
+   //~ gfx::scaleXerrors(grPullStat,.99);
+   //~ gfx::scaleXerrors(grPullSyst,.85);
+   
+   grPullTot.SetFillStyle(3354);
+   grPullTot.SetFillColor(kRed+1);
+   grPullTot.SetLineColor(kWhite);
 
-   grPullStat.Draw("2");
-   grPullSyst.Draw("2");
+   //~ grPullStat.Draw("2");
+   //~ grPullSyst.Draw("2");
+   //~ grPullTot.Draw("2");
 
    hPull.GetXaxis()->SetTitle("Signal region");
+   hPull.GetYaxis()->SetTitle("data-bkg.   ");
    hPull.GetXaxis()->SetTitleFont(42);  
+   hPull.GetYaxis()->SetTitleFont(42);  
+   hPull.GetYaxis()->SetTickSize(0.01);  
    hPull.SetMarkerStyle(8); 
-   hPull.SetMaximum(2.95);
-   hPull.SetMinimum(-2.95);
+   hPull.SetMaximum(34.95);
+   hPull.SetMinimum(-34.95);
    hPull.Draw("axis");
-   hPull.Draw("pe,same");
-   grPullStat.Draw("2");
+   //~ hPull.Draw("pe0,same");
+   
+   gPull.SetMarkerStyle(8); 
+   gPull.SetMaximum(2.95);
+   gPull.SetMinimum(-2.95);
+   grPullTot.Draw("2");
+   gPull.Draw("p Z same");
+   
+   //~ grPullStat.Draw("2");
    aline->SetLineWidth(1);   
-   aline->DrawLine(0,0,49,0);
-   sleg->AddEntry(&grPullStat,"Stat.","f");
-   sleg->AddEntry(&grPullSyst,"Syst.","f");
-*/
-
-   sleg->SetNColumns(2); 
-   sleg->SetBorderSize(0);
-   sleg->SetFillStyle(0);
-   sleg->Draw("same");
+   aline->DrawLine(0.5,0,49.5,0);
+   */
 
    gPad->RedrawAxis();
    setupDrawnAxes(can);

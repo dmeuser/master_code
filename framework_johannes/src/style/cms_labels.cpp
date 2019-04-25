@@ -20,8 +20,8 @@ void style::draw_lumi(TPad &pad, bool simulation, bool drawLumiText)
       if (extraText!="" && Config::get().releaseMode){
          extraText="Simulation #bullet "+extraText;
       }else{
-         //~ extraText="Simulation";
-         extraText="Simulation #bullet "+extraText;
+         extraText="Simulation";
+         //~ extraText="Simulation #bullet "+extraText;
       }
    }
 

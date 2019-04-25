@@ -45,8 +45,8 @@ void run()
                   else if (svar=="massHiggsH") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{H}} (GeV)");
                   else if (svar=="massStop") hist->GetZaxis()->SetTitle("m_{#lower[-0.12]{#tilde{t}}} (GeV)");
                   else if (svar=="massDiff") hist->GetZaxis()->SetTitle("|m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{#pm}}}#kern[-1.3]{#scale[0.85]{_{1}}}}-m_{#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}}}| (GeV)");
-                  else if (svar=="BRtoPhoton") hist->GetZaxis()->SetTitle("BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%)");
-                  else if (svar=="BRtoZ") hist->GetZaxis()->SetTitle("BF(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow Z + #tilde{G}) (%)");
+                  else if (svar=="BRtoPhoton") hist->GetZaxis()->SetTitle("#it{B}(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow #gamma + #tilde{G}) (%)");
+                  else if (svar=="BRtoZ") hist->GetZaxis()->SetTitle("#it{B}(#lower[-0.12]{#tilde{#chi}}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#scale[0.85]{_{1}}} #rightarrow Z + #tilde{G}) (%)");
                   
                   if (svar=="BRtoZ" or svar=="BRtoPhoton") {
 					  for(int i=1; i<=hist->GetNbinsX(); i++){

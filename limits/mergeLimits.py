@@ -159,7 +159,7 @@ def mergeLimits():
 	#~ print xsec_err
 
 	gr={}
-	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs"]:
+	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs","exp_xs"]:
 		gr[lvl]=rt.TGraph2D()
 	if sScan=="T5Wg" or sScan=="T5Wg_thirds" or sScan=="T5gg": h_exp =rt.TH2F("","",18,0,2500,21,0,2150)
 	elif sScan=="GGM_M1_M2": h_exp =rt.TH2F("","",27,175,1525,27,175,1525)
@@ -233,6 +233,7 @@ def mergeLimits():
 		rLim=rLimits['exp']
 		h_exp.SetBinContent(h_exp.FindBin(x,y),rLim)
 		h_exp_xs.SetBinContent(h_exp.FindBin(x,y),rLim*xs)
+		gr["exp_xs"].SetPoint(i,x,y,rLim*xs)
 		#~ print "exp. signal strength limit",rLim
 		rLim=rLimits['obs']
 		h_obs.SetBinContent(h_obs.FindBin(x,y),rLim)
@@ -254,7 +255,7 @@ def mergeLimits():
 		h_exp_m2.SetBinContent(h_obs.FindBin(x,y),rLim)
 	
 	f=rt.TFile(outdir+"limits_%s_"%sScan+selection+".root","update")
-	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs"]:
+	for lvl in ["obs","obs+1","obs-1","exp","exp+1","exp-1","exp+2","exp-2","obs_xs","exp_xs"]:
 		gr[lvl].Write("gr_"+lvl,rt.TObject.kOverwrite)
 
 	h_exp.Write("h_exp",rt.TObject.kOverwrite)
@@ -287,6 +288,9 @@ def getContour(gr2,lvl=""):
 						ci.Write("xtra_multicont_gr_"+lvl,rt.TObject.kOverwrite)
 					if lvl.find("obs")!=-1 and i==3:
 						ci.Write("xtra_multicont_gr_"+lvl,rt.TObject.kOverwrite)
+         
+         if selection=="allCombined_finalPre" and lvl=="obs":
+            ci.Write("multicont_gr_obs_"+str(i),rt.TObject.kOverwrite)
 			
 			if lvl=="exp":
 				ci.Write("multicont_gr_"+str(i),rt.TObject.kOverwrite)
@@ -380,6 +384,10 @@ def redoHistogram():
 	gr=f.Get("gr_obs_xs")
 	h=gr.GetHistogram()
 	h.Write("h_obs_xs_redone",rt.TObject.kOverwrite)
+	if sScan=="TChiNg_BR":
+		gr=f.Get("gr_exp_xs")
+		h=gr.GetHistogram()
+		h.Write("h_exp_xs_redone",rt.TObject.kOverwrite)
 	f.Close()
 
 def smoothContour_knut(gr, neighbors=5, sigma=0.5):
